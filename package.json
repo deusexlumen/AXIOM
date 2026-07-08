@@ -2,6 +2,7 @@
   "name": "@axiom/cli",
   "version": "1.0.0",
   "description": "AXIOM agent-native framework CLI",
+  "private": true,
   "type": "module",
   "bin": {
     "axm": "./dist/cli/bin.js"
@@ -17,10 +18,9 @@
   },
   "packageManager": "pnpm@9.15.0",
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "tsx": "^4.0.0",
-    "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
-  },
-  "dependencies": {}
+    "@types/node": "22.20.1",
+    "tsx": "4.23.0",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
 }
