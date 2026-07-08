@@ -130,6 +130,10 @@ Create `packages/eslint-plugin-axiom/tsconfig.json`:
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "outDir": "./dist",
     "rootDir": "./src"
   },
@@ -158,6 +162,7 @@ git commit -m "chore(workspace): scaffold eslint-plugin-axiom package"
 - Create: `packages/eslint-plugin-axiom/src/index.ts`
 - Create: `packages/eslint-plugin-axiom/src/utils/create-rule.ts`
 - Create: `packages/eslint-plugin-axiom/src/utils/const.ts`
+- Create: `packages/eslint-plugin-axiom/src/rules/*.ts` (minimal stubs so the package builds)
 
 - [ ] **Step 1: Create rule factory**
 
@@ -192,18 +197,43 @@ export const INVARIANTS = {
 } as const;
 ```
 
-- [ ] **Step 3: Create plugin entry**
+- [ ] **Step 3: Create minimal rule stubs**
+
+Create one file per rule so the plugin package compiles before the rules are fully implemented.
+
+`packages/eslint-plugin-axiom/src/rules/max-loc.ts`:
+
+```ts
+import type { Rule } from "eslint";
+import { createRule } from "@/utils/create-rule.js";
+
+export const maxLoc = createRule({
+  meta: {
+    type: "problem",
+    docs: { description: "Enforce I-01: max lines of code per file" },
+    schema: [],
+    messages: { stub: "Stub: rule not yet implemented." },
+  },
+  create(): Rule.NodeListener {
+    return {};
+  },
+});
+```
+
+Repeat the same stub pattern for `no-default-export.ts`, `no-barrel.ts`, `absolute-imports.ts`, `tokens-only.ts`, `no-escape-hatch.ts`, and `static-imports.ts`, adjusting the export name and `docs.description` per rule.
+
+- [ ] **Step 4: Create plugin entry**
 
 Create `packages/eslint-plugin-axiom/src/index.ts`:
 
 ```ts
-import { maxLoc } from "./rules/max-loc.js";
-import { noDefaultExport } from "./rules/no-default-export.js";
-import { noBarrel } from "./rules/no-barrel.js";
-import { absoluteImports } from "./rules/absolute-imports.js";
-import { tokensOnly } from "./rules/tokens-only.js";
-import { noEscapeHatch } from "./rules/no-escape-hatch.js";
-import { staticImports } from "./rules/static-imports.js";
+import { maxLoc } from "@/rules/max-loc.js";
+import { noDefaultExport } from "@/rules/no-default-export.js";
+import { noBarrel } from "@/rules/no-barrel.js";
+import { absoluteImports } from "@/rules/absolute-imports.js";
+import { tokensOnly } from "@/rules/tokens-only.js";
+import { noEscapeHatch } from "@/rules/no-escape-hatch.js";
+import { staticImports } from "@/rules/static-imports.js";
 
 const plugin = {
   meta: {
@@ -219,16 +249,23 @@ const plugin = {
     "no-escape-hatch": noEscapeHatch,
     "static-imports": staticImports,
   },
-} as const;
+};
 
 export default plugin;
-export { maxLoc, noDefaultExport, noBarrel, absoluteImports, tokensOnly, noEscapeHatch, staticImports };
 ```
 
-- [ ] **Step 4: Commit**
+Note: No named re-exports from `index.ts` to avoid a barrel file (I-05). Imports use the `@/` alias configured in `tsconfig.json`.
+
+- [ ] **Step 5: Build the plugin package**
+
+Run: `cd packages/eslint-plugin-axiom && pnpm build`
+
+Expected: PASS (no TS2307 errors).
+
+- [ ] **Step 6: Commit**
 
 ```bash
-git add packages/eslint-plugin-axiom/src/index.ts packages/eslint-plugin-axiom/src/utils/create-rule.ts packages/eslint-plugin-axiom/src/utils/const.ts
+git add packages/eslint-plugin-axiom/src/index.ts packages/eslint-plugin-axiom/src/utils/create-rule.ts packages/eslint-plugin-axiom/src/utils/const.ts packages/eslint-plugin-axiom/src/rules
 git commit -m "feat(eslint-plugin): plugin entry and rule factory"
 ```
 
