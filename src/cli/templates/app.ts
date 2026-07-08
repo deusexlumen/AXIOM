@@ -11,8 +11,20 @@ import { stylesCss, themeCss } from "@/cli/templates/generated.js";
 import { mainTsx, appTsx, appTestTsx, indexHtml } from "@/cli/templates/app-entry.js";
 import { gitignore } from "@/cli/templates/gitignore.js";
 
+export interface Ownership {
+  locked: string[];
+  machine: string[];
+}
+
 export function gitkeepTemplate(): string {
   return "";
+}
+
+export function ownershipFiles(): Ownership {
+  return {
+    locked: ["src/core/router.ts", "src/core/error-boundary.tsx", "src/core/token-provider.tsx", "axiom.config.json"],
+    machine: ["src/generated/theme.css", ".cursorrules", "CLAUDE.md"],
+  };
 }
 
 export function appFiles(projectName: string): AppFile[] {

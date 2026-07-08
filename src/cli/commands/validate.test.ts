@@ -5,6 +5,8 @@ import { join } from "node:path";
 import { validate } from "@/cli/commands/validate.js";
 import { writeAgentContext } from "@/cli/manifest/writer.js";
 import { hashFile } from "@/cli/manifest/hash.js";
+import { CliError } from "@/cli/errors.js";
+import { ExitCode } from "@/cli/types.js";
 
 const baseContext = {
   axiomVersion: "1.0.0",
@@ -19,11 +21,9 @@ const baseContext = {
 
 describe("validate command", () => {
   let baseDir: string;
-  let exitCode: number | undefined;
 
   beforeEach(() => {
     baseDir = mkdtempSync(join(tmpdir(), "axiom-validate-test-"));
-    exitCode = undefined;
   });
 
   afterEach(() => {
@@ -38,8 +38,17 @@ describe("validate command", () => {
     await expect(validate(baseDir)).resolves.toBeUndefined();
   });
 
-  it("throws for invalid agent-context.json", async () => {
+  it("throws CliError for invalid agent-context.json", async () => {
     writeFileSync(join(baseDir, "agent-context.json"), "{\"invalid\":true}");
-    await expect(validate(baseDir)).rejects.toThrow();
+    await expect(validate(baseDir)).rejects.toBeInstanceOf(CliError);
+    await expect(validate(baseDir)).rejects.toMatchObject({ exitCode: ExitCode.VALIDATION_ERROR });
+  });
+
+  it("throws CliError for hash mismatch", async () => {
+    writeFileSync(join(baseDir, "tokens.json"), "{}");
+    const context = { ...baseContext, tokens: { file: "tokens.json", hash: "sha256:old" } };
+    await writeAgentContext(baseDir, context);
+    await expect(validate(baseDir)).rejects.toBeInstanceOf(CliError);
+    await expect(validate(baseDir)).rejects.toMatchObject({ exitCode: ExitCode.OWNERSHIP_ERROR });
   });
 });

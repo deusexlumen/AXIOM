@@ -3,6 +3,7 @@ import { ExitCode } from "@/cli/types.js";
 import { init } from "@/cli/commands/init.js";
 import { validateCommand } from "@/cli/commands/validate.js";
 import { fail, ndjson } from "@/cli/utils/ndjson.js";
+import { CliError } from "@/cli/errors.js";
 
 async function main(argv: string[]): Promise<number> {
   const [, , command, ...args] = argv;
@@ -31,6 +32,10 @@ async function main(argv: string[]): Promise<number> {
 main(process.argv).then(
   (code) => process.exit(code),
   (error: unknown) => {
+    if (error instanceof CliError) {
+      ndjson({ type: "result", ok: false, data: JSON.parse(error.message) });
+      process.exit(error.exitCode);
+    }
     const message = error instanceof Error ? error.message : String(error);
     ndjson({ type: "result", ok: false, data: { message } });
     process.exit(ExitCode.INTERNAL_ERROR);
