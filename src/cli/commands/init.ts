@@ -1,5 +1,5 @@
 import { mkdir } from "node:fs/promises";
-import { resolve } from "node:path";
+import { resolve, basename } from "node:path";
 import { appFiles } from "@/cli/templates/app.js";
 import { writeTextFile } from "@/cli/utils/fs.js";
 import { result } from "@/cli/utils/ndjson.js";
@@ -9,8 +9,9 @@ export async function init(name: string): Promise<void> {
   const targetDir = resolve(process.cwd(), name);
   await mkdir(targetDir, { recursive: true });
 
+  const projectName = basename(name);
   const created: string[] = [];
-  for (const file of appFiles(name)) {
+  for (const file of appFiles(projectName)) {
     const fullPath = resolve(targetDir, file.path);
     await writeTextFile(fullPath, file.content);
     created.push(file.path);
