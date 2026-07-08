@@ -31,6 +31,7 @@ export function packageJson(name: string): string {
         eslint: "9.17.0",
         "@eslint/js": "9.17.0",
         "typescript-eslint": "8.19.0",
+        "eslint-plugin-axiom": "workspace:*",
         typescript: "5.7.2",
         vite: "6.0.5",
         vitest: "3.0.2",
