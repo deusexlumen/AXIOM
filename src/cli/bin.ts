@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { ExitCode } from "@/cli/types.js";
 import { init } from "@/cli/commands/init.js";
+import { validateCommand } from "@/cli/commands/validate.js";
 import { fail, ndjson } from "@/cli/utils/ndjson.js";
 
 async function main(argv: string[]): Promise<number> {
@@ -12,6 +13,11 @@ async function main(argv: string[]): Promise<number> {
       fail("Missing required argument: <name>", ExitCode.VALIDATION_ERROR);
     }
     await init(name);
+    return ExitCode.OK;
+  }
+
+  if (command === "validate") {
+    await validateCommand(args);
     return ExitCode.OK;
   }
 
