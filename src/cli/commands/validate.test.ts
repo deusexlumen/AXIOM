@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { Writable } from "node:stream";
 import { validate } from "@/cli/commands/validate.js";
 import { writeAgentContext } from "@/cli/manifest/writer.js";
 import { hashFile } from "@/cli/manifest/hash.js";
@@ -19,6 +20,10 @@ const baseContext = {
   pipeline: { lastRun: null },
 };
 
+function noopStream(): NodeJS.WritableStream {
+  return new Writable({ write() {} });
+}
+
 describe("validate command", () => {
   let baseDir: string;
 
@@ -35,20 +40,20 @@ describe("validate command", () => {
     const h = await hashFile(join(baseDir, "tokens.json"));
     const context = { ...baseContext, tokens: { file: "tokens.json", hash: h } };
     await writeAgentContext(baseDir, context);
-    await expect(validate(baseDir)).resolves.toBeUndefined();
+    await expect(validate(baseDir, noopStream())).resolves.toBeUndefined();
   });
 
   it("throws CliError for invalid agent-context.json", async () => {
     writeFileSync(join(baseDir, "agent-context.json"), "{\"invalid\":true}");
-    await expect(validate(baseDir)).rejects.toBeInstanceOf(CliError);
-    await expect(validate(baseDir)).rejects.toMatchObject({ exitCode: ExitCode.VALIDATION_ERROR });
+    await expect(validate(baseDir, noopStream())).rejects.toBeInstanceOf(CliError);
+    await expect(validate(baseDir, noopStream())).rejects.toMatchObject({ exitCode: ExitCode.VALIDATION_ERROR });
   });
 
   it("throws CliError for hash mismatch", async () => {
     writeFileSync(join(baseDir, "tokens.json"), "{}");
     const context = { ...baseContext, tokens: { file: "tokens.json", hash: "sha256:old" } };
     await writeAgentContext(baseDir, context);
-    await expect(validate(baseDir)).rejects.toBeInstanceOf(CliError);
-    await expect(validate(baseDir)).rejects.toMatchObject({ exitCode: ExitCode.OWNERSHIP_ERROR });
+    await expect(validate(baseDir, noopStream())).rejects.toBeInstanceOf(CliError);
+    await expect(validate(baseDir, noopStream())).rejects.toMatchObject({ exitCode: ExitCode.OWNERSHIP_ERROR });
   });
 });

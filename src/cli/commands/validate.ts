@@ -25,7 +25,7 @@ function buildFixPacket(errorCode: string, message: string, targetFile: string):
   };
 }
 
-export async function validate(cwd: string): Promise<void> {
+export async function validate(cwd: string, out?: NodeJS.WritableStream): Promise<void> {
   let context: Awaited<ReturnType<typeof readAgentContext>>;
   try {
     context = await readAgentContext(cwd);
@@ -53,7 +53,7 @@ export async function validate(cwd: string): Promise<void> {
     );
   }
 
-  result({ ok: true, violations: [] });
+  result({ ok: true, violations: [] }, out);
 }
 
 export async function validateCommand(args: string[]): Promise<void> {

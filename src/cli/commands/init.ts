@@ -12,6 +12,7 @@ import type { InitResult } from "@/cli/types.js";
 export interface InitOptions {
   cwd?: string;
   skipInstall?: boolean;
+  out?: NodeJS.WritableStream;
 }
 
 export async function init(name: string, options: InitOptions = {}): Promise<void> {
@@ -55,5 +56,5 @@ export async function init(name: string, options: InitOptions = {}): Promise<voi
     created,
     next: "axm add component <Name>",
   };
-  result(output);
+  result(output, options.out);
 }

@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, readFileSync, readdirSync, statSync } from "node:f
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { createHash } from "node:crypto";
+import { Writable } from "node:stream";
 import { init } from "@/cli/commands/init.js";
 
 function hashFile(path: string): string {
@@ -30,6 +31,10 @@ function snapshotDir(dir: string): Map<string, string> {
   return map;
 }
 
+function noopStream(): NodeJS.WritableStream {
+  return new Writable({ write() {} });
+}
+
 describe("axm init", () => {
   let baseDir: string;
 
@@ -42,7 +47,7 @@ describe("axm init", () => {
   });
 
   it("creates expected files", async () => {
-    await init("demo", { cwd: baseDir, skipInstall: true });
+    await init("demo", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const appDir = join(baseDir, "demo");
     const files = readdirSync(appDir, { recursive: true, encoding: "utf-8" })
       .filter((f) => f !== "")
@@ -57,12 +62,12 @@ describe("axm init", () => {
   });
 
   it("is deterministic across runs", { timeout: 30000 }, async () => {
-    await init("a", { cwd: baseDir, skipInstall: true });
+    await init("a", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const first = snapshotDir(join(baseDir, "a"));
 
     rmSync(join(baseDir, "a"), { recursive: true, force: true });
 
-    await init("a", { cwd: baseDir, skipInstall: true });
+    await init("a", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const second = snapshotDir(join(baseDir, "a"));
 
     expect(second.size).toBe(first.size);

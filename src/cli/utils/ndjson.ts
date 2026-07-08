@@ -1,11 +1,11 @@
 import { ExitCode, type NdjsonLine } from "@/cli/types.js";
 
-export function ndjson(line: NdjsonLine): void {
-  process.stdout.write(`${JSON.stringify(line)}\n`);
+export function ndjson(line: NdjsonLine, sink: NodeJS.WritableStream = process.stdout): void {
+  sink.write(`${JSON.stringify(line)}\n`);
 }
 
-export function result<T>(data: T): void {
-  ndjson({ type: "result", ok: true, data });
+export function result<T>(data: T, sink: NodeJS.WritableStream = process.stdout): void {
+  ndjson({ type: "result", ok: true, data }, sink);
 }
 
 export function fail(message: string, code: ExitCode): never {
