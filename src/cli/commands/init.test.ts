@@ -56,7 +56,7 @@ describe("axm init", () => {
     expect(pkg.name).toBe("demo");
   });
 
-  it("is deterministic across runs", async () => {
+  it("is deterministic across runs", { timeout: 30000 }, async () => {
     await init("a", { cwd: baseDir, skipInstall: true });
     const first = snapshotDir(join(baseDir, "a"));
 

@@ -19,6 +19,8 @@ export default defineConfig({
       "test-app/**",
       "demo/**",
       "verify-app/**",
+      "m1-demo/**",
+      "**/*/node_modules/**",
       "**/*.integration.test.ts",
     ],
   },
