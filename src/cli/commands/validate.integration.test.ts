@@ -102,7 +102,7 @@ describe("axm validate invariant fixtures", () => {
     );
 
     const { exitCode, stdout } = await runValidate(dir);
-    expect(exitCode).toBe(10);
+    expect(exitCode).toBe(60);
     const last = stdout.trim().split("\n").pop();
     expect(last).toBeTruthy();
     const line = JSON.parse(last!);

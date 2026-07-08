@@ -161,7 +161,8 @@ export async function validate(cwd: string, out?: NodeJS.WritableStream): Promis
   for (const check of checks) {
     const packet = await check();
     if (packet !== null) {
-      const exitCode = packet.errorCode === "AXM-V011" ? ExitCode.OWNERSHIP_ERROR : ExitCode.VALIDATION_ERROR;
+      const ownershipCodes = new Set(["AXM-V010", "AXM-V011"]);
+      const exitCode = ownershipCodes.has(packet.errorCode) ? ExitCode.OWNERSHIP_ERROR : ExitCode.VALIDATION_ERROR;
       throw new CliError(JSON.stringify(packet), exitCode);
     }
   }
