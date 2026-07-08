@@ -14,34 +14,16 @@ export function Router({ routes }: { routes: Route[] }): ReactNode {
 }
 
 export function errorBoundaryTsx(): string {
-  return `import { Component, type ErrorInfo, type ReactNode } from "react";
+  return `import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
+import type { ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
   fallback: ReactNode;
 }
 
-interface State {
-  hasError: boolean;
-}
-
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(): State {
-    return { hasError: true };
-  }
-
-  componentDidCatch(_error: Error, _info: ErrorInfo): void {
-    // Intentionally silent in M0; logging strategy added later.
-  }
-
-  render(): ReactNode {
-    return this.state.hasError ? this.props.fallback : this.props.children;
-  }
+export function ErrorBoundary({ children, fallback }: Props): ReactNode {
+  return <ReactErrorBoundary fallback={fallback}>{children}</ReactErrorBoundary>;
 }
 `;
 }

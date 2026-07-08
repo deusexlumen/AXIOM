@@ -169,6 +169,7 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 ## Bekannte M0-Ausnahmen von Invarianten
 
 - **I-04 (Keine Default-Exports):** Die generierten Konfigurationsdateien `vite.config.ts`, `vitest.config.ts` und `eslint.config.js` verwenden zwingend `export default`, weil Vite, Vitest und ESLint 9 diese Form vorschreiben. Diese Dateien liegen in der generierten App und sind nicht AGENT-eigener Komponenten-Code; die Ausnahme wird in M2 im Custom-ESLint-Plugin explizit erlaubt.
+- **I-04-Konformität in `src/core/error-boundary.tsx`:** Die generierte LOCKED-Datei `src/core/error-boundary.tsx` exportiert eine benannte Function Component `ErrorBoundary`, die intern `react-error-boundary` verwendet. Damit ist sie vollständig I-04-konform; React-Klassenkomponenten werden nicht verwendet.
 
 ## Bekannte M1-Ausnahmen
 

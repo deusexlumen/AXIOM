@@ -16,8 +16,9 @@ export function packageJson(name: string): string {
       dependencies: {
         react: "19.0.0",
         "react-dom": "19.0.0",
+        "react-error-boundary": "5.0.0",
         zustand: "5.0.3",
-        zod: "4.0.0",
+        zod: "^4.4.3",
       },
       devDependencies: {
         "@types/node": "22.10.5",
