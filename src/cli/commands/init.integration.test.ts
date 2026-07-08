@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
@@ -14,13 +14,13 @@ describe("axm init integration", () => {
 
   afterEach(() => {
     rmSync(baseDir, { recursive: true, force: true });
-  }, 60000);
+  });
 
-  it("scaffold builds with pnpm", { timeout: 180000 }, async () => {
+  it("scaffold builds with pnpm", { timeout: 300000 }, async () => {
     await init("demo", { cwd: baseDir });
     const appDir = join(baseDir, "demo");
     execSync("pnpm install", { cwd: appDir, stdio: "ignore" });
     execSync("pnpm build", { cwd: appDir, stdio: "ignore" });
-    expect(true).toBe(true);
+    expect(existsSync(join(appDir, "dist", "index.html"))).toBe(true);
   });
 });

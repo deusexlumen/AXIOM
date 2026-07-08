@@ -12,12 +12,8 @@ export default defineConfig({
     globals: false,
     environment: "node",
     reporters: ["json"],
-    outputFile: "./pipeline/reports/vitest.json",
-    exclude: [
-      "node_modules/**",
-      "dist/**",
-      "test-app/**",
-      "**/*.integration.test.ts",
-    ],
+    outputFile: "./pipeline/reports/vitest-integration.json",
+    hookTimeout: 300000,
+    exclude: ["node_modules/**", "dist/**", "test-app/**"],
   },
 });

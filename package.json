@@ -10,6 +10,7 @@
   "scripts": {
     "build": "tsc && tsc-alias",
     "test": "vitest run --reporter=json",
+    "test:integration": "vitest run --reporter=json --config vitest.integration.config.ts src/cli/commands/init.integration.test.ts",
     "dev": "tsx src/cli/bin.ts"
   },
   "engines": {
