@@ -12,6 +12,7 @@ function hashFile(path: string): string {
 function snapshotDir(dir: string): Map<string, string> {
   const entries = readdirSync(dir, { recursive: true, encoding: "utf-8" })
     .filter((f) => f !== "")
+    .filter((f) => !f.startsWith("node_modules/") && f !== "pnpm-lock.yaml")
     .map((f) => join(dir, f))
     .filter((f) => {
       try {
@@ -41,7 +42,7 @@ describe("axm init", () => {
   });
 
   it("creates expected files", async () => {
-    await init("demo", { cwd: baseDir });
+    await init("demo", { cwd: baseDir, skipInstall: true });
     const appDir = join(baseDir, "demo");
     const files = readdirSync(appDir, { recursive: true, encoding: "utf-8" })
       .filter((f) => f !== "")
@@ -56,12 +57,12 @@ describe("axm init", () => {
   });
 
   it("is deterministic across runs", async () => {
-    await init("a", { cwd: baseDir });
+    await init("a", { cwd: baseDir, skipInstall: true });
     const first = snapshotDir(join(baseDir, "a"));
 
     rmSync(join(baseDir, "a"), { recursive: true, force: true });
 
-    await init("a", { cwd: baseDir });
+    await init("a", { cwd: baseDir, skipInstall: true });
     const second = snapshotDir(join(baseDir, "a"));
 
     expect(second.size).toBe(first.size);

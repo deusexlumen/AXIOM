@@ -4,13 +4,13 @@
 
 ## Projekt-Übersicht
 
-AXIOM ist ein spezifiziertes, aber noch **nicht implementiertes** Framework für eine deterministische, agenten-native Web-Infrastruktur. Ziel ist eine Web-SPA, die als vorhersagbare Zielumgebung für KI-Agenten dient.
+AXIOM ist ein Framework für eine deterministische, agenten-native Web-Infrastruktur; der Meilenstein **M0 ist implementiert**. Ziel ist eine Web-SPA, die als vorhersagbare Zielumgebung für KI-Agenten dient.
 
-Der einzige Inhalt des Repositories ist momentan:
+Der aktuelle Stand umfasst:
 
 - `AXIOM_SPEC_v1.0.md` — vollständige Implementierungsspezifikation v1.0 (Status: BUILD-READY)
-
-Es existieren noch keine Konfigurationsdateien wie `package.json`, `tsconfig.json`, `vite.config.ts`, ESLint-Config, Tests oder Quellcode. Jede Implementierungsarbeit beginnt daher mit dem Scaffolding gemäß Spezifikation.
+- `axm`-CLI mit funktionsfähigem `axm init <name>`
+- Scaffolding für Vite, React, TypeScript, Tailwind, Zustand, Zod, Vitest, Playwright und ESLint
 
 ## Zentrale Design-Doktrin
 
@@ -165,8 +165,12 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 - Überschreite Budgets nicht; verwende `axm split`, wenn Dateien zu groß werden.
 - Halte dich strikt an die Invarianten-Tabelle; Verstöße kompilieren nicht.
 
+## Bekannte M0-Ausnahmen von Invarianten
+
+- **I-04 (Keine Default-Exports):** Die generierten Konfigurationsdateien `vite.config.ts`, `vitest.config.ts` und `eslint.config.js` verwenden zwingend `export default`, weil Vite, Vitest und ESLint 9 diese Form vorschreiben. Diese Dateien liegen in der generierten App und sind nicht AGENT-eigener Komponenten-Code; die Ausnahme wird in M2 im Custom-ESLint-Plugin explizit erlaubt.
+
 ## Offener Stand
 
-- Die Spezifikation ist vollständig, aber **nicht implementiert**.
-- Keine `package.json`, `tsconfig.json`, Build-Configs oder Quellcode vorhanden.
-- Erster Arbeitsschritt bei Implementierung: Meilenstein M0 (`axm init` funktionsfähig machen).
+- Meilenstein M0 ist implementiert und die Akzeptanzkriterien sind erfüllt.
+- `axm init <name>` scaffolded ein installierbares, bau- und testbares Projekt.
+- Nächste Arbeitspakete: Meilenstein M1 (Komponenten- und Store-Generierung) sowie M2 (Custom-ESLint-Plugin und Invarianten-Enforcement).

@@ -16,10 +16,9 @@ describe("axm init integration", () => {
     rmSync(baseDir, { recursive: true, force: true });
   });
 
-  it("scaffold builds with pnpm", { timeout: 300000 }, async () => {
+  it("scaffold installs and builds with pnpm", { timeout: 300000 }, async () => {
     await init("demo", { cwd: baseDir });
     const appDir = join(baseDir, "demo");
-    execSync("pnpm install --prefer-offline", { cwd: appDir, stdio: "ignore" });
     execSync("pnpm build", { cwd: appDir, stdio: "ignore" });
     expect(existsSync(join(appDir, "dist", "index.html"))).toBe(true);
   });

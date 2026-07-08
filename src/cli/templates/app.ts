@@ -11,6 +11,10 @@ import { stylesCss, themeCss } from "@/cli/templates/generated.js";
 import { mainTsx, appTsx, appTestTsx, indexHtml } from "@/cli/templates/app-entry.js";
 import { gitignore } from "@/cli/templates/gitignore.js";
 
+export function gitkeepTemplate(): string {
+  return "";
+}
+
 export function appFiles(projectName: string): AppFile[] {
   return [
     { path: "package.json", content: packageJson(projectName) },
@@ -31,6 +35,10 @@ export function appFiles(projectName: string): AppFile[] {
     { path: "src/main.tsx", content: mainTsx() },
     { path: "src/App.tsx", content: appTsx() },
     { path: "src/App.test.tsx", content: appTestTsx() },
+    { path: "src/components/.gitkeep", content: gitkeepTemplate() },
+    { path: "src/routes/.gitkeep", content: gitkeepTemplate() },
+    { path: "src/state/.gitkeep", content: gitkeepTemplate() },
+    { path: "e2e/.gitkeep", content: gitkeepTemplate() },
     { path: "index.html", content: indexHtml(projectName) },
     { path: ".gitignore", content: gitignore() },
   ];
