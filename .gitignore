@@ -9,3 +9,4 @@ coverage/
 *.tsbuildinfo
 test-app/
 pipeline/reports/
+pipeline/fix-packets/
