@@ -1,19 +1,15 @@
 import type { AppFile } from "@/cli/templates/types.js";
-import {
-  packageJson,
-  tsConfigJson,
-  viteConfigTs,
-  eslintConfigJs,
-  vitestConfigTs,
-} from "@/cli/templates/config.js";
+import { packageJson } from "@/cli/templates/package-json.js";
+import { tsConfigJson } from "@/cli/templates/tsconfig-json.js";
+import { viteConfigTs } from "@/cli/templates/vite-config.js";
+import { eslintConfigJs } from "@/cli/templates/eslint-config.js";
+import { vitestConfigTs } from "@/cli/templates/vitest-config.js";
 import { axiomConfigJson, agentContextJson, tokensJson } from "@/cli/templates/manifest.js";
 import { cursorRules, claudeMd } from "@/cli/templates/docs.js";
 import { routerTs, errorBoundaryTsx, tokenProviderTsx } from "@/cli/templates/core.js";
 import { stylesCss, themeCss } from "@/cli/templates/generated.js";
 import { mainTsx, appTsx, appTestTsx, indexHtml } from "@/cli/templates/app-entry.js";
 import { gitignore } from "@/cli/templates/gitignore.js";
-
-export { type AppFile } from "@/cli/templates/types.js";
 
 export function appFiles(projectName: string): AppFile[] {
   return [

@@ -1,4 +1,5 @@
-import { defineConfig } from "vitest/config";
+export function vitestConfigTs(): string {
+  return `import { defineConfig } from "vitest/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,9 +11,9 @@ export default defineConfig({
   },
   test: {
     globals: false,
-    environment: "node",
+    environment: "happy-dom",
     reporters: ["json"],
-    outputFile: "./pipeline/reports/vitest.json",
-    exclude: ["node_modules/**", "dist/**", "test-app/**"],
   },
 });
+`;
+}

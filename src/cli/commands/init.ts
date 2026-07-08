@@ -1,6 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { resolve, basename } from "node:path";
 import { appFiles } from "@/cli/templates/app.js";
+import type { AppFile } from "@/cli/templates/types.js";
 import { writeTextFile } from "@/cli/utils/fs.js";
 import { result } from "@/cli/utils/ndjson.js";
 import type { InitResult } from "@/cli/types.js";
@@ -11,7 +12,8 @@ export async function init(name: string): Promise<void> {
 
   const projectName = basename(name);
   const created: string[] = [];
-  for (const file of appFiles(projectName)) {
+  const files: AppFile[] = appFiles(projectName);
+  for (const file of files) {
     const fullPath = resolve(targetDir, file.path);
     await writeTextFile(fullPath, file.content);
     created.push(file.path);

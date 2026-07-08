@@ -1,0 +1,18 @@
+export function eslintConfigJs(): string {
+  return `import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
+
+export default defineConfig(
+  { ignores: ["dist/**", "node_modules/**"] },
+  js.configs.recommended,
+  ...tseslint.configs.strictTypeChecked,
+  {
+    languageOptions: { parserOptions: { project: "./tsconfig.json" } },
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    },
+  }
+);
+`;
+}
