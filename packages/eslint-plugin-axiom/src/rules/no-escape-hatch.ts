@@ -21,6 +21,9 @@ export const noEscapeHatch = createRule({
           context.report({ node, messageId: "noEscapeHatch", data: { label: "any" } });
         }
       },
+      "TSAnyKeyword"(node: Rule.Node): void {
+        context.report({ node, messageId: "noEscapeHatch", data: { label: "any" } });
+      },
       Program(): void {
         const sourceCode = context.sourceCode ?? context.getSourceCode();
         for (const comment of sourceCode.getAllComments()) {

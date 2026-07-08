@@ -14,6 +14,8 @@ tester.run("tokens-only", tokensOnly, {
   ],
   invalid: [
     { code: "const c = '#4F46E5';\n", errors: [{ messageId: "rawValue" }] },
+    { code: "const c = 'hsl(0, 100%, 50%)';\n", errors: [{ messageId: "rawValue" }] },
+    { code: "const c = 'red';\n", errors: [{ messageId: "rawValue" }] },
     { code: "export function Box() { return <div style={{ color: '#4F46E5' }} />; }\n", errors: [{ messageId: "rawValue" }] },
     { code: "export function Box() { return <div className=\"w-[137px]\" />; }\n", errors: [{ messageId: "arbitraryValue" }] },
   ],
