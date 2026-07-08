@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 export const PropType = z.enum(["string", "number", "boolean", "enum", "function"]);

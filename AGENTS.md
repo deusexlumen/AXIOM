@@ -169,6 +169,10 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 
 - **I-04 (Keine Default-Exports):** Die generierten Konfigurationsdateien `vite.config.ts`, `vitest.config.ts` und `eslint.config.js` verwenden zwingend `export default`, weil Vite, Vitest und ESLint 9 diese Form vorschreiben. Diese Dateien liegen in der generierten App und sind nicht AGENT-eigener Komponenten-Code; die Ausnahme wird in M2 im Custom-ESLint-Plugin explizit erlaubt.
 
+## Bekannte M1-Ausnahmen
+
+- **Zod 4 + `zod-to-json-schema`:** Die installierte Runtime ist `zod@4.4.3`. `zod-to-json-schema@3.25.2` deklariert seine Typen gegen die Zod-v3-API (`zod/v3`), obwohl der Peer-Dependency-Bereich `^4` erlaubt. Damit `pnpm build` ohne Type-Assertionen grün bleibt, importieren die Schema-Dateien unter `src/cli/schemas/*.ts` `z` aus `zod/v3`. Zur Laufzeit wird weiterhin dieselbe `zod@4`-Installation verwendet.
+
 ## Offener Stand
 
 - Meilenstein M0 ist implementiert und die Akzeptanzkriterien sind erfüllt.
