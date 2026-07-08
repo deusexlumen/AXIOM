@@ -12,6 +12,7 @@ export const absoluteImports = createRule({
     return {
       ImportDeclaration(node): void {
         const source = node.source.value;
+        if (typeof source !== "string") return;
         if (source.startsWith("./") || source.startsWith("../")) {
           if (/\.(?:css|scss|sass|less|styl)$/i.test(source)) return;
           context.report({ node: node.source, messageId: "noRelativeImport" });

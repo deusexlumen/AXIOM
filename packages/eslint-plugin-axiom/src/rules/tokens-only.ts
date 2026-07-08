@@ -16,12 +16,13 @@ export const tokensOnly = createRule({
     },
   },
   create(context: Rule.RuleContext): Rule.NodeListener {
-    function checkLiteral(node: { value: unknown }): void {
-      if (typeof node.value !== "string") return;
-      if (HEX_COLOR.test(node.value) || RGB_RGBA.test(node.value)) {
+    function checkLiteral(node: { value?: unknown }): void {
+      const value = node.value;
+      if (typeof value !== "string") return;
+      if (HEX_COLOR.test(value) || RGB_RGBA.test(value)) {
         context.report({ node: node as never, messageId: "rawValue" });
       }
-      if (ARBITRARY_VALUE.test(node.value)) {
+      if (ARBITRARY_VALUE.test(value)) {
         context.report({ node: node as never, messageId: "arbitraryValue" });
       }
     }

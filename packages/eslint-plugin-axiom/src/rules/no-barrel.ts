@@ -20,7 +20,7 @@ export const noBarrel = createRule({
         reportOnce(node);
       },
       ExportNamedDeclaration(node): void {
-        if (node.source !== null && node.source.value !== "") {
+        if (node.source !== null && node.source !== undefined && node.source.value !== "") {
           reportOnce(node);
         }
       },
