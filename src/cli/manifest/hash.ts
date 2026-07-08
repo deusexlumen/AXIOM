@@ -9,3 +9,7 @@ export async function hashFile(path: string): Promise<string> {
   const content = await readFile(path);
   return `sha256:${createHash("sha256").update(content).digest("hex")}`;
 }
+
+export function hashBytes(buffer: Buffer): string {
+  return `sha256:${createHash("sha256").update(buffer).digest("hex")}`;
+}

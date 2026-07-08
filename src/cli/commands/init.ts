@@ -4,7 +4,7 @@ import { execSync } from "node:child_process";
 import { appFiles, ownershipFiles } from "@/cli/templates/app.js";
 import { initialAgentContext } from "@/cli/templates/manifest.js";
 import { writeTextFile } from "@/cli/utils/fs.js";
-import { writeAgentContext } from "@/cli/manifest/writer.js";
+import { writeAgentContext, serializeAgentContext } from "@/cli/manifest/writer.js";
 import { hashFile, hashString } from "@/cli/manifest/hash.js";
 import { result } from "@/cli/utils/ndjson.js";
 import type { InitResult } from "@/cli/types.js";
@@ -31,21 +31,20 @@ export async function init(name: string, options: InitOptions = {}): Promise<voi
   const tokenHash = hashString(tokenContent);
 
   const context = initialAgentContext(projectName, tokenHash);
-  const { locked, machine } = ownershipFiles();
-  for (const file of locked) {
+  const ownership = ownershipFiles();
+  for (const file of ownership.locked) {
     context.integrity.lockedFiles[file] = await hashFile(resolve(targetDir, file));
   }
-  for (const file of machine) {
+  for (const file of ownership.machine) {
     if (file === "agent-context.json") continue;
     context.integrity.machineFiles[file] = await hashFile(resolve(targetDir, file));
   }
 
+  // Compute self-hash from the in-memory object (without self-entry), then write once.
+  const selfHash = hashString(serializeAgentContext(context));
+  context.integrity.machineFiles["agent-context.json"] = selfHash;
   await writeAgentContext(targetDir, context);
   created.push("agent-context.json");
-
-  const manifestHash = await hashFile(resolve(targetDir, "agent-context.json"));
-  context.integrity.machineFiles["agent-context.json"] = manifestHash;
-  await writeAgentContext(targetDir, context);
 
   if (!options.skipInstall) {
     execSync("pnpm install --prefer-offline", { cwd: targetDir, stdio: "ignore" });
