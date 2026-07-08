@@ -36,10 +36,16 @@ export async function init(name: string, options: InitOptions = {}): Promise<voi
     context.integrity.lockedFiles[file] = await hashFile(resolve(targetDir, file));
   }
   for (const file of machine) {
+    if (file === "agent-context.json") continue;
     context.integrity.machineFiles[file] = await hashFile(resolve(targetDir, file));
   }
+
   await writeAgentContext(targetDir, context);
   created.push("agent-context.json");
+
+  const manifestHash = await hashFile(resolve(targetDir, "agent-context.json"));
+  context.integrity.machineFiles["agent-context.json"] = manifestHash;
+  await writeAgentContext(targetDir, context);
 
   if (!options.skipInstall) {
     execSync("pnpm install --prefer-offline", { cwd: targetDir, stdio: "ignore" });

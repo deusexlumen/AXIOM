@@ -1,6 +1,15 @@
 import { resolve } from "node:path";
+import { readFile } from "node:fs/promises";
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
-import { hashFile } from "@/cli/manifest/hash.js";
+import { hashFile, hashString } from "@/cli/manifest/hash.js";
+
+async function hashAgentContextManifest(cwd: string): Promise<string> {
+  const content = await readFile(resolve(cwd, "agent-context.json"), "utf-8");
+  const parsed = JSON.parse(content) as AgentContext;
+  delete parsed.integrity.machineFiles["agent-context.json"];
+  const canonical = `${JSON.stringify(parsed, null, 2)}\n`.replace(/\r\n/g, "\n");
+  return hashString(canonical);
+}
 
 export interface IntegrityViolation {
   file: string;
@@ -36,7 +45,7 @@ export async function verifyIntegrity(
   for (const [file, expected] of Object.entries(all)) {
     let actual: string | null = null;
     try {
-      actual = await hashFile(resolve(cwd, file));
+      actual = file === "agent-context.json" ? await hashAgentContextManifest(cwd) : await hashFile(resolve(cwd, file));
     } catch (error) {
       const code = (error as NodeJS.ErrnoException).code;
       if (code !== "ENOENT") {

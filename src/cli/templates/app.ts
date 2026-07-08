@@ -23,7 +23,7 @@ export function gitkeepTemplate(): string {
 export function ownershipFiles(): Ownership {
   return {
     locked: ["src/core/router.ts", "src/core/error-boundary.tsx", "src/core/token-provider.tsx", "axiom.config.json"],
-    machine: ["src/generated/theme.css", ".cursorrules", "CLAUDE.md"],
+    machine: ["src/generated/theme.css", ".cursorrules", "CLAUDE.md", "agent-context.json"],
   };
 }
 
