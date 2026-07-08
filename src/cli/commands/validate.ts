@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { readAgentContext } from "@/cli/manifest/reader.js";
 import { verifyIntegrity } from "@/cli/manifest/integrity.js";
 import { hashFile } from "@/cli/manifest/hash.js";
+import { determineOwnershipZones } from "@/cli/manifest/ownership.js";
 import { ExitCode } from "@/cli/types.js";
 import { result } from "@/cli/utils/ndjson.js";
 import { CliError } from "@/cli/errors.js";
@@ -92,6 +93,22 @@ async function checkSidecar(cwd: string, context: AgentContext): Promise<FixPack
   return null;
 }
 
+function checkOwnership(cwd: string, context: AgentContext): FixPacket | null {
+  const violations = determineOwnershipZones(cwd, context);
+  if (violations.length > 0) {
+    const file = violations[0]!.file;
+    return buildFixPacket(
+      "AXM-V010",
+      `Ownership violation: ${violations.map((v) => `${v.file} is ${v.zone}`).join(", ")}`,
+      file,
+      ["I-10"],
+      "Move the file to an AGENT-owned directory or use 'axm' commands for MACHINE zones.",
+      "Agent attempted to write a LOCKED or MACHINE file directly."
+    );
+  }
+  return null;
+}
+
 export async function validate(cwd: string, out?: NodeJS.WritableStream): Promise<void> {
   let context: AgentContext;
   try {
@@ -117,6 +134,7 @@ export async function validate(cwd: string, out?: NodeJS.WritableStream): Promis
     () => checkByteCap(cwd, context),
     () => checkSingleExport(cwd, context),
     () => checkSidecar(cwd, context),
+    () => Promise.resolve(checkOwnership(cwd, context)),
     async () => {
       const violations = await verifyIntegrity(cwd, context);
       if (context.tokens.file) {
