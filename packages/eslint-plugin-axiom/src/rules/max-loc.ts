@@ -31,19 +31,29 @@ export const maxLoc = createRule({
       Program(node): void {
         const sourceCode = context.sourceCode ?? context.getSourceCode();
         const lines = sourceCode.lines;
-        const commentLines = new Set<number>();
-        for (const comment of sourceCode.getAllComments()) {
-          for (let i = comment.loc.start.line; i <= comment.loc.end.line; i += 1) {
-            commentLines.add(i);
+        const comments = sourceCode
+          .getAllComments()
+          .filter((comment) => comment.loc !== null && comment.loc !== undefined)
+          .map((comment) => comment.loc);
+
+        function isCodeLine(lineIndex: number): boolean {
+          const lineNumber = lineIndex + 1;
+          const lineText = lines[lineIndex];
+          if (lineText === undefined) return false;
+          let cleaned = lineText;
+          for (const loc of comments) {
+            if (loc === null || loc === undefined) continue;
+            if (loc.end.line < lineNumber || loc.start.line > lineNumber) continue;
+            const startOffset = loc.start.line === lineNumber ? Math.max(0, loc.start.column - 1) : 0;
+            const endOffset = loc.end.line === lineNumber ? Math.max(startOffset, loc.end.column - 1) : lineText.length;
+            cleaned = cleaned.slice(0, startOffset) + " ".repeat(endOffset - startOffset) + cleaned.slice(endOffset);
           }
+          return cleaned.trim().length > 0;
         }
+
         let loc = 0;
         for (let i = 0; i < lines.length; i += 1) {
-          const lineNumber = i + 1;
-          const trimmed = lines[i]!.trim();
-          if (trimmed.length === 0) continue;
-          if (commentLines.has(lineNumber)) continue;
-          loc += 1;
+          if (isCodeLine(i)) loc += 1;
         }
         if (loc > max) {
           context.report({

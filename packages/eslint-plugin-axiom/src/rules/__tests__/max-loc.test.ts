@@ -8,6 +8,7 @@ tester.run("max-loc", maxLoc, {
     { code: "export function f() { return 1; }\n", options: [{ max: 3 }] },
     { code: "/*\n  comment line 1\n  comment line 2\n*/\nexport function f() { return 1; }\n", options: [{ max: 3 }] },
     { code: "/**\n * jsdoc\n */\nexport function f() { return 1; }\n", options: [{ max: 3 }] },
+    { code: "export function f() { return 1; } // trailing comment\n", options: [{ max: 3 }] },
   ],
   invalid: [
     {
