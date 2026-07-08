@@ -4,7 +4,7 @@ import { tsConfigJson } from "@/cli/templates/tsconfig-json.js";
 import { viteConfigTs } from "@/cli/templates/vite-config.js";
 import { eslintConfigJs } from "@/cli/templates/eslint-config.js";
 import { vitestConfigTs } from "@/cli/templates/vitest-config.js";
-import { axiomConfigJson, agentContextJson, tokensJson } from "@/cli/templates/manifest.js";
+import { axiomConfigJson, tokensJson } from "@/cli/templates/manifest.js";
 import { cursorRules, claudeMd } from "@/cli/templates/docs.js";
 import { routerTs, errorBoundaryTsx, tokenProviderTsx } from "@/cli/templates/core.js";
 import { stylesCss, themeCss } from "@/cli/templates/generated.js";
@@ -24,7 +24,6 @@ export function appFiles(projectName: string): AppFile[] {
     { path: "vitest.config.ts", content: vitestConfigTs() },
     { path: "src/styles.css", content: stylesCss() },
     { path: "axiom.config.json", content: axiomConfigJson() },
-    { path: "agent-context.json", content: agentContextJson(projectName) },
     { path: "tokens.json", content: tokensJson() },
     { path: ".cursorrules", content: cursorRules() },
     { path: "CLAUDE.md", content: claudeMd() },

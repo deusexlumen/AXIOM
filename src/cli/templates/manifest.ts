@@ -1,3 +1,5 @@
+import type { AgentContext } from "@/cli/schemas/agent-context.js";
+
 export function axiomConfigJson(): string {
   return JSON.stringify(
     {
@@ -13,24 +15,20 @@ export function axiomConfigJson(): string {
   );
 }
 
-export function agentContextJson(name: string): string {
-  return JSON.stringify(
-    {
-      axiomVersion: "1.0.0",
-      project: {
-        name,
-        tokenBudget: { hardLimitPerSlice: 8000, warnAt: 6000 },
-      },
-      components: [],
-      routes: [],
-      stores: [],
-      tokens: { file: "tokens.json", hash: "sha256:PLACEHOLDER" },
-      integrity: { lockedFiles: {}, machineFiles: {} },
-      pipeline: { lastRun: null },
+export function initialAgentContext(name: string, tokenHash: string): AgentContext {
+  return {
+    axiomVersion: "1.0.0",
+    project: {
+      name,
+      tokenBudget: { hardLimitPerSlice: 8000, warnAt: 6000 },
     },
-    null,
-    2
-  );
+    components: [],
+    routes: [],
+    stores: [],
+    tokens: { file: "tokens.json", hash: tokenHash },
+    integrity: { lockedFiles: {}, machineFiles: {} },
+    pipeline: { lastRun: null },
+  };
 }
 
 export function tokensJson(): string {
