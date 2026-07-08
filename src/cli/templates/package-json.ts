@@ -20,6 +20,7 @@ export function packageJson(name: string): string {
         zod: "^3.24.0",
       },
       devDependencies: {
+        "@types/node": "^22.0.0",
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
         "@vitejs/plugin-react": "^4.3.0",
