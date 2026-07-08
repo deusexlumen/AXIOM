@@ -4,13 +4,26 @@ import { createRule } from "@/utils/create-rule.js";
 export const noBarrel = createRule({
   meta: {
     type: "problem",
-    docs: { description: "AXIOM invariant rule stub" },
+    docs: { description: "Enforce I-05: no barrel files" },
     schema: [],
-    messages: {
-      stub: "Stub: rule not yet implemented.",
-    },
+    messages: { noBarrel: "I-05: Barrel re-exports are forbidden. Import directly from the source file." },
   },
-  create(): Rule.NodeListener {
-    return {};
+  create(context: Rule.RuleContext): Rule.NodeListener {
+    let reported = false;
+    function reportOnce(node: Rule.Node): void {
+      if (reported) return;
+      reported = true;
+      context.report({ node, messageId: "noBarrel" });
+    }
+    return {
+      ExportAllDeclaration(node): void {
+        reportOnce(node);
+      },
+      ExportNamedDeclaration(node): void {
+        if (node.source !== null && node.source.value !== "") {
+          reportOnce(node);
+        }
+      },
+    };
   },
 });
