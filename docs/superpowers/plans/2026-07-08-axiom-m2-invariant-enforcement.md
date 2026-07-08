@@ -10,6 +10,15 @@
 
 ---
 
+## Plan Amendments (applied during implementation)
+
+- All source files inside `packages/eslint-plugin-axiom/` use the `@/` alias (configured in `tsconfig.json`) to satisfy I-06. Test files also import the rule under test via `@/rules/<name>.js`.
+- A package-level `packages/eslint-plugin-axiom/vitest.config.ts` is required so that the `@/` alias resolves to the plugin's own `src/` directory and `globals: true` is enabled for ESLint `RuleTester`.
+- `packages/eslint-plugin-axiom/src/index.ts` uses `export default plugin` (documented exception in `AGENTS.md`) because ESLint 9 consumes plugins as default exports.
+- The `max-loc` rule excludes every line that falls inside any comment range (single-line `//`, multi-line `/* */`, and JSDoc `/** */`), not only lines that start with a comment marker.
+
+---
+
 ## File Structure
 
 ```

@@ -1,11 +1,13 @@
 import { RuleTester } from "eslint";
-import { maxLoc } from "../max-loc.js";
+import { maxLoc } from "@/rules/max-loc.js";
 
 const tester = new RuleTester({ languageOptions: { parserOptions: { ecmaVersion: 2022, sourceType: "module" } } });
 
 tester.run("max-loc", maxLoc, {
   valid: [
     { code: "export function f() { return 1; }\n", options: [{ max: 3 }] },
+    { code: "/*\n  comment line 1\n  comment line 2\n*/\nexport function f() { return 1; }\n", options: [{ max: 3 }] },
+    { code: "/**\n * jsdoc\n */\nexport function f() { return 1; }\n", options: [{ max: 3 }] },
   ],
   invalid: [
     {

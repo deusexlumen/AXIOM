@@ -31,12 +31,18 @@ export const maxLoc = createRule({
       Program(node): void {
         const sourceCode = context.sourceCode ?? context.getSourceCode();
         const lines = sourceCode.lines;
+        const commentLines = new Set<number>();
+        for (const comment of sourceCode.getAllComments()) {
+          for (let i = comment.loc.start.line; i <= comment.loc.end.line; i += 1) {
+            commentLines.add(i);
+          }
+        }
         let loc = 0;
-        for (const line of lines) {
-          const trimmed = line.trim();
+        for (let i = 0; i < lines.length; i += 1) {
+          const lineNumber = i + 1;
+          const trimmed = lines[i]!.trim();
           if (trimmed.length === 0) continue;
-          if (trimmed.startsWith("//")) continue;
-          if (trimmed.startsWith("/*") && trimmed.endsWith("*/")) continue;
+          if (commentLines.has(lineNumber)) continue;
           loc += 1;
         }
         if (loc > max) {
