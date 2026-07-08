@@ -4,13 +4,19 @@ import { createRule } from "@/utils/create-rule.js";
 export const absoluteImports = createRule({
   meta: {
     type: "problem",
-    docs: { description: "AXIOM invariant rule stub" },
+    docs: { description: "Enforce I-06: imports only via @/ alias or bare/module specifiers" },
     schema: [],
-    messages: {
-      stub: "Stub: rule not yet implemented.",
-    },
+    messages: { noRelativeImport: "I-06: Relative imports are forbidden. Use the @/ alias." },
   },
-  create(): Rule.NodeListener {
-    return {};
+  create(context: Rule.RuleContext): Rule.NodeListener {
+    return {
+      ImportDeclaration(node): void {
+        const source = node.source.value;
+        if (source.startsWith("./") || source.startsWith("../")) {
+          if (/\.(?:css|scss|sass|less|styl)$/i.test(source)) return;
+          context.report({ node: node.source, messageId: "noRelativeImport" });
+        }
+      },
+    };
   },
 });
