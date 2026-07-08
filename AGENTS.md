@@ -4,13 +4,14 @@
 
 ## Projekt-Übersicht
 
-AXIOM ist ein Framework für eine deterministische, agenten-native Web-Infrastruktur; der Meilenstein **M0 ist implementiert**. Ziel ist eine Web-SPA, die als vorhersagbare Zielumgebung für KI-Agenten dient.
+AXIOM ist ein Framework für eine deterministische, agenten-native Web-Infrastruktur; die Meilensteine **M0 und M1 sind implementiert**. Ziel ist eine Web-SPA, die als vorhersagbare Zielumgebung für KI-Agenten dient.
 
 Der aktuelle Stand umfasst:
 
 - `AXIOM_SPEC_v1.0.md` — vollständige Implementierungsspezifikation v1.0 (Status: BUILD-READY)
-- `axm`-CLI mit funktionsfähigem `axm init <name>`
+- `axm`-CLI mit funktionsfähigem `axm init <name>` und `axm validate`
 - Scaffolding für Vite, React, TypeScript, Tailwind, Zustand, Zod, Vitest, Playwright und ESLint
+- Manifest-Kern (M1): Zod-Schemas, Reader/Writer, SHA-256-Hashes, Integritätsprüfung, FIX_PACKET-Fehlerformat
 
 ## Zentrale Design-Doktrin
 
@@ -176,5 +177,6 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 ## Offener Stand
 
 - Meilenstein M0 ist implementiert und die Akzeptanzkriterien sind erfüllt.
+- Meilenstein M1 (Manifest-Kern) ist implementiert: `agent-context.json` ist die SSOT, alle Schemas existieren als Zod-Schemas mit JSON-Schema-Export, `axm init` schreibt echte SHA-256-Hashes, `axm validate` prüft Manifest-Integrität, und 1.000 zufällige Manifest-Mutationen bleiben schema-valide.
 - `axm init <name>` scaffolded ein installierbares, bau- und testbares Projekt.
-- Nächste Arbeitspakete: Meilenstein M1 (Komponenten- und Store-Generierung) sowie M2 (Custom-ESLint-Plugin und Invarianten-Enforcement).
+- Nächste Arbeitspakete: Meilenstein M2 (Custom-ESLint-Plugin und Invarianten-Enforcement I-01…I-12) und M3 (Komponenten-/Route-/Store-Generierung).
