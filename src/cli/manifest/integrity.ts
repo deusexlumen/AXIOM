@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
 import { hashFile } from "@/cli/manifest/hash.js";
@@ -38,7 +37,11 @@ export async function verifyIntegrity(
     let actual: string | null = null;
     try {
       actual = await hashFile(resolve(cwd, file));
-    } catch {
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code !== "ENOENT") {
+        throw error;
+      }
       actual = null;
     }
     if (actual !== expected) {

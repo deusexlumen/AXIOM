@@ -2,7 +2,28 @@ import { resolve } from "node:path";
 import { readAgentContext } from "@/cli/manifest/reader.js";
 import { verifyIntegrity } from "@/cli/manifest/integrity.js";
 import { ExitCode } from "@/cli/types.js";
-import { result, fail } from "@/cli/utils/ndjson.js";
+import { ndjson, result } from "@/cli/utils/ndjson.js";
+import type { FixPacket } from "@/cli/schemas/fix-packet.js";
+
+function emitFixPacket(errorCode: string, message: string, targetFile: string): never {
+  const packet: FixPacket = {
+    packetId: `m1_${errorCode.toLowerCase()}`,
+    runId: "m1_validate",
+    attempt: { current: 1, max: 3 },
+    errorCode,
+    stage: "validate",
+    severity: "BLOCKING",
+    target: { file: targetFile },
+    message,
+    rawEvidence: {},
+    probableCause: errorCode === "AXM-V011" ? "File changed after manifest was written" : "agent-context.json does not match schema",
+    fixHint: errorCode === "AXM-V011" ? "Re-run axm init or restore the original file" : "Fix agent-context.json to match the schema",
+    invariantsAffected: errorCode === "AXM-V011" ? ["I-10"] : ["I-11"],
+    agentInstruction: "Correct the issue and re-run axm validate",
+  };
+  ndjson({ type: "result", ok: false, data: packet });
+  process.exit(errorCode === "AXM-V011" ? ExitCode.OWNERSHIP_ERROR : ExitCode.VALIDATION_ERROR);
+}
 
 export async function validate(cwd: string): Promise<void> {
   let context: Awaited<ReturnType<typeof readAgentContext>>;
@@ -10,15 +31,12 @@ export async function validate(cwd: string): Promise<void> {
     context = await readAgentContext(cwd);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    fail(`Invalid agent-context.json: ${message}`, ExitCode.VALIDATION_ERROR);
+    emitFixPacket("AXM-V000", `Invalid agent-context.json: ${message}`, "agent-context.json");
   }
 
   const violations = await verifyIntegrity(cwd, context);
   if (violations.length > 0) {
-    fail(
-      `Hash mismatch: ${violations.map((v) => v.file).join(", ")}`,
-      ExitCode.OWNERSHIP_ERROR
-    );
+    emitFixPacket("AXM-V011", `Hash mismatch: ${violations.map((v) => v.file).join(", ")}`, violations[0]!.file);
   }
 
   result({ ok: true, violations: [] });
