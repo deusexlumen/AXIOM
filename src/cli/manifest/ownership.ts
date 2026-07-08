@@ -1,4 +1,4 @@
-import { resolve, relative, sep } from "node:path";
+import { resolve, relative } from "node:path";
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
 
 export interface OwnershipViolation {
@@ -15,8 +15,8 @@ export function determineOwnershipZones(cwd: string, context: AgentContext): Own
     if (locked.has(file)) return "LOCKED";
     if (machine.has(file)) return "MACHINE";
     if (file === "tokens.json") return "OPERATOR";
-    if (file.startsWith(`src${sep}components`) || file.startsWith(`src${sep}state`) || file.startsWith("e2e")) return "AGENT";
-    if (file.startsWith(`src${sep}core`) || file.startsWith(`src${sep}generated`) || file.startsWith(`src${sep}routes`)) return "MACHINE";
+    if (file.startsWith("src/components") || file.startsWith("src/state") || file.startsWith("e2e")) return "AGENT";
+    if (file.startsWith("src/core") || file.startsWith("src/generated") || file.startsWith("src/routes")) return "MACHINE";
     return "AGENT";
   }
 
