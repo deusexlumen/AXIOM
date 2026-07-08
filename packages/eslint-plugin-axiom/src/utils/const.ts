@@ -1,0 +1,9 @@
+export const INVARIANTS = {
+  MAX_LOC: "I-01",
+  NO_DEFAULT_EXPORT: "I-04",
+  NO_BARREL: "I-05",
+  ABSOLUTE_IMPORTS: "I-06",
+  TOKENS_ONLY: "I-08",
+  NO_ESCAPE_HATCH: "I-09",
+  STATIC_IMPORTS: "I-12",
+} as const;
