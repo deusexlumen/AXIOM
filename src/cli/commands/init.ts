@@ -1,5 +1,4 @@
-import { mkdir, readFile, cp, rm } from "node:fs/promises";
-import { existsSync, statSync } from "node:fs";
+import { mkdir, readFile, rm } from "node:fs/promises";
 import { resolve, basename, dirname } from "node:path";
 import { execSync } from "node:child_process";
 import { appFiles } from "@/cli/templates/app.js";
@@ -12,6 +11,7 @@ import { hashFile, hashString } from "@/cli/manifest/hash.js";
 import { tokensBuild } from "@/cli/commands/tokens-build.js";
 import { routeManifestTs } from "@/cli/generators/route.js";
 import { writeLeases } from "@/cli/leases/store.js";
+import { bundleEslintPlugin, bundleCliPackage } from "@/cli/commands/init-bundle.js";
 import { result } from "@/cli/utils/ndjson.js";
 import type { InitResult } from "@/cli/types.js";
 import { fileURLToPath } from "node:url";
@@ -35,43 +35,15 @@ export async function init(name: string, options: InitOptions = {}): Promise<voi
     created.push(file.path);
   }
 
-  // Bundle the local eslint-plugin-axiom package so the generated app can lint itself.
   // init.js lives at <repo>/dist/cli/commands/ or <repo>/src/cli/commands/ during tests.
   const cliRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-  const pluginSource = resolve(cliRoot, "packages/eslint-plugin-axiom");
-  const pluginTarget = resolve(targetDir, "packages/eslint-plugin-axiom");
-  await rm(pluginTarget, { recursive: true, force: true });
-  await cp(pluginSource, pluginTarget, {
-    recursive: true,
-    filter: (source) => !source.includes("node_modules"),
-  });
+
+  await bundleEslintPlugin(targetDir, cliRoot);
   created.push("packages/eslint-plugin-axiom");
 
-  // Bundle the local @axiom/cli package so the generated app can run `pnpm axm ...`.
-  const cliTarget = resolve(targetDir, "packages", "axiom-cli");
-  await rm(cliTarget, { recursive: true, force: true });
-  await mkdir(cliTarget, { recursive: true });
-  const cliPackageJson = resolve(cliRoot, "package.json");
-  if (existsSync(cliPackageJson)) {
-    await cp(cliPackageJson, resolve(cliTarget, "package.json"));
-  }
-  const cliDist = resolve(cliRoot, "dist");
-  if (existsSync(cliDist)) {
-    await cp(cliDist, resolve(cliTarget, "dist"), {
-      recursive: true,
-      filter: (source) => {
-        const base = basename(source);
-        if (base === "dist") return true;
-        if (base.startsWith("__")) return false;
-        if (base.endsWith(".test.js") || base.endsWith(".test.d.ts")) return false;
-        if (base.endsWith(".d.ts") || base.endsWith(".d.ts.map") || base.endsWith(".js.map")) return false;
-        return statSync(source).isDirectory() || base.endsWith(".js");
-      },
-    });
-  }
+  await bundleCliPackage(targetDir, cliRoot);
   created.push("packages/axiom-cli");
 
-  // Generate an empty route manifest so the core router can import it before any routes exist.
   const manifestPath = "src/generated/route-manifest.tsx";
   const initialManifest = routeManifestTs([]);
   await writeTextFile(resolve(targetDir, manifestPath), initialManifest);
@@ -84,17 +56,14 @@ export async function init(name: string, options: InitOptions = {}): Promise<voi
   await writeContext(targetDir, context);
   created.push("agent-context.json");
 
-  // Initialize empty lease store so order/lease commands have a single source of truth.
   await writeLeases(targetDir, []);
   created.push(".axiom/leases.json");
 
-  // Generate agent-facing docs from the context so they reflect project name and current rules.
   await writeTextFile(resolve(targetDir, ".cursorrules"), cursorRules(context));
   created.push(".cursorrules");
   await writeTextFile(resolve(targetDir, "CLAUDE.md"), claudeMd(context));
   created.push("CLAUDE.md");
 
-  // Generate theme.css from tokens.json and update context integrity.
   await tokensBuild(targetDir, options.out);
 
   const updatedContext = await readContext(targetDir);
