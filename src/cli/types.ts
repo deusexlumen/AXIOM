@@ -8,6 +8,7 @@ export enum ExitCode {
   OWNERSHIP_ERROR = 60,
   LEASE_ERROR = 70,
   LEDGER_ERROR = 80,
+  SECURITY_ERROR = 90,
 }
 
 export type NdjsonLine =

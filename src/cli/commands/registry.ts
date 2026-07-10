@@ -17,6 +17,7 @@ import { leaseCommand } from "@/cli/commands/lease.js";
 import { conductCommand } from "@/cli/commands/conduct.js";
 import { ledgerCommand } from "@/cli/commands/ledger.js";
 import { benchCommand } from "@/cli/commands/bench.js";
+import { auditCommand } from "@/cli/commands/audit.js";
 
 type Handler = (args: string[]) => Promise<number>;
 
@@ -96,6 +97,7 @@ const registry: Record<string, Handler> = {
   conduct: wrap(conductCommand),
   ledger: wrap(ledgerCommand),
   bench: wrap(benchCommand),
+  audit: wrap(auditCommand),
 };
 
 export function getCommandHandler(name: string): Handler | undefined {
