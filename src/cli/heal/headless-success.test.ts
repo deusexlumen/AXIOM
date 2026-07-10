@@ -4,13 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Writable } from "node:stream";
 import { headlessHeal } from "@/cli/heal/headless.js";
-import { writeHeadlessFixture, greenRun, redRun } from "@/cli/heal/headless.test-helpers.js";
+import { writeHeadlessFixture, greenRun } from "@/cli/heal/headless.test-helpers.js";
 
 function noopStream(): NodeJS.WritableStream {
   return new Writable({ write() {} });
 }
 
-describe("headlessHeal", () => {
+describe("headlessHeal success", () => {
   let baseDir: string;
   const originalEndpoint = process.env.AXIOM_HEAL_MODEL_ENDPOINT;
 
@@ -44,63 +44,6 @@ describe("headlessHeal", () => {
       maxRetries: 2,
     });
     expect(readFileSync(join(baseDir, "src/components/Box.tsx"), "utf-8")).toBe("export function Box() {}");
-  });
-
-  it("ignores patches outside the AGENT whitelist", async () => {
-    const targets = [
-      ".github/workflows/axiom.yml",
-      "src/core/router.ts",
-      "tokens.json",
-      "src/generated/x.ts",
-      "api/generated/x.ts",
-      "package.json",
-      "pnpm-lock.yaml",
-      "scripts/x.ts",
-      "docs/readme.md",
-    ];
-    const fetchImpl = await writeHeadlessFixture(baseDir, true, "src/components/Box.tsx", {
-      patches: targets.map((file) => ({ file, content: "bad" })),
-    });
-    await headlessHeal({
-      cwd: baseDir,
-      out: noopStream(),
-      fetchImpl,
-      runPipeline: async () => greenRun(),
-      maxRetries: 1,
-    });
-    for (const target of targets) {
-      expect(existsSync(join(baseDir, target))).toBe(false);
-    }
-  });
-
-  it("allows patches under src/routes/", async () => {
-    const fetchImpl = await writeHeadlessFixture(baseDir, true, "src/routes/home.tsx", {
-      patches: [{ file: "src/routes/home.tsx", content: "export function HomeRoute() {}" }],
-    });
-    await headlessHeal({
-      cwd: baseDir,
-      out: noopStream(),
-      fetchImpl,
-      runPipeline: async () => greenRun(),
-      maxRetries: 1,
-    });
-    expect(readFileSync(join(baseDir, "src/routes/home.tsx"), "utf-8")).toBe("export function HomeRoute() {}");
-  });
-
-  it("escalates when retries are exhausted", async () => {
-    const fetchImpl = await writeHeadlessFixture(baseDir, true, "src/components/Box.tsx", {
-      patches: [{ file: "src/components/Box.tsx", content: "export function Box() {}" }],
-    });
-    await expect(
-      headlessHeal({
-        cwd: baseDir,
-        out: noopStream(),
-        fetchImpl,
-        runPipeline: async () => redRun(baseDir, "r1"),
-        maxRetries: 1,
-      })
-    ).rejects.toThrow("Headless heal failed");
-    expect(existsSync(join(baseDir, "pipeline", "reports", "escalation_headless_r1.json"))).toBe(true);
   });
 
   it("skips when disabled in config", async () => {

@@ -6,10 +6,9 @@ export interface OwnershipViolation {
   zone: "LOCKED" | "MACHINE" | "AGENT" | "OPERATOR";
 }
 
-export function getOwnershipZone(
-  file: string,
-  context: AgentContext
-): "LOCKED" | "MACHINE" | "AGENT" | "OPERATOR" {
+export type OwnershipZone = OwnershipViolation["zone"] | "UNKNOWN";
+
+export function getOwnershipZone(file: string, context: AgentContext): OwnershipZone {
   const locked = new Set(Object.keys(context.integrity.lockedFiles));
   const machine = new Set(Object.keys(context.integrity.machineFiles));
 
@@ -20,7 +19,7 @@ export function getOwnershipZone(
   if (file.startsWith("src/core") || file.startsWith("src/generated") || file.startsWith("src/routes")) return "MACHINE";
   if (file.startsWith("api/generated")) return "MACHINE";
   if (file.startsWith("api/contracts") || file.startsWith("api/handlers")) return "AGENT";
-  return "AGENT";
+  return "UNKNOWN";
 }
 
 export function determineOwnershipZones(cwd: string, context: AgentContext): OwnershipViolation[] {
