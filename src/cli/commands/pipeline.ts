@@ -9,6 +9,8 @@ import { runE2eStage } from "@/cli/pipeline/stages/e2e.js";
 import type { Stage, StageName } from "@/cli/pipeline/types.js";
 import { CliError, cliFixPacket } from "@/cli/errors.js";
 import { ExitCode } from "@/cli/types.js";
+import { loadConfig } from "@/cli/heal/config.js";
+import type { AxiomConfig } from "@/cli/schemas/config.js";
 
 export const STAGES: Stage[] = [
   { name: "validate", run: runValidateStage },
@@ -18,6 +20,15 @@ export const STAGES: Stage[] = [
   { name: "unit", run: runUnitStage },
   { name: "e2e", run: runE2eStage },
 ];
+
+export function selectStagesForPipeline(config: AxiomConfig, scope?: string, stage?: StageName): Stage[] {
+  const e2eOn = config.pipeline.e2eOn;
+  if (e2eOn === "always") return STAGES;
+  if (stage === "e2e") return STAGES;
+  if (e2eOn === "never") return STAGES.filter((s) => s.name !== "e2e");
+  const scopeIsRoute = scope !== undefined && (scope.startsWith("src/routes/") || scope.startsWith("routes/"));
+  return scopeIsRoute ? STAGES : STAGES.filter((s) => s.name !== "e2e");
+}
 
 export async function pipelineCommand(args: string[]): Promise<void> {
   const sub = args[0];
@@ -40,5 +51,7 @@ export async function pipelineCommand(args: string[]): Promise<void> {
       ExitCode.VALIDATION_ERROR
     );
   }
-  await runPipeline(cwd, STAGES, { scope, stage });
+  const config = await loadConfig(cwd);
+  const stages = selectStagesForPipeline(config, scope, stage);
+  await runPipeline(cwd, stages, { scope, stage });
 }

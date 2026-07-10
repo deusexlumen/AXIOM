@@ -11,10 +11,24 @@ import { isPathAllowed } from "@/cli/heal/scope.js";
 import { callModel } from "@/cli/heal/model.js";
 import { commitAndPush, postPrComment } from "@/cli/heal/git.js";
 import type { HeadlessOptions, PacketRef, PipelineReport } from "@/cli/heal/types.js";
+import type { AxiomConfig } from "@/cli/schemas/config.js";
+import type { FixPacket } from "@/cli/schemas/fix-packet.js";
+import type { Stage } from "@/cli/pipeline/types.js";
+
+export function selectStagesForHeal(config: AxiomConfig, latestPacket?: FixPacket): Stage[] {
+  const e2eOn = config.pipeline.e2eOn;
+  if (e2eOn === "always") return STAGES;
+  if (e2eOn === "never") return STAGES.filter((s) => s.name !== "e2e");
+  const target = latestPacket?.target?.file ?? "";
+  const routeChange = target.startsWith("src/routes/") || target.startsWith("src\\routes\\");
+  return routeChange ? STAGES : STAGES.filter((s) => s.name !== "e2e");
+}
 
 async function defaultRunPipeline(cwd: string): Promise<PipelineReport> {
   const config = await loadConfig(cwd);
-  const stages = config.pipeline.e2eOn === "never" ? STAGES.filter((s) => s.name !== "e2e") : STAGES;
+  const packets = await loadPackets(cwd);
+  const latest = packets.at(-1);
+  const stages = selectStagesForHeal(config, latest?.packet);
   const report = await runPipeline(cwd, stages, { out: noopStream() });
   return { result: report.result, packetFile: report.packetFile };
 }

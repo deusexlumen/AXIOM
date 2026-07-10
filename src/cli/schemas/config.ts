@@ -9,7 +9,7 @@ export const AxiomConfig = z.object({
   }),
   pipeline: z.object({
     stages: z.array(z.enum(["validate", "contract", "typecheck", "lint", "unit", "e2e"])),
-    e2eOn: z.enum(["route-change", "always", "never"]),
+    e2eOn: z.enum(["never", "route-change", "always"]).default("route-change"),
   }),
   context: z.object({
     sliceDepth: z.number().int().nonnegative(),
