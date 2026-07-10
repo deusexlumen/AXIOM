@@ -26,7 +26,7 @@ export function packageJson(name: string): string {
         pg: "8.13.1",
       },
       devDependencies: {
-        "@axiom/cli": "^1.0.0",
+        "@axiom/cli": "file:./packages/axiom-cli",
         "@electric-sql/pglite": "0.2.17",
         "@types/node": "22.10.5",
         "@types/react": "19.0.0",

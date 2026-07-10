@@ -23,6 +23,7 @@ describe("axm init integration", () => {
   });
 
   it("scaffold installs and builds with pnpm", { timeout: 300000 }, async () => {
+    execSync("pnpm build", { cwd: process.cwd(), stdio: "ignore" });
     execSync("pnpm --filter eslint-plugin-axiom build", { cwd: process.cwd(), stdio: "ignore" });
     await init("demo", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const appDir = join(baseDir, "demo");

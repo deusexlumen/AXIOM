@@ -1,4 +1,5 @@
 import { mkdir, readFile, cp, rm } from "node:fs/promises";
+import { existsSync, statSync } from "node:fs";
 import { resolve, basename, dirname } from "node:path";
 import { execSync } from "node:child_process";
 import { appFiles } from "@/cli/templates/app.js";
@@ -45,6 +46,30 @@ export async function init(name: string, options: InitOptions = {}): Promise<voi
     filter: (source) => !source.includes("node_modules"),
   });
   created.push("packages/eslint-plugin-axiom");
+
+  // Bundle the local @axiom/cli package so the generated app can run `pnpm axm ...`.
+  const cliTarget = resolve(targetDir, "packages", "axiom-cli");
+  await rm(cliTarget, { recursive: true, force: true });
+  await mkdir(cliTarget, { recursive: true });
+  const cliPackageJson = resolve(cliRoot, "package.json");
+  if (existsSync(cliPackageJson)) {
+    await cp(cliPackageJson, resolve(cliTarget, "package.json"));
+  }
+  const cliDist = resolve(cliRoot, "dist");
+  if (existsSync(cliDist)) {
+    await cp(cliDist, resolve(cliTarget, "dist"), {
+      recursive: true,
+      filter: (source) => {
+        const base = basename(source);
+        if (base === "dist") return true;
+        if (base.startsWith("__")) return false;
+        if (base.endsWith(".test.js") || base.endsWith(".test.d.ts")) return false;
+        if (base.endsWith(".d.ts") || base.endsWith(".d.ts.map") || base.endsWith(".js.map")) return false;
+        return statSync(source).isDirectory() || base.endsWith(".js");
+      },
+    });
+  }
+  created.push("packages/axiom-cli");
 
   // Generate an empty route manifest so the core router can import it before any routes exist.
   const manifestPath = "src/generated/route-manifest.tsx";

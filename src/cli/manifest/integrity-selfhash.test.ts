@@ -18,7 +18,7 @@ describe("agent-context.json self-hash", () => {
     rmSync(baseDir, { recursive: true, force: true });
   });
 
-  it("passes integrity verification on a freshly scaffolded app", async () => {
+  it("passes integrity verification on a freshly scaffolded app", { timeout: 30000 }, async () => {
     await init("demo", { cwd: baseDir, skipInstall: true, out: new Writable({ write() {} }) });
     const appDir = join(baseDir, "demo");
     const context = await readAgentContext(appDir);

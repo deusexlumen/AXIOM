@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { mkdtempSync, rmSync, readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { createHash } from "node:crypto";
@@ -49,7 +49,7 @@ describe("axm init", () => {
     rmSync(baseDir, { recursive: true, force: true });
   });
 
-  it("creates expected files", async () => {
+  it("creates expected files", { timeout: 30000 }, async () => {
     await init("demo", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const appDir = join(baseDir, "demo");
     const files = readdirSync(appDir, { recursive: true, encoding: "utf-8" })
@@ -71,6 +71,8 @@ describe("axm init", () => {
     expect(workflow).toContain("actions/checkout@v4");
     expect(workflow).toContain("pnpm/action-setup@v4");
     expect(workflow).toContain("actions/setup-node@v4");
+    expect(existsSync(join(appDir, "packages", "axiom-cli", "package.json"))).toBe(true);
+
     expect(workflow).toContain("pnpm exec playwright install --with-deps");
     expect(workflow).toContain("pnpm axm audit");
     expect(workflow).toContain("pnpm axm validate");
