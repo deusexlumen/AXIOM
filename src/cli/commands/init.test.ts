@@ -62,6 +62,17 @@ describe("axm init", () => {
 
     const pkg = JSON.parse(readFileSync(join(appDir, "package.json"), "utf-8"));
     expect(pkg.name).toBe("demo");
+
+    const workflowPath = join(appDir, ".github", "workflows", "axiom.yml");
+    expect(statSync(workflowPath).isFile()).toBe(true);
+    const workflow = readFileSync(workflowPath, "utf-8");
+    expect(workflow).toContain("actions/checkout@v4");
+    expect(workflow).toContain("pnpm/action-setup@v4");
+    expect(workflow).toContain("actions/setup-node@v4");
+    expect(workflow).toContain("pnpm axm audit");
+    expect(workflow).toContain("pnpm axm validate");
+    expect(workflow).toContain("pnpm axm pipeline run");
+    expect(workflow).toContain("Upload FIX_PACKETs on failure");
   });
 
   it("is deterministic across runs", { timeout: 30000 }, async () => {

@@ -15,6 +15,13 @@ export const AxiomConfig = z.object({
     sliceDepth: z.number().int().nonnegative(),
     signatureOnlyBeyondDepth: z.number().int().nonnegative(),
   }),
+  ci: z
+    .object({
+      headlessHeal: z.object({
+        enabled: z.boolean(),
+      }),
+    })
+    .optional(),
 });
 
 export type AxiomConfig = z.infer<typeof AxiomConfig>;

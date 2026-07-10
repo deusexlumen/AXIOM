@@ -4,7 +4,7 @@ import { takeValue, requireArg } from "@/cli/bin-helpers.js";
 import { init } from "@/cli/commands/init.js";
 import { validateCommand } from "@/cli/commands/validate.js";
 import { pipelineCommand } from "@/cli/commands/pipeline.js";
-import { healCommand } from "@/cli/commands/heal.js";
+import { healHandler } from "@/cli/commands/heal-handler.js";
 import { runAddCommand } from "@/cli/bin-commands.js";
 import { tokensBuild } from "@/cli/commands/tokens-build.js";
 import { apiCommand } from "@/cli/commands/api.js";
@@ -39,14 +39,6 @@ function wrap(voidFn: (args: string[]) => Promise<void>): Handler {
 
 async function initHandler(args: string[]): Promise<number> {
   await init(requireArg(args[0], "<name>"), { skipInstall: args.includes("--skip-install") });
-  return ExitCode.OK;
-}
-
-async function healHandler(args: string[]): Promise<number> {
-  const sub = args[0];
-  if (sub !== "--auto") unknownSubcommand("heal", sub);
-  const { value: maxRetries } = takeValue(args.slice(1), "--max-retries");
-  await healCommand({ maxRetries: maxRetries ? Number(maxRetries) : undefined });
   return ExitCode.OK;
 }
 

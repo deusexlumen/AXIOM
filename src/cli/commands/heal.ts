@@ -6,16 +6,22 @@ import { hashFile } from "@/cli/manifest/hash.js";
 import { CliError, cliFixPacket } from "@/cli/errors.js";
 import { ExitCode } from "@/cli/types.js";
 import { readLastPacket, writeEscalationReport, waitForAck, noopStream, emitLine } from "@/cli/commands/heal-helpers.js";
+import { headlessHeal } from "@/cli/heal/headless.js";
 
 export interface HealOptions {
   cwd?: string;
   maxRetries?: number;
   ackTimeoutMs?: number;
   out?: NodeJS.WritableStream;
+  headless?: boolean;
 }
 
 export async function healCommand(options: HealOptions = {}): Promise<void> {
   const cwd = options.cwd ?? process.cwd();
+  if (options.headless) {
+    await headlessHeal({ cwd, maxRetries: options.maxRetries, out: options.out });
+    return;
+  }
   const maxRetries = options.maxRetries ?? 3;
   const ackTimeoutMs = options.ackTimeoutMs ?? 30000;
   let previousBefore: string | undefined;

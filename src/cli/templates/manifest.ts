@@ -9,6 +9,7 @@ export function axiomConfigJson(): string {
         e2eOn: "route-change",
       },
       context: { sliceDepth: 2, signatureOnlyBeyondDepth: 1 },
+      ci: { headlessHeal: { enabled: false } },
     },
     null,
     2

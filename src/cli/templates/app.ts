@@ -15,15 +15,21 @@ import { smokeSpecTs } from "@/cli/templates/e2e/smoke.spec.js";
 import { playwrightConfigTs } from "@/cli/templates/playwright-config.js";
 import { drizzleConfigTs } from "@/cli/templates/db/drizzle-config.js";
 import { pgliteClientTs } from "@/cli/templates/db/client.js";
+import { ciWorkflowYaml } from "@/cli/templates/ci-workflow.js";
 
 export function gitkeepTemplate(): string {
   return "";
 }
 
 export function appFiles(projectName: string): AppFile[] {
+  const config = JSON.parse(axiomConfigJson()) as {
+    ci?: { headlessHeal?: { enabled?: boolean } };
+  };
+  const headlessHealEnabled = config.ci?.headlessHeal?.enabled ?? false;
+
   return [
+    { path: ".github/workflows/axiom.yml", content: ciWorkflowYaml({ headlessHealEnabled }) },
     { path: "package.json", content: packageJson(projectName) },
-    { path: ".npmrc", content: npmrc() },
     { path: "tsconfig.json", content: tsConfigJson() },
     { path: "vite.config.ts", content: viteConfigTs() },
     { path: "eslint.config.js", content: eslintConfigJs() },
