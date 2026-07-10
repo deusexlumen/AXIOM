@@ -66,6 +66,17 @@ describe("depsAdd", () => {
     expect(line.data.added).toBe("zod@3.0.0");
   });
 
+  it("adds scoped packages", async () => {
+    const cap = captureStream();
+    await depsAdd(["@axiom/core@1.0.0"], { cwd: dir, noPnpm: true, out: cap.stream });
+    const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf-8")) as Record<string, unknown>;
+    const deps = pkg.dependencies as Record<string, string>;
+    expect(deps["@axiom/core"]).toBe("1.0.0");
+    const lines = cap.output().trim().split("\n");
+    const line = JSON.parse(lines[lines.length - 1]!);
+    expect(line.data.added).toBe("@axiom/core@1.0.0");
+  });
+
   it("rejects forbidden dependencies from the ledger", async () => {
     mkdirSync(join(dir, "ledger"));
     writeFileSync(

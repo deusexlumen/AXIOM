@@ -1,4 +1,4 @@
-import { auditCommand } from "@/cli/commands/audit.js";
+import { auditCommand, type AuditOptions } from "@/cli/commands/audit.js";
 import { runPipeline } from "@/cli/pipeline/runner.js";
 import { STAGES } from "@/cli/commands/pipeline.js";
 import { dbMigrateDryRun, checkPreDeployVeto, runVercelDeploy } from "@/cli/commands/deploy-helpers.js";
@@ -13,7 +13,7 @@ export interface DeployOptions {
   out?: NodeJS.WritableStream;
   env?: "local" | "prod";
   prod?: boolean;
-  audit?: () => Promise<void>;
+  audit?: (options?: AuditOptions) => Promise<void>;
   runPipelineFn?: (cwd: string, stages: Stage[], options?: PipelineOptions) => Promise<PipelineReport>;
   vercelDeployFn?: (cwd: string, prod: boolean) => string;
 }
@@ -32,7 +32,7 @@ export async function deployCommand(args: string[], options: DeployOptions = {})
   const pipelineFn = options.runPipelineFn ?? runPipeline;
   const vercelFn = options.vercelDeployFn ?? runVercelDeploy;
 
-  await auditFn();
+  await auditFn({ cwd, out: options.out });
 
   const report = await pipelineFn(cwd, STAGES, { out: options.out });
   if (report.result === "RED") {

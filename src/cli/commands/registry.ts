@@ -87,6 +87,11 @@ async function deployHandler(args: string[]): Promise<number> {
   return ExitCode.OK;
 }
 
+async function auditHandler(): Promise<number> {
+  await auditCommand();
+  return ExitCode.OK;
+}
+
 const registry: Record<string, Handler> = {
   init: initHandler,
   validate: wrap(validateCommand),
@@ -104,7 +109,7 @@ const registry: Record<string, Handler> = {
   conduct: wrap(conductCommand),
   ledger: wrap(ledgerCommand),
   bench: wrap(benchCommand),
-  audit: wrap(auditCommand),
+  audit: auditHandler,
   deps: wrap(depsCommand),
   deploy: deployHandler,
 };

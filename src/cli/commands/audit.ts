@@ -15,8 +15,13 @@ function throwValidationError(message: string): never {
   );
 }
 
-export async function auditCommand(): Promise<void> {
-  const cwd = process.cwd();
+export interface AuditOptions {
+  cwd?: string;
+  out?: NodeJS.WritableStream;
+}
+
+export async function auditCommand(options: AuditOptions = {}): Promise<void> {
+  const cwd = options.cwd ?? process.cwd();
   let pkg: Record<string, unknown>;
   try {
     pkg = JSON.parse(await readFile(resolve(cwd, "package.json"), "utf-8")) as Record<string, unknown>;
@@ -52,5 +57,5 @@ export async function auditCommand(): Promise<void> {
   if (packets.length > 0) {
     throw new CliError(JSON.stringify(packets[0]), ExitCode.SECURITY_ERROR);
   }
-  result({ ok: true, violations: [] });
+  result({ ok: true, violations: [] }, options.out);
 }

@@ -3,16 +3,9 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { readContext } from "@/cli/manifest/mutate.js";
 import { verifyMigrationHashes } from "@/cli/commands/db-helpers.js";
-import { CliError, cliFixPacket } from "@/cli/errors.js";
-import { ExitCode } from "@/cli/types.js";
 
-export async function dbMigrateDryRun(cwd: string, env: "local" | "prod"): Promise<void> {
-  if (env === "prod" && !process.env.DATABASE_URL) {
-    throw new CliError(
-      JSON.stringify(cliFixPacket("AXM-D001", "DATABASE_URL is required for prod dry run", ["I-11"])),
-      ExitCode.VALIDATION_ERROR
-    );
-  }
+export async function dbMigrateDryRun(cwd: string, _env: "local" | "prod"): Promise<void> {
+  // Dry-run only verifies the local migration hash chain; no live connection is opened.
   const context = await readContext(cwd);
   await verifyMigrationHashes(cwd, context);
 }
