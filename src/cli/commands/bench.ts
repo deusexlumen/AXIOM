@@ -3,6 +3,8 @@ import { resolve } from "node:path";
 import { result } from "@/cli/utils/ndjson.js";
 import { deterministicStringify } from "@/cli/commands/plan-helpers.js";
 import { takeValue } from "@/cli/bin-helpers.js";
+import { CliError, cliFixPacket } from "@/cli/errors.js";
+import { ExitCode } from "@/cli/types.js";
 
 export interface BenchReport {
   runId: string;
@@ -15,7 +17,15 @@ export interface BenchReport {
 }
 
 export async function benchCommand(args: string[]): Promise<void> {
-  const { value: fixture } = takeValue(args, "--fixture");
+  const sub = args[0];
+  const rest = args.slice(1);
+  if (sub !== "run") {
+    throw new CliError(
+      JSON.stringify(cliFixPacket("AXM-V000", `Unknown bench subcommand: ${sub ?? ""}`, ["I-11"])),
+      ExitCode.VALIDATION_ERROR
+    );
+  }
+  const { value: fixture } = takeValue(rest, "--fixture");
   const runId = `bench_${String(Date.now())}`;
   const report: BenchReport = {
     runId,

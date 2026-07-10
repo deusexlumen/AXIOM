@@ -5,7 +5,7 @@ export function axiomConfigJson(): string {
     {
       budgets: { maxLocPerFile: 120, maxBytesPerFile: 4096, maxRetries: 3 },
       pipeline: {
-        stages: ["validate", "typecheck", "lint", "unit", "e2e"],
+        stages: ["validate", "contract", "typecheck", "lint", "unit", "e2e"],
         e2eOn: "route-change",
       },
       context: { sliceDepth: 2, signatureOnlyBeyondDepth: 1 },
@@ -25,9 +25,19 @@ export function initialAgentContext(name: string, tokenHash: string): AgentConte
     components: [],
     routes: [],
     stores: [],
+    endpoints: [],
+    db: { schemaFiles: [], migrationHead: null, migrationHashes: {} },
     tokens: { file: "tokens.json", hash: tokenHash },
-    integrity: { lockedFiles: {}, machineFiles: {} },
+    integrity: {
+      lockedFiles: {},
+      machineFiles: {
+        "ledger/decisions.ndjson": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "pipeline/bench/cost.ndjson": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      },
+    },
     pipeline: { lastRun: null },
+    visions: [],
+    orders: { open: 0, active: 0, done: 0, blocked: 0 },
   };
 }
 

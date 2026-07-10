@@ -1,41 +1,21 @@
 #!/usr/bin/env node
 import { ExitCode } from "@/cli/types.js";
-import { init } from "@/cli/commands/init.js";
-import { validateCommand } from "@/cli/commands/validate.js";
-import { ndjson } from "@/cli/utils/ndjson.js";
 import { CliError, cliFixPacket } from "@/cli/errors.js";
+import { ndjson } from "@/cli/utils/ndjson.js";
+import { getCommandHandler } from "@/cli/commands/registry.js";
 
 async function main(argv: string[]): Promise<number> {
   const [, , command, ...args] = argv;
-
-  if (command === "init") {
-    const name = args[0];
-    if (!name) {
-      throw new CliError(
-        JSON.stringify(cliFixPacket("AXM-V000", "Missing required argument: <name>", ["I-11"])),
-        ExitCode.VALIDATION_ERROR
-      );
-    }
-    await init(name);
-    return ExitCode.OK;
-  }
-
-  if (command === "validate") {
-    await validateCommand(args);
-    return ExitCode.OK;
-  }
-
-  if (!command) {
+  const handler = getCommandHandler(command ?? "");
+  if (!handler) {
     throw new CliError(
-      JSON.stringify(cliFixPacket("AXM-V000", "Missing command", ["I-11"])),
+      JSON.stringify(
+        cliFixPacket("AXM-V000", command ? `Unknown command: ${command}` : "Missing command", ["I-11"])
+      ),
       ExitCode.VALIDATION_ERROR
     );
   }
-
-  throw new CliError(
-    JSON.stringify(cliFixPacket("AXM-V000", `Unknown command: ${command}`, ["I-11"])),
-    ExitCode.VALIDATION_ERROR
-  );
+  return handler(args);
 }
 
 main(process.argv).then(
