@@ -5,7 +5,15 @@ export interface HeadlessOptions {
   maxRetries?: number;
   out?: NodeJS.WritableStream;
   fetchImpl?: typeof fetch;
+  runPipeline?: RunPipeline;
 }
+
+export interface PipelineReport {
+  result: "GREEN" | "RED";
+  packetFile: string | null;
+}
+
+export type RunPipeline = (cwd: string) => Promise<PipelineReport>;
 
 export interface PacketRef {
   file: string;

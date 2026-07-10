@@ -8,7 +8,7 @@ export async function healHandler(args: string[]): Promise<number> {
   const auto = args.includes("--auto");
   if (!headless && !auto) {
     throw new CliError(
-      JSON.stringify(cliFixPacket("AXM-V000", `Unknown heal subcommand: ${args[0] ?? ""}`, ["I-11"])),
+      JSON.stringify(cliFixPacket("AXM-V000", "Missing required flag: --headless or --auto", ["I-11"])),
       ExitCode.VALIDATION_ERROR
     );
   }

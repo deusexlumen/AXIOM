@@ -1,19 +1,18 @@
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
+import { getOwnershipZone } from "@/cli/manifest/ownership.js";
+
+const AGENT_PREFIXES = [
+  "src/components/",
+  "src/state/",
+  "e2e/",
+  "api/contracts/",
+  "api/handlers/",
+];
 
 export function isPathAllowed(file: string, context: AgentContext): boolean {
-  if (file.startsWith(".github/")) return false;
   if (file.startsWith("/") || file.includes("..")) return false;
-  const locked = new Set(Object.keys(context.integrity.lockedFiles));
-  const machine = new Set(Object.keys(context.integrity.machineFiles));
-  if (locked.has(file) || machine.has(file)) return false;
-  if (
-    file.startsWith("src/core/") ||
-    file.startsWith("src/generated/") ||
-    file.startsWith("src/routes/") ||
-    file.startsWith("api/generated/")
-  ) {
-    return false;
-  }
-  if (file === "tokens.json") return false;
-  return true;
+  if (file.startsWith("src/routes/")) return true;
+  const zone = getOwnershipZone(file, context);
+  if (zone === "LOCKED" || zone === "MACHINE" || zone === "OPERATOR") return false;
+  return AGENT_PREFIXES.some((prefix) => file.startsWith(prefix));
 }

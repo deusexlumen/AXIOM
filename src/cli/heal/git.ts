@@ -17,14 +17,14 @@ export async function commitAndPush(cwd: string, attempt: number): Promise<void>
   }
 }
 
-export async function postPrComment(body: string): Promise<void> {
+export async function postPrComment(body: string, fetchImpl: typeof fetch = globalThis.fetch): Promise<void> {
   const token = process.env.GITHUB_TOKEN;
   const repo = process.env.GITHUB_REPOSITORY;
   const pr = process.env.GITHUB_PR_NUMBER;
   if (!token || !repo || !pr) return;
   const [owner, name] = repo.split("/");
   if (!owner || !name) return;
-  await fetch(`https://api.github.com/repos/${owner}/${name}/issues/${pr}/comments`, {
+  await fetchImpl(`https://api.github.com/repos/${owner}/${name}/issues/${pr}/comments`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ body }),

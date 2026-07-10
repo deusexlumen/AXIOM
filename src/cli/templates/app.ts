@@ -30,6 +30,7 @@ export function appFiles(projectName: string): AppFile[] {
   return [
     { path: ".github/workflows/axiom.yml", content: ciWorkflowYaml({ headlessHealEnabled }) },
     { path: "package.json", content: packageJson(projectName) },
+    { path: ".npmrc", content: npmrc() },
     { path: "tsconfig.json", content: tsConfigJson() },
     { path: "vite.config.ts", content: viteConfigTs() },
     { path: "eslint.config.js", content: eslintConfigJs() },

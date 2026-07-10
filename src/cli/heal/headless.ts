@@ -1,14 +1,21 @@
 import { resolve } from "node:path";
+import { runPipeline } from "@/cli/pipeline/runner.js";
+import { STAGES } from "@/cli/commands/pipeline.js";
 import { readContext } from "@/cli/manifest/mutate.js";
 import { writeTextFile } from "@/cli/utils/fs.js";
-import { emitLine, writeEscalationReport } from "@/cli/commands/heal-helpers.js";
+import { emitLine, readLastPacket, writeEscalationReport, noopStream } from "@/cli/commands/heal-helpers.js";
 import { CliError, cliFixPacket } from "@/cli/errors.js";
 import { ExitCode } from "@/cli/types.js";
 import { loadConfig, loadPackets } from "@/cli/heal/config.js";
 import { isPathAllowed } from "@/cli/heal/scope.js";
 import { callModel } from "@/cli/heal/model.js";
 import { commitAndPush, postPrComment } from "@/cli/heal/git.js";
-import type { HeadlessOptions } from "@/cli/heal/types.js";
+import type { HeadlessOptions, PacketRef, PipelineReport } from "@/cli/heal/types.js";
+
+async function defaultRunPipeline(cwd: string): Promise<PipelineReport> {
+  const report = await runPipeline(cwd, STAGES, { out: noopStream() });
+  return { result: report.result, packetFile: report.packetFile };
+}
 
 export async function headlessHeal(options: HeadlessOptions = {}): Promise<void> {
   const cwd = options.cwd ?? process.cwd();
@@ -25,8 +32,9 @@ export async function headlessHeal(options: HeadlessOptions = {}): Promise<void>
     );
   }
   const fetchImpl = options.fetchImpl ?? globalThis.fetch;
+  const runPipelineImpl = options.runPipeline ?? defaultRunPipeline;
   const context = await readContext(cwd);
-  const packets = await loadPackets(cwd);
+  let packets = await loadPackets(cwd);
   if (packets.length === 0) {
     emitLine(options.out, { ok: true, healedAtAttempt: 0, reason: "no fix packets" });
     return;
@@ -47,17 +55,30 @@ export async function headlessHeal(options: HeadlessOptions = {}): Promise<void>
       }
     }
     await commitAndPush(cwd, attempt);
-    if (applied === 0) {
+    const report = await runPipelineImpl(cwd);
+    if (report.result === "GREEN") {
       emitLine(options.out, { ok: true, healedAtAttempt: attempt });
       return;
     }
+    if (report.packetFile !== null) {
+      const nextPacket = await readLastPacket(resolve(cwd, report.packetFile));
+      packets = [{ file: report.packetFile, packet: nextPacket }];
+    } else {
+      packets = [];
+    }
   }
 
-  const last = packets[packets.length - 1]!;
+  const last = packets.at(-1);
+  if (last === undefined) {
+    throw new CliError(
+      JSON.stringify(cliFixPacket("AXM-I001", "Headless heal exhausted retries with no fix packet", ["I-11"])),
+      ExitCode.INTERNAL_ERROR
+    );
+  }
   const reportPath = resolve(cwd, "pipeline", "reports", `escalation_headless_${last.packet.runId}.json`);
   await writeEscalationReport(reportPath, last.packet.runId, last.packet, maxRetries);
   const body = `ESCALATION_REPORT\nrunId: ${last.packet.runId}\nerrorCode: ${last.packet.errorCode}\nreport: ${reportPath}`;
-  await postPrComment(body);
+  await postPrComment(body, fetchImpl);
   throw new CliError(
     JSON.stringify(cliFixPacket("AXM-I001", `Headless heal failed after ${maxRetries} attempts`, ["I-11"])),
     ExitCode.INTERNAL_ERROR

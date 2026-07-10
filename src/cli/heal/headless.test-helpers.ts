@@ -1,9 +1,10 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { writeFile } from "node:fs/promises";
 import { writeAgentContext } from "@/cli/manifest/writer.js";
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
 import type { FixPacket } from "@/cli/schemas/fix-packet.js";
+import type { PipelineReport } from "@/cli/heal/types.js";
 
 export function baseContext(): AgentContext {
   return {
@@ -41,6 +42,18 @@ export function packet(target: string): FixPacket {
 
 export function mockFetch(response: unknown): typeof fetch {
   return async () => ({ ok: true, json: async () => response }) as unknown as Response;
+}
+
+export function greenRun(): PipelineReport {
+  return { result: "GREEN", packetFile: null };
+}
+
+export function redRun(dir: string, runId: string): PipelineReport {
+  const packetDir = join(dir, "pipeline", "fix-packets");
+  mkdirSync(packetDir, { recursive: true });
+  const file = `pipeline/fix-packets/run_${runId}.ndjson`;
+  writeFileSync(join(dir, file), `${JSON.stringify({ ...packet("src/components/Box.tsx"), runId })}\n`);
+  return { result: "RED", packetFile: file };
 }
 
 export async function writeHeadlessFixture(

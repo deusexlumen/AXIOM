@@ -6,25 +6,29 @@ export interface OwnershipViolation {
   zone: "LOCKED" | "MACHINE" | "AGENT" | "OPERATOR";
 }
 
-export function determineOwnershipZones(cwd: string, context: AgentContext): OwnershipViolation[] {
-  const violations: OwnershipViolation[] = [];
+export function getOwnershipZone(
+  file: string,
+  context: AgentContext
+): "LOCKED" | "MACHINE" | "AGENT" | "OPERATOR" {
   const locked = new Set(Object.keys(context.integrity.lockedFiles));
   const machine = new Set(Object.keys(context.integrity.machineFiles));
 
-  function zoneOf(file: string): "LOCKED" | "MACHINE" | "AGENT" | "OPERATOR" {
-    if (locked.has(file)) return "LOCKED";
-    if (machine.has(file)) return "MACHINE";
-    if (file === "tokens.json") return "OPERATOR";
-    if (file.startsWith("src/components") || file.startsWith("src/state") || file.startsWith("e2e")) return "AGENT";
-    if (file.startsWith("src/core") || file.startsWith("src/generated") || file.startsWith("src/routes")) return "MACHINE";
-    if (file.startsWith("api/generated")) return "MACHINE";
-    if (file.startsWith("api/contracts") || file.startsWith("api/handlers")) return "AGENT";
-    return "AGENT";
-  }
+  if (locked.has(file)) return "LOCKED";
+  if (machine.has(file)) return "MACHINE";
+  if (file === "tokens.json") return "OPERATOR";
+  if (file.startsWith("src/components") || file.startsWith("src/state") || file.startsWith("e2e")) return "AGENT";
+  if (file.startsWith("src/core") || file.startsWith("src/generated") || file.startsWith("src/routes")) return "MACHINE";
+  if (file.startsWith("api/generated")) return "MACHINE";
+  if (file.startsWith("api/contracts") || file.startsWith("api/handlers")) return "AGENT";
+  return "AGENT";
+}
+
+export function determineOwnershipZones(cwd: string, context: AgentContext): OwnershipViolation[] {
+  const violations: OwnershipViolation[] = [];
 
   for (const component of context.components) {
     const rel = relative(cwd, resolve(cwd, component.file)).replace(/\\/g, "/");
-    if (zoneOf(rel) === "LOCKED") {
+    if (getOwnershipZone(rel, context) === "LOCKED") {
       violations.push({ file: rel, zone: "LOCKED" });
     }
   }
