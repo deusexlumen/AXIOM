@@ -1,6 +1,5 @@
 import { resolve } from "node:path";
 import { runPipeline } from "@/cli/pipeline/runner.js";
-import { STAGES } from "@/cli/commands/pipeline.js";
 import { readContext } from "@/cli/manifest/mutate.js";
 import { writeTextFile } from "@/cli/utils/fs.js";
 import { emitLine, readLastPacket, writeEscalationReport, noopStream } from "@/cli/commands/heal-helpers.js";
@@ -10,19 +9,8 @@ import { loadConfig, loadPackets } from "@/cli/heal/config.js";
 import { isPathAllowed } from "@/cli/heal/scope.js";
 import { callModel } from "@/cli/heal/model.js";
 import { commitAndPush, postPrComment } from "@/cli/heal/git.js";
+import { selectStagesForHeal } from "@/cli/heal/select-stages-for-heal.js";
 import type { HeadlessOptions, PacketRef, PipelineReport } from "@/cli/heal/types.js";
-import type { AxiomConfig } from "@/cli/schemas/config.js";
-import type { FixPacket } from "@/cli/schemas/fix-packet.js";
-import type { Stage } from "@/cli/pipeline/types.js";
-
-export function selectStagesForHeal(config: AxiomConfig, latestPacket?: FixPacket): Stage[] {
-  const e2eOn = config.pipeline.e2eOn;
-  if (e2eOn === "always") return STAGES;
-  if (e2eOn === "never") return STAGES.filter((s) => s.name !== "e2e");
-  const target = latestPacket?.target?.file ?? "";
-  const routeChange = target.startsWith("src/routes/") || target.startsWith("src\\routes\\");
-  return routeChange ? STAGES : STAGES.filter((s) => s.name !== "e2e");
-}
 
 async function defaultRunPipeline(cwd: string): Promise<PipelineReport> {
   const config = await loadConfig(cwd);

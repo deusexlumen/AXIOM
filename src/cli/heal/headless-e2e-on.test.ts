@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { STAGES } from "@/cli/commands/pipeline.js";
-import { selectStagesForHeal } from "@/cli/heal/headless.js";
+import { selectStagesForHeal } from "@/cli/heal/select-stages-for-heal.js";
 import type { AxiomConfig } from "@/cli/schemas/config.js";
 import type { FixPacket } from "@/cli/schemas/fix-packet.js";
 
