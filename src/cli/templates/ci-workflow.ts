@@ -13,8 +13,10 @@ const HEADLESS_BLOCK = `  headless-heal:
       AXIOM_HEAL_MODEL_ENDPOINT: \${{ secrets.AXIOM_HEAL_MODEL_ENDPOINT }}
       AXIOM_HEADLESS_COMMIT_AND_PUSH: "1"
       GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PR_NUMBER: \${{ github.event.number }}
     steps:
       - uses: actions/checkout@v4
+        with: { ref: \${{ github.head_ref }} }
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }

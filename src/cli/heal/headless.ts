@@ -9,7 +9,7 @@ import { loadConfig, loadPackets } from "@/cli/heal/config.js";
 import { isPathAllowed } from "@/cli/heal/scope.js";
 import { callModel } from "@/cli/heal/model.js";
 import { commitAndPush, postPrComment } from "@/cli/heal/git.js";
-import { selectStagesForHeal } from "@/cli/heal/select-stages-for-heal.js";
+import { selectStagesForHeal } from "@/cli/pipeline/select-stages.js";
 import type { HeadlessOptions, PacketRef, PipelineReport } from "@/cli/heal/types.js";
 
 async function defaultRunPipeline(cwd: string): Promise<PipelineReport> {

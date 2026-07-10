@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 import { stat } from "node:fs/promises";
 import { runPipeline } from "@/cli/pipeline/runner.js";
-import { STAGES } from "@/cli/commands/pipeline.js";
+import { STAGES } from "@/cli/pipeline/select-stages.js";
 import { hashFile } from "@/cli/manifest/hash.js";
 import { CliError, cliFixPacket } from "@/cli/errors.js";
 import { ExitCode } from "@/cli/types.js";

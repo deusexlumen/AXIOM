@@ -1,6 +1,6 @@
 import { auditCommand, type AuditOptions } from "@/cli/commands/audit.js";
 import { runPipeline } from "@/cli/pipeline/runner.js";
-import { STAGES } from "@/cli/commands/pipeline.js";
+import { STAGES } from "@/cli/pipeline/select-stages.js";
 import { dbMigrateDryRun, checkPreDeployVeto, runVercelDeploy } from "@/cli/commands/deploy-helpers.js";
 import { takeValue } from "@/cli/bin-helpers.js";
 import { CliError, cliFixPacket } from "@/cli/errors.js";

@@ -1,34 +1,12 @@
 import { resolve } from "node:path";
 import { runPipeline } from "@/cli/pipeline/runner.js";
-import { runValidateStage } from "@/cli/pipeline/stages/validate.js";
-import { runContractStage } from "@/cli/pipeline/stages/contract.js";
-import { runTypecheckStage } from "@/cli/pipeline/stages/typecheck.js";
-import { runLintStage } from "@/cli/pipeline/stages/lint.js";
-import { runUnitStage } from "@/cli/pipeline/stages/unit.js";
-import { runE2eStage } from "@/cli/pipeline/stages/e2e.js";
-import type { Stage, StageName } from "@/cli/pipeline/types.js";
+import { STAGES, selectStagesForPipeline } from "@/cli/pipeline/select-stages.js";
+import type { StageName } from "@/cli/pipeline/types.js";
 import { CliError, cliFixPacket } from "@/cli/errors.js";
 import { ExitCode } from "@/cli/types.js";
 import { loadConfig } from "@/cli/heal/config.js";
-import type { AxiomConfig } from "@/cli/schemas/config.js";
 
-export const STAGES: Stage[] = [
-  { name: "validate", run: runValidateStage },
-  { name: "contract", run: runContractStage },
-  { name: "typecheck", run: runTypecheckStage },
-  { name: "lint", run: runLintStage },
-  { name: "unit", run: runUnitStage },
-  { name: "e2e", run: runE2eStage },
-];
-
-export function selectStagesForPipeline(config: AxiomConfig, scope?: string, stage?: StageName): Stage[] {
-  const e2eOn = config.pipeline.e2eOn;
-  if (e2eOn === "always") return STAGES;
-  if (stage === "e2e") return STAGES;
-  if (e2eOn === "never") return STAGES.filter((s) => s.name !== "e2e");
-  const scopeIsRoute = scope !== undefined && (scope.startsWith("src/routes/") || scope.startsWith("routes/"));
-  return scopeIsRoute ? STAGES : STAGES.filter((s) => s.name !== "e2e");
-}
+export { STAGES, selectStagesForPipeline };
 
 export async function pipelineCommand(args: string[]): Promise<void> {
   const sub = args[0];

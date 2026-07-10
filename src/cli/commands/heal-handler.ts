@@ -13,10 +13,21 @@ export async function healHandler(args: string[]): Promise<number> {
     );
   }
   const rest = args.filter((a) => a !== "--headless" && a !== "--auto");
-  const { value: maxRetries } = takeValue(rest, "--max-retries");
+  const { value: maxRetriesRaw } = takeValue(rest, "--max-retries");
+  let maxRetries: number | undefined;
+  if (maxRetriesRaw !== undefined) {
+    const parsed = Number(maxRetriesRaw);
+    if (Number.isNaN(parsed) || !Number.isInteger(parsed) || parsed <= 0) {
+      throw new CliError(
+        JSON.stringify(cliFixPacket("AXM-V000", `Invalid --max-retries value: ${maxRetriesRaw}`, ["I-11"])),
+        ExitCode.VALIDATION_ERROR
+      );
+    }
+    maxRetries = parsed;
+  }
   await healCommand({
     headless,
-    maxRetries: maxRetries ? Number(maxRetries) : undefined,
+    maxRetries,
   });
   return ExitCode.OK;
 }

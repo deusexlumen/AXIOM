@@ -60,4 +60,13 @@ describe("determineOwnershipZones", () => {
     const violations = determineOwnershipZones("/app", context);
     expect(violations).toHaveLength(0);
   });
+
+  it("allows top-level src files as AGENT zone", () => {
+    const context: AgentContext = {
+      ...baseContext,
+      components: [component({ name: "App", file: "src/App.tsx", spec: "src/App.spec.json", test: "src/App.test.tsx" })],
+    };
+    const violations = determineOwnershipZones("/app", context);
+    expect(violations).toHaveLength(0);
+  });
 });
