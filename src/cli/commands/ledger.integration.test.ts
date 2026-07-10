@@ -3,35 +3,32 @@ import { mkdtempSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
-import { execa } from "execa";
 import { init } from "@/cli/commands/init.js";
-import { noopStream, parseLastLine } from "@/cli/commands/context.integration.helpers.js";
-
-const binPath = join(process.cwd(), "dist", "cli", "bin.js");
-
-type Packet = { errorCode: string; ledgerRefs?: string[] };
-type ResultLine = { type?: string; ok?: boolean; data: Record<string, unknown> };
-
-function parseResult(stdout: string): Record<string, unknown> {
-  const line = parseLastLine(stdout) as ResultLine;
-  return line.type === "result" && line.ok === true ? line.data : line;
-}
-
-function parsePacket(stdout: string): Packet {
-  const line = parseLastLine(stdout) as ResultLine;
-  return (line.type === "result" && line.ok === false ? line.data : line) as Packet;
-}
-
-async function runAxm(dir: string, args: string[]): Promise<{ exitCode: number; stdout: string }> {
-  const result = await execa("node", [binPath, ...args], { cwd: dir, reject: false });
-  return { exitCode: result.exitCode ?? 0, stdout: result.stdout };
-}
+import { noopStream } from "@/cli/commands/context.integration.helpers.js";
+import { runAxm, parseResult, parsePacket } from "@/cli/commands/integration-helpers.js";
 
 function addForbiddenDependency(dir: string): void {
   const path = join(dir, "package.json");
   const pkg = JSON.parse(readFileSync(path, "utf-8")) as { dependencies: Record<string, string> };
   pkg.dependencies["some-forbidden-pkg"] = "1.0.0";
   writeFileSync(path, JSON.stringify(pkg, null, 2));
+}
+
+function ledgerAddArgs(rule: string): string[] {
+  return [
+    "ledger",
+    "add",
+    "--decision",
+    "Avoid some-forbidden-pkg",
+    "--rationale",
+    "Security risk",
+    "--scope",
+    "project",
+    "--class",
+    "enforced",
+    "--rule",
+    rule,
+  ];
 }
 
 describe("axm ledger integration", () => {
@@ -50,20 +47,7 @@ describe("axm ledger integration", () => {
     await init("ledger", { cwd: baseDir, skipInstall: true, out: noopStream() });
 
     const rule = JSON.stringify({ type: "forbidden-dependency", match: ["some-forbidden-pkg"] });
-    const add = await runAxm(app, [
-      "ledger",
-      "add",
-      "--decision",
-      "Avoid some-forbidden-pkg",
-      "--rationale",
-      "Security risk",
-      "--scope",
-      "project",
-      "--class",
-      "enforced",
-      "--rule",
-      rule,
-    ]);
+    const add = await runAxm(app, ledgerAddArgs(rule));
     expect(add.exitCode).toBe(0);
     const addData = parseResult(add.stdout);
     expect(addData.ok).toBe(true);
@@ -82,20 +66,7 @@ describe("axm ledger integration", () => {
     await init("validate", { cwd: baseDir, skipInstall: true, out: noopStream() });
 
     const rule = JSON.stringify({ type: "forbidden-dependency", match: ["some-forbidden-pkg"] });
-    await runAxm(app, [
-      "ledger",
-      "add",
-      "--decision",
-      "Avoid some-forbidden-pkg",
-      "--rationale",
-      "Security risk",
-      "--scope",
-      "project",
-      "--class",
-      "enforced",
-      "--rule",
-      rule,
-    ]);
+    await runAxm(app, ledgerAddArgs(rule));
 
     addForbiddenDependency(app);
 

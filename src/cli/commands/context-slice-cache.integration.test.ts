@@ -9,16 +9,9 @@ import { contextSliceCommand } from "@/cli/commands/context.js";
 import {
   noopStream,
   captureStream,
-  parseLastLine,
   linkComponentChain,
 } from "@/cli/commands/context.integration.helpers.js";
-
-type SliceLine = { type?: string; ok?: boolean; data: Record<string, unknown> };
-
-function parseResult(stdout: string): Record<string, unknown> {
-  const line = parseLastLine(stdout) as SliceLine;
-  return line.type === "result" && line.ok === true ? line.data : line;
-}
+import { parseResult } from "@/cli/commands/integration-helpers.js";
 
 function percentile(sorted: number[], p: number): number {
   const idx = Math.max(0, Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1));
@@ -65,7 +58,7 @@ describe("axm context slice cache", () => {
       await contextSliceCommand({ target: `src/components/Component_${i}.tsx`, cwd: dir, out: capture.stream });
       const data = parseResult(capture.output());
       expect(data.ok).toBe(true);
-      latencies.push(data.latencyMs as number);
+      if (typeof data.latencyMs === "number") latencies.push(data.latencyMs);
     }
     latencies.sort((a, b) => a - b);
     expect(percentile(latencies, 95)).toBeLessThan(200);
