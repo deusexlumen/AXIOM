@@ -18,6 +18,8 @@ import { conductCommand } from "@/cli/commands/conduct.js";
 import { ledgerCommand } from "@/cli/commands/ledger.js";
 import { benchCommand } from "@/cli/commands/bench.js";
 import { auditCommand } from "@/cli/commands/audit.js";
+import { depsCommand } from "@/cli/commands/deps.js";
+import { deployCommand } from "@/cli/commands/deploy.js";
 
 type Handler = (args: string[]) => Promise<number>;
 
@@ -80,6 +82,11 @@ async function splitHandler(args: string[]): Promise<number> {
   return ExitCode.OK;
 }
 
+async function deployHandler(args: string[]): Promise<number> {
+  await deployCommand(args);
+  return ExitCode.OK;
+}
+
 const registry: Record<string, Handler> = {
   init: initHandler,
   validate: wrap(validateCommand),
@@ -98,6 +105,8 @@ const registry: Record<string, Handler> = {
   ledger: wrap(ledgerCommand),
   bench: wrap(benchCommand),
   audit: wrap(auditCommand),
+  deps: wrap(depsCommand),
+  deploy: deployHandler,
 };
 
 export function getCommandHandler(name: string): Handler | undefined {
