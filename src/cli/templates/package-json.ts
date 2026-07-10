@@ -4,6 +4,7 @@ export function packageJson(name: string): string {
       name,
       version: "0.1.0",
       private: true,
+      packageManager: "pnpm@9.15.0",
       type: "module",
       scripts: {
         dev: "vite",
@@ -25,6 +26,7 @@ export function packageJson(name: string): string {
         pg: "8.13.1",
       },
       devDependencies: {
+        "@axiom/cli": "^1.0.0",
         "@electric-sql/pglite": "0.2.17",
         "@types/node": "22.10.5",
         "@types/react": "19.0.0",

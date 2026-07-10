@@ -5,7 +5,7 @@ export interface CiWorkflowOptions {
 const HEADLESS_BLOCK = `  headless-heal:
     runs-on: ubuntu-24.04
     needs: pipeline
-    if: failure()
+    if: failure() && github.event_name == 'pull_request'
     permissions:
       contents: write
       pull-requests: write
@@ -43,6 +43,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps
       - run: pnpm axm audit
       - run: pnpm axm validate
       - run: pnpm axm pipeline run

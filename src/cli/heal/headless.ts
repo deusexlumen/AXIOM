@@ -13,7 +13,9 @@ import { commitAndPush, postPrComment } from "@/cli/heal/git.js";
 import type { HeadlessOptions, PacketRef, PipelineReport } from "@/cli/heal/types.js";
 
 async function defaultRunPipeline(cwd: string): Promise<PipelineReport> {
-  const report = await runPipeline(cwd, STAGES, { out: noopStream() });
+  const config = await loadConfig(cwd);
+  const stages = config.pipeline.e2eOn === "never" ? STAGES.filter((s) => s.name !== "e2e") : STAGES;
+  const report = await runPipeline(cwd, stages, { out: noopStream() });
   return { result: report.result, packetFile: report.packetFile };
 }
 

@@ -62,6 +62,8 @@ describe("axm init", () => {
 
     const pkg = JSON.parse(readFileSync(join(appDir, "package.json"), "utf-8"));
     expect(pkg.name).toBe("demo");
+    expect(pkg.packageManager).toBe("pnpm@9.15.0");
+    expect(pkg.devDependencies).toHaveProperty("@axiom/cli");
 
     const workflowPath = join(appDir, ".github", "workflows", "axiom.yml");
     expect(statSync(workflowPath).isFile()).toBe(true);
@@ -69,6 +71,7 @@ describe("axm init", () => {
     expect(workflow).toContain("actions/checkout@v4");
     expect(workflow).toContain("pnpm/action-setup@v4");
     expect(workflow).toContain("actions/setup-node@v4");
+    expect(workflow).toContain("pnpm exec playwright install --with-deps");
     expect(workflow).toContain("pnpm axm audit");
     expect(workflow).toContain("pnpm axm validate");
     expect(workflow).toContain("pnpm axm pipeline run");

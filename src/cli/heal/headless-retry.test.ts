@@ -2,13 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { Writable } from "node:stream";
 import { headlessHeal } from "@/cli/heal/headless.js";
-import { writeHeadlessFixture, redRun } from "@/cli/heal/headless.test-helpers.js";
-
-function noopStream(): NodeJS.WritableStream {
-  return new Writable({ write() {} });
-}
+import { writeHeadlessFixture, redRun, noopStream } from "@/cli/heal/headless.test-helpers.js";
 
 describe("headlessHeal retry", () => {
   let baseDir: string;

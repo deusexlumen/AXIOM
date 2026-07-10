@@ -4,10 +4,10 @@ import { emitLine } from "@/cli/commands/heal-helpers.js";
 export async function commitAndPush(cwd: string, attempt: number): Promise<void> {
   if (process.env.AXIOM_HEADLESS_COMMIT_AND_PUSH !== "1") return;
   try {
-    execSync('git config user.name "AXIOM Bot" && git config user.email "axm@axiom.local"', {
-      cwd,
-      stdio: "ignore",
-    });
+    execSync(
+      'git config --local user.name "AXIOM Bot" && git config --local user.email "axm@axiom.local"',
+      { cwd, stdio: "ignore" }
+    );
     execSync(
       'git add -A && git diff --cached --quiet || (git commit -m "chore: axm headless heal" --quiet && git push --quiet)',
       { cwd, stdio: "ignore" }

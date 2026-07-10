@@ -1,10 +1,15 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { writeFile } from "node:fs/promises";
+import { Writable } from "node:stream";
 import { writeAgentContext } from "@/cli/manifest/writer.js";
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
 import type { FixPacket } from "@/cli/schemas/fix-packet.js";
 import type { PipelineReport } from "@/cli/heal/types.js";
+
+export function noopStream(): NodeJS.WritableStream {
+  return new Writable({ write() {} });
+}
 
 export function baseContext(): AgentContext {
   return {
