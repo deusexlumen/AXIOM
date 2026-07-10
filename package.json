@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc && tsc-alias",
     "test": "vitest run --reporter=json",
-    "test:integration": "pnpm --filter eslint-plugin-axiom build && pnpm vitest run --config vitest.integration.config.ts src/cli/commands/context-slice-cache.integration.test.ts src/cli/commands/init.integration.test.ts src/cli/commands/ledger.integration.test.ts src/cli/commands/validate.integration.test.ts",
+    "test:integration": "pnpm --filter eslint-plugin-axiom build && pnpm vitest run --config vitest.integration.config.ts src/cli/commands/audit.integration.test.ts src/cli/commands/context-slice-cache.integration.test.ts src/cli/commands/deploy.integration.test.ts src/cli/commands/deps-add.integration.test.ts src/cli/commands/init.integration.test.ts src/cli/commands/ledger.integration.test.ts src/cli/commands/validate.integration.test.ts",
     "dev": "tsx src/cli/bin.ts"
   },
   "engines": {
