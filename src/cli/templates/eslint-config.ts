@@ -19,6 +19,7 @@ export default tseslint.config(
       "axiom/tokens-only": "error",
       "axiom/no-escape-hatch": "error",
       "axiom/static-imports": "error",
+      "axiom/require-axm-id": "error",
     },
   }
 );

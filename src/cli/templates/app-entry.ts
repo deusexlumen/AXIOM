@@ -26,7 +26,7 @@ export function App() {
   return (
     <ErrorBoundary fallback={<div>AXIOM Error</div>}>
       <TokenProvider>
-        <Router routes={[]} />
+        <Router />
       </TokenProvider>
     </ErrorBoundary>
   );

@@ -16,20 +16,8 @@ import { playwrightConfigTs } from "@/cli/templates/playwright-config.js";
 import { drizzleConfigTs } from "@/cli/templates/db/drizzle-config.js";
 import { pgliteClientTs } from "@/cli/templates/db/client.js";
 
-export interface Ownership {
-  locked: string[];
-  machine: string[];
-}
-
 export function gitkeepTemplate(): string {
   return "";
-}
-
-export function ownershipFiles(): Ownership {
-  return {
-    locked: ["src/core/router.ts", "src/core/error-boundary.tsx", "src/core/token-provider.tsx", "src/core/axm-select.ts", "axiom.config.json"],
-    machine: ["src/generated/theme.css", "src/generated/route-manifest.tsx", ".cursorrules", "CLAUDE.md", "agent-context.json", ".axiom/leases.json", "drizzle.config.ts", "db/client.ts", "ledger/decisions.ndjson", "pipeline/bench/cost.ndjson"],
-  };
 }
 
 export function appFiles(projectName: string): AppFile[] {

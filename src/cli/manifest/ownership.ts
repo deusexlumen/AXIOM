@@ -17,6 +17,8 @@ export function determineOwnershipZones(cwd: string, context: AgentContext): Own
     if (file === "tokens.json") return "OPERATOR";
     if (file.startsWith("src/components") || file.startsWith("src/state") || file.startsWith("e2e")) return "AGENT";
     if (file.startsWith("src/core") || file.startsWith("src/generated") || file.startsWith("src/routes")) return "MACHINE";
+    if (file.startsWith("api/generated")) return "MACHINE";
+    if (file.startsWith("api/contracts") || file.startsWith("api/handlers")) return "AGENT";
     return "AGENT";
   }
 

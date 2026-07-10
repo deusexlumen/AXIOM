@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+process.env.NODE_PATH = path.resolve(__dirname, "node_modules");
 
 export default defineConfig({
   resolve: {
@@ -14,6 +15,7 @@ export default defineConfig({
     reporters: ["json"],
     outputFile: "./pipeline/reports/vitest-integration.json",
     hookTimeout: 300000,
-    exclude: ["node_modules/**", "dist/**", "test-app/**"],
+    fileParallelism: false,
+    exclude: ["node_modules/**", "dist/**", "test-app/**", "packages/**"],
   },
 });

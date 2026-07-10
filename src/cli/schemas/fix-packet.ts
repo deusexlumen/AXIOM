@@ -6,7 +6,7 @@ export const FixPacket = z.object({
   runId: z.string(),
   attempt: z.object({ current: z.number().int().nonnegative(), max: z.number().int().positive() }),
   errorCode: z.string(),
-  stage: z.enum(["validate", "typecheck", "lint", "unit", "e2e", "generate"]),
+  stage: z.enum(["validate", "contract", "typecheck", "lint", "unit", "e2e", "generate"]),
   severity: z.enum(["BLOCKING", "WARNING"]),
   target: z.object({
     component: z.string().optional(),
@@ -20,6 +20,8 @@ export const FixPacket = z.object({
   fixHint: z.string(),
   lastAttemptDiff: z.string().optional(),
   contextSlice: z.object({ command: z.string(), estimatedTokens: z.number().int().nonnegative() }).optional(),
+  orderId: z.string().optional(),
+  ledgerRefs: z.array(z.string()).optional(),
   invariantsAffected: z.array(z.string()).default([]),
   agentInstruction: z.string(),
 });

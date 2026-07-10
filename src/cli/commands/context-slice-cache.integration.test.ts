@@ -53,14 +53,27 @@ describe("axm context slice cache", () => {
     linkComponentChain(dir, 30);
 
     const latencies: number[] = [];
+    const targets: string[] = [];
     for (let i = 0; i < 30; i++) {
+      const target = `src/components/Component_${i}.tsx`;
+      targets.push(target);
       const capture = captureStream();
-      await contextSliceCommand({ target: `src/components/Component_${i}.tsx`, cwd: dir, out: capture.stream });
+      await contextSliceCommand({ target, cwd: dir, out: capture.stream });
       const data = parseResult(capture.output());
       expect(data.ok).toBe(true);
       if (typeof data.latencyMs === "number") latencies.push(data.latencyMs);
     }
     latencies.sort((a, b) => a - b);
     expect(percentile(latencies, 95)).toBeLessThan(200);
+
+    let cacheHits = 0;
+    for (const target of targets) {
+      const capture = captureStream();
+      await contextSliceCommand({ target, cwd: dir, out: capture.stream });
+      const data = parseResult(capture.output());
+      expect(data.ok).toBe(true);
+      if (data.cached === true) cacheHits++;
+    }
+    expect(cacheHits).toBeGreaterThanOrEqual(24);
   }, 120000);
 });

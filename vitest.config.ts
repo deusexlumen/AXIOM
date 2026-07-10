@@ -23,6 +23,7 @@ export default defineConfig({
       "packages/**",
       "**/*/node_modules/**",
       "**/*.integration.test.ts",
+      "src/cli/templates/**",
     ],
   },
 });

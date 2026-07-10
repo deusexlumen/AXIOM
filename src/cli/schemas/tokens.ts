@@ -1,17 +1,9 @@
 import { z } from "zod/v3";
-import { zodToJsonSchema } from "zod-to-json-schema";
 
-export interface TokenValueRecord {
-  [key: string]: TokenValue;
-}
+export const TokenValue = z.union([z.string(), z.record(z.string())]);
 
-export type TokenValue = string | TokenValueRecord;
-export const TokenValue: z.ZodType<TokenValue> = z.union([
-  z.string(),
-  z.record(z.string(), z.lazy(() => TokenValue)),
-]);
-export const Tokens = z.record(z.string(), TokenValue);
+export type TokenValue = z.infer<typeof TokenValue>;
 
-export type Tokens = z.infer<typeof Tokens>;
+export const TokensJson = z.record(z.record(TokenValue));
 
-export const TokensJsonSchema = zodToJsonSchema(Tokens, { name: "tokens" });
+export type TokensJson = z.infer<typeof TokensJson>;

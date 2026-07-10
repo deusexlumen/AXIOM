@@ -13,7 +13,10 @@ function hashFile(path: string): string {
 function snapshotDir(dir: string): Map<string, string> {
   const entries = readdirSync(dir, { recursive: true, encoding: "utf-8" })
     .filter((f) => f !== "")
-    .filter((f) => !f.startsWith("node_modules/") && f !== "pnpm-lock.yaml")
+    .filter(
+      (f) =>
+        !f.startsWith("node_modules/") && !f.includes("/dist/") && f !== "pnpm-lock.yaml",
+    )
     .map((f) => join(dir, f))
     .filter((f) => {
       try {

@@ -9,6 +9,10 @@ export const noDefaultExport = createRule({
     messages: { noDefaultExport: "I-04: Default exports are forbidden. Use named exports only." },
   },
   create(context: Rule.RuleContext): Rule.NodeListener {
+    const filename = context.filename ?? "";
+    if (/\.config\.[mc]?[jt]sx?$/.test(filename) || /\.route\.[mc]?[jt]sx?$/.test(filename)) {
+      return {};
+    }
     return {
       ExportDefaultDeclaration(node): void {
         context.report({ node, messageId: "noDefaultExport" });

@@ -6,6 +6,8 @@ export enum ExitCode {
   BUDGET_ERROR = 40,
   INTERNAL_ERROR = 50,
   OWNERSHIP_ERROR = 60,
+  LEASE_ERROR = 70,
+  LEDGER_ERROR = 80,
 }
 
 export type NdjsonLine =

@@ -1,12 +1,8 @@
 export function routerTs(): string {
   return `import type { ReactNode } from "react";
+import { routes } from "@/generated/route-manifest";
 
-export interface Route {
-  path: string;
-  component: ReactNode;
-}
-
-export function Router({ routes }: { routes: Route[] }): ReactNode {
+export function Router(): ReactNode {
   const current = routes.find((r) => r.path === window.location.pathname) ?? routes[0];
   return current?.component ?? null;
 }
