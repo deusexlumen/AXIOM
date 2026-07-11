@@ -30,6 +30,7 @@ export function packageJson(name: string): string {
       },
       devDependencies: {
         "@axiom/cli": "file:./packages/axiom-cli",
+        "@eslint/eslintrc": "3.3.6",
         "@types/node": "22.10.5",
         "@types/react": "19.2.17",
         "@types/react-dom": "19.2.3",

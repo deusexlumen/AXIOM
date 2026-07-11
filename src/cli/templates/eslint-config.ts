@@ -1,14 +1,19 @@
 export function eslintConfigJs(): string {
-  return `import js from "@eslint/js";
+  return `import { FlatCompat } from "@eslint/eslintrc";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import js from "@eslint/js";
 import tseslint from "typescript-eslint";
-import next from "eslint-config-next";
 import axiom from "eslint-plugin-axiom";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const compat = new FlatCompat({ baseDirectory: __dirname });
 
 export default tseslint.config(
   { ignores: ["dist/**", "node_modules/**", ".next/**"] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
-  next,
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     languageOptions: { parserOptions: { project: "./tsconfig.json" } },
     plugins: { axiom },
