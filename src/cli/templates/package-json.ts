@@ -35,6 +35,7 @@ export function packageJson(name: string): string {
         "@types/react-dom": "19.0.0",
         "@vitejs/plugin-react": "4.3.4",
         "@playwright/test": "1.49.1",
+        "odiff-bin": "4.3.8",
         "axe-core": "4.10.2",
         "@axe-core/playwright": "4.10.1",
         eslint: "9.17.0",
