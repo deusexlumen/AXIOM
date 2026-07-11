@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -9,6 +9,10 @@ import { hashString } from "@/cli/manifest/hash.js";
 import { CliError } from "@/cli/errors.js";
 import { ExitCode } from "@/cli/types.js";
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
+
+vi.mock("node:child_process", () => ({
+  execFileSync: vi.fn(),
+}));
 
 function captureStream(): { stream: NodeJS.WritableStream; output: () => string } {
   let data = "";
@@ -39,6 +43,7 @@ function baseContext(): AgentContext {
 async function makeProject(): Promise<string> {
   const dir = mkdtempSync(join(tmpdir(), "axiom-deps-test-"));
   writeFileSync(join(dir, "package.json"), `${JSON.stringify({ name: "demo", version: "1.0.0" }, null, 2)}\n`);
+  writeFileSync(join(dir, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
   writeFileSync(join(dir, "tokens.json"), "{}");
   await writeAgentContext(dir, baseContext());
   return dir;
@@ -94,6 +99,12 @@ describe("depsAdd", () => {
     );
     await expect(depsAdd(["lodash@4.17.21"], { cwd: dir, noPnpm: true })).rejects.toMatchObject({
       exitCode: ExitCode.LEDGER_ERROR,
+    });
+  });
+
+  it("rejects non-exact version specifiers", async () => {
+    await expect(depsAdd(["zod@^3.0.0"], { cwd: dir, noPnpm: true })).rejects.toMatchObject({
+      exitCode: ExitCode.VALIDATION_ERROR,
     });
   });
 });

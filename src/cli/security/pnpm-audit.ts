@@ -54,8 +54,7 @@ function runPnpmAudit(cwd: string): Promise<{ data?: unknown; error?: string }> 
       stderr += chunk.toString("utf-8");
     });
     child.on("error", (error) => {
-      const code = (error as NodeJS.ErrnoException).code;
-      resolve(code === "ENOENT" ? {} : { error: error.message });
+      resolve({ error: `pnpm audit could not be spawned: ${error.message}` });
     });
     child.on("close", (code) => {
       if (code !== 0 && code !== 1) {

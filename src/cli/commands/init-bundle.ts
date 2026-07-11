@@ -6,10 +6,17 @@ export async function bundleEslintPlugin(targetDir: string, cliRoot: string): Pr
   const pluginSource = resolve(cliRoot, "packages/eslint-plugin-axiom");
   const pluginTarget = resolve(targetDir, "packages/eslint-plugin-axiom");
   await rm(pluginTarget, { recursive: true, force: true });
-  await cp(pluginSource, pluginTarget, {
-    recursive: true,
-    filter: (source) => !source.includes("node_modules"),
-  });
+  await mkdir(pluginTarget, { recursive: true });
+
+  const packageJson = resolve(pluginSource, "package.json");
+  if (existsSync(packageJson)) {
+    await cp(packageJson, resolve(pluginTarget, "package.json"));
+  }
+
+  const distDir = resolve(pluginSource, "dist");
+  if (existsSync(distDir)) {
+    await cp(distDir, resolve(pluginTarget, "dist"), { recursive: true });
+  }
 }
 
 export async function bundleCliPackage(targetDir: string, cliRoot: string): Promise<void> {

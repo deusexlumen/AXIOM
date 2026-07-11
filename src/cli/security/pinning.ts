@@ -5,7 +5,7 @@ import { buildSecurityPacket } from "@/cli/security/packet.js";
 const EXACT_SEMVER = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$/;
 const ALLOWED_PROTOCOLS = ["workspace:", "file:", "link:"];
 
-function isExactVersion(version: string): boolean {
+export function isExactVersion(version: string): boolean {
   if (ALLOWED_PROTOCOLS.some((prefix) => version.startsWith(prefix))) return true;
   return EXACT_SEMVER.test(version);
 }
