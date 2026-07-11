@@ -5,6 +5,7 @@ import { appFiles } from "@/cli/templates/app.js";
 import { ownershipFiles } from "@/cli/templates/ownership.js";
 import { initialAgentContext } from "@/cli/templates/manifest.js";
 import { cursorRules, claudeMd } from "@/cli/templates/docs.js";
+import { motionAxmJson } from "@/cli/templates/motion.js";
 import { writeTextFile } from "@/cli/utils/fs.js";
 import { readContext, writeContext } from "@/cli/manifest/mutate.js";
 import { hashFile, hashString } from "@/cli/manifest/hash.js";
@@ -63,6 +64,9 @@ export async function init(name: string, options: InitOptions = {}): Promise<voi
   created.push(".cursorrules");
   await writeTextFile(resolve(targetDir, "CLAUDE.md"), claudeMd(context));
   created.push("CLAUDE.md");
+
+  await writeTextFile(resolve(targetDir, "MOTION.axm.json"), motionAxmJson());
+  created.push("MOTION.axm.json");
 
   await tokensBuild(targetDir, options.out);
 
