@@ -66,7 +66,7 @@ export function installVulnerablePackage(dir: string): void {
   const pkg = JSON.parse(readFileSync(path, "utf-8")) as { dependencies: Record<string, string> };
   pkg.dependencies["drizzle-orm"] = "0.41.0";
   writeFileSync(path, `${JSON.stringify(pkg, null, 2)}\n`);
-  execFileSync("pnpm", ["install", "--prefer-offline", "--ignore-scripts"], {
+  execFileSync("pnpm", ["install", "--lockfile-only", "--prefer-offline", "--ignore-scripts"], {
     cwd: dir,
     stdio: "ignore",
     timeout: 120000,

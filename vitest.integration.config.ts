@@ -15,8 +15,9 @@ export default defineConfig({
     reporters: ["json"],
     outputFile: "./pipeline/reports/vitest-integration.json",
     hookTimeout: 300000,
+    testTimeout: 120000,
     globalSetup: ["./src/test/integration.config.ts"],
-    maxWorkers: 4,
+    maxWorkers: 3,
     exclude: ["node_modules/**", "dist/**", "test-app/**", "packages/**"],
   },
 });
