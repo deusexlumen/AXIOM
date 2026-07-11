@@ -61,4 +61,12 @@ describe("motionTs generator", () => {
     };
     expect(() => motionTs(bad)).toThrow(/exceeds dur.max/);
   });
+
+  it("throws when dur.max is missing", () => {
+    const bad: MotionJson = {
+      ...motion,
+      dur: { micro: 0.18, ui: 0.35, reveal: 0.9, scene: 1.6 },
+    };
+    expect(() => motionTs(bad)).toThrow(/Missing required dur.max cap/);
+  });
 });

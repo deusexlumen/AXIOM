@@ -21,6 +21,29 @@ const validMotion = {
   reducedMotion: { strategy: "opacity-only", durFactor: 0.5 },
 };
 
+type Issue = { path: Array<string | number>; message: string };
+type SafeParseResult =
+  | { success: true }
+  | { success: false; error: { issues: Issue[] } };
+
+function expectIssue(
+  result: SafeParseResult,
+  path: Array<string | number>,
+  message: string,
+): void {
+  expect(result.success).toBe(false);
+  if (!result.success) {
+    expect(result.error.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path,
+          message: expect.stringContaining(message),
+        }),
+      ]),
+    );
+  }
+}
+
 describe("MotionJson schema", () => {
   it("accepts a valid default MOTION object", () => {
     const result = MotionJson.safeParse(validMotion);
@@ -34,7 +57,7 @@ describe("MotionJson schema", () => {
         bad: { grammar: "fade", dur: "missing", ease: "hero" },
       },
     });
-    expect(result.success).toBe(false);
+    expectIssue(result, ["transitions", "bad", "dur"], "unknown dur token");
   });
 
   it("rejects a transition with a missing ease token", () => {
@@ -44,7 +67,7 @@ describe("MotionJson schema", () => {
         bad: { grammar: "fade", dur: "ui", ease: "missing" },
       },
     });
-    expect(result.success).toBe(false);
+    expectIssue(result, ["transitions", "bad", "ease"], "unknown ease token");
   });
 
   it("rejects a duration exceeding dur.max", () => {
@@ -52,6 +75,14 @@ describe("MotionJson schema", () => {
       ...validMotion,
       dur: { ...validMotion.dur, scene: 3 },
     });
-    expect(result.success).toBe(false);
+    expectIssue(result, ["dur", "scene"], "exceeds dur.max");
+  });
+
+  it("rejects an ease curve tuple with the wrong length", () => {
+    const result = MotionJson.safeParse({
+      ...validMotion,
+      ease: { ...validMotion.ease, bad: { curve: [0, 1, 2], meaning: "bad" } },
+    });
+    expectIssue(result, ["ease", "bad", "curve"], "at least 4");
   });
 });

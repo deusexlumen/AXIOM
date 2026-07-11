@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 
 const easeItemSchema = z.object({
   curve: z.tuple([z.number(), z.number(), z.number(), z.number()]),
