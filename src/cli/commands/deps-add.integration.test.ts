@@ -2,21 +2,9 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdtempSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { execa } from "execa";
 import { init } from "@/cli/commands/init.js";
 import { noopStream } from "@/cli/commands/context.integration.helpers.js";
-import { parseResult, parsePacket } from "@/cli/commands/integration-helpers.js";
-
-const binPath = join(process.cwd(), "dist", "cli", "bin.js");
-
-async function runAxm(
-  dir: string,
-  args: string[],
-  env?: NodeJS.ProcessEnv
-): Promise<{ exitCode: number; stdout: string }> {
-  const result = await execa("node", [binPath, ...args], { cwd: dir, reject: false, env });
-  return { exitCode: result.exitCode ?? 0, stdout: result.stdout };
-}
+import { parseResult, parsePacket, runAxm } from "@/cli/commands/integration-helpers.js";
 
 describe("axm deps add integration", () => {
   let base: string;
