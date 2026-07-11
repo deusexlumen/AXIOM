@@ -48,7 +48,7 @@ export function runDiff(cwd: string, component: string): StageResult & { ratio?:
         1,
         1,
         "e2e",
-        ["I-13"]
+        []
       ),
     };
   }
@@ -76,7 +76,7 @@ export function runDiff(cwd: string, component: string): StageResult & { ratio?:
           1,
           1,
           "e2e",
-          ["I-13"],
+          [],
           { baseline: paths.baseline, actual: paths.actual, diff: paths.diff, ratio }
         ),
       };
@@ -95,7 +95,7 @@ export function runDiff(cwd: string, component: string): StageResult & { ratio?:
         1,
         1,
         "e2e",
-        ["I-13"]
+        []
       ),
     };
   }

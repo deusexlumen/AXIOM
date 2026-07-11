@@ -1,24 +1,9 @@
 import { chromium } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { CliError, cliFixPacket } from "@/cli/errors.js";
 import { VISUAL_CONFIG } from "@/cli/visual/config.js";
-
-function buildHarness(component: string): string {
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #ffffff; }
-    </style>
-  </head>
-  <body>
-    <div data-axm-visual="harness" data-axm-component="${component}"></div>
-  </body>
-</html>`;
-}
+import { ExitCode } from "@/cli/types.js";
 
 async function injectFont(page: import("@playwright/test").Page, cwd: string): Promise<void> {
   const fontData = await readFile(resolve(cwd, VISUAL_CONFIG.fontPath));
@@ -37,8 +22,15 @@ export async function captureScreenshot(
   cwd: string,
   component: string,
   outPath: string,
-  routeUrl?: string
+  routeUrl: string
 ): Promise<void> {
+  if (!routeUrl.trim()) {
+    throw new CliError(
+      JSON.stringify(cliFixPacket("AXM-V000", "routeUrl is required for visual screenshots", [])),
+      ExitCode.VALIDATION_ERROR
+    );
+  }
+
   const browser = await chromium.launch({
     channel: VISUAL_CONFIG.chromiumChannel as "chromium",
   });
@@ -49,10 +41,7 @@ export async function captureScreenshot(
   });
   const page = await context.newPage();
 
-  const url =
-    routeUrl ??
-    `data:text/html,${encodeURIComponent(buildHarness(component))}`;
-  await page.goto(url);
+  await page.goto(routeUrl);
   await injectFont(page, cwd);
   await page.evaluate("document.fonts.ready");
 

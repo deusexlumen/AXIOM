@@ -4,6 +4,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { checkPins, VISUAL_CONFIG } from "@/cli/visual/config.js";
 
+function lockfileWith(specifier: string): string {
+  return `lockfileVersion: '9.0'
+importers:
+  .:
+    dependencies:
+      '@playwright/test':
+        specifier: ${specifier}
+        version: 1.61.1
+`;
+}
+
 describe("checkPins", () => {
   let baseDir: string;
 
@@ -27,13 +38,13 @@ describe("checkPins", () => {
     });
   });
 
-  it("detects exact Playwright version, font, lockfile and reduced motion", async () => {
+  it("detects exact Playwright version in dependencies", async () => {
     writeFileSync(
       join(baseDir, "package.json"),
-      JSON.stringify({ devDependencies: { "@playwright/test": "1.49.1" } })
+      JSON.stringify({ dependencies: { "@playwright/test": "1.61.1" } })
     );
     writeFileSync(join(baseDir, VISUAL_CONFIG.fontPath), "font");
-    writeFileSync(join(baseDir, "pnpm-lock.yaml"), "lockfile");
+    writeFileSync(join(baseDir, "pnpm-lock.yaml"), lockfileWith("1.61.1"));
     writeFileSync(join(baseDir, "src/core/styles.css"), "@media (prefers-reduced-motion: reduce) { * { animation: none; } }");
 
     const pins = await checkPins(baseDir);
@@ -45,11 +56,33 @@ describe("checkPins", () => {
     });
   });
 
-  it("rejects non-exact Playwright versions", async () => {
+  it("detects exact Playwright version in devDependencies", async () => {
     writeFileSync(
       join(baseDir, "package.json"),
-      JSON.stringify({ devDependencies: { "@playwright/test": "^1.49.1" } })
+      JSON.stringify({ devDependencies: { "@playwright/test": "1.61.1" } })
     );
+    writeFileSync(join(baseDir, "pnpm-lock.yaml"), lockfileWith("1.61.1"));
+
+    const pins = await checkPins(baseDir);
+    expect(pins.chromiumLocked).toBe(true);
+  });
+
+  it("rejects non-exact package.json versions", async () => {
+    writeFileSync(
+      join(baseDir, "package.json"),
+      JSON.stringify({ devDependencies: { "@playwright/test": "^1.61.1" } })
+    );
+    writeFileSync(join(baseDir, "pnpm-lock.yaml"), lockfileWith("1.61.1"));
+    const pins = await checkPins(baseDir);
+    expect(pins.chromiumLocked).toBe(false);
+  });
+
+  it("rejects non-exact lockfile specifiers", async () => {
+    writeFileSync(
+      join(baseDir, "package.json"),
+      JSON.stringify({ devDependencies: { "@playwright/test": "1.61.1" } })
+    );
+    writeFileSync(join(baseDir, "pnpm-lock.yaml"), lockfileWith("^1.61.1"));
     const pins = await checkPins(baseDir);
     expect(pins.chromiumLocked).toBe(false);
   });

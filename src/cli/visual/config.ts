@@ -29,6 +29,53 @@ function isExactVersion(version: unknown): boolean {
   return typeof version === "string" && /^\d+\.\d+\.\d+$/.test(version);
 }
 
+function getPkgVersion(pkg: Record<string, unknown>): string | undefined {
+  const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+  const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
+  return deps["@playwright/test"] ?? devDeps["@playwright/test"];
+}
+
+function findLockedSpecifier(lockContent: string): string | undefined {
+  const lines = lockContent.split("\n");
+  let inRoot = false;
+  let inDeps = false;
+  let target: string | undefined;
+
+  for (const line of lines) {
+    if (line.startsWith("  .:")) {
+      inRoot = true;
+      inDeps = false;
+      target = undefined;
+      continue;
+    }
+    if (!inRoot) continue;
+
+    if (line.startsWith("    dependencies:") || line.startsWith("    devDependencies:")) {
+      inDeps = true;
+      target = undefined;
+      continue;
+    }
+
+    if (line.startsWith("  ") && !line.startsWith("    ")) {
+      inRoot = false;
+      inDeps = false;
+      target = undefined;
+      continue;
+    }
+
+    if (inDeps && line.startsWith("      '@playwright/test':")) {
+      target = "@playwright/test";
+      continue;
+    }
+
+    if (target && line.startsWith("        specifier:")) {
+      return line.slice(line.indexOf(":") + 1).trim();
+    }
+  }
+
+  return undefined;
+}
+
 export async function checkPins(cwd: string): Promise<VisualPins> {
   const pkgPath = resolve(cwd, "package.json");
   const cssPath = resolve(cwd, "src/core/styles.css");
@@ -37,10 +84,11 @@ export async function checkPins(cwd: string): Promise<VisualPins> {
 
   let chromiumLocked = false;
   try {
-    const pkg = JSON.parse(await readFile(pkgPath, "utf-8")) as {
-      devDependencies?: Record<string, string>;
-    };
-    chromiumLocked = isExactVersion(pkg.devDependencies?.["@playwright/test"]);
+    const pkg = JSON.parse(await readFile(pkgPath, "utf-8")) as Record<string, unknown>;
+    const lockContent = await readFile(lockPath, "utf-8");
+    const pkgExact = isExactVersion(getPkgVersion(pkg));
+    const lockExact = isExactVersion(findLockedSpecifier(lockContent));
+    chromiumLocked = pkgExact && lockExact;
   } catch {
     chromiumLocked = false;
   }
