@@ -14,7 +14,7 @@ const transitionSchema = z.object({
 export const MotionJson = z
   .object({
     ease: z.record(z.string(), easeItemSchema),
-    dur: z.record(z.string(), z.number()),
+    dur: z.object({ max: z.number() }).catchall(z.number()),
     stagger: z.record(z.string(), z.number()),
     scroll: z.object({
       lenis: z.object({ lerp: z.number() }),
