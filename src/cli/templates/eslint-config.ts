@@ -1,12 +1,14 @@
 export function eslintConfigJs(): string {
   return `import js from "@eslint/js";
 import tseslint from "typescript-eslint";
+import next from "eslint-config-next";
 import axiom from "eslint-plugin-axiom";
 
 export default tseslint.config(
-  { ignores: ["dist/**", "node_modules/**"] },
+  { ignores: ["dist/**", "node_modules/**", ".next/**"] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
+  next,
   {
     languageOptions: { parserOptions: { project: "./tsconfig.json" } },
     plugins: { axiom },
@@ -20,6 +22,7 @@ export default tseslint.config(
       "axiom/no-escape-hatch": "error",
       "axiom/static-imports": "error",
       "axiom/require-axm-id": "error",
+      "axiom/no-raw-motion-engine": "error",
     },
   }
 );

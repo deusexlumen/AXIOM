@@ -9,16 +9,13 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "json",
   use: {
-    baseURL: "http://localhost:5173/",
+    baseURL: "http://localhost:3000/",
     trace: "on-first-retry",
-    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
-      ? { headless: true, launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } }
-      : {}),
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "pnpm exec vite --port 5173",
-    url: "http://localhost:5173/",
+    command: "pnpm dev",
+    url: "http://localhost:3000/",
     reuseExistingServer: true,
   },
 });

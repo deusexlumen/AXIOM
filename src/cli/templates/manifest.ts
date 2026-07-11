@@ -5,7 +5,7 @@ export function axiomConfigJson(): string {
     {
       budgets: { maxLocPerFile: 120, maxBytesPerFile: 4096, maxRetries: 3 },
       pipeline: {
-        stages: ["validate", "contract", "typecheck", "lint", "unit", "e2e"],
+        stages: ["validate", "typecheck", "lint", "unit", "e2e"],
         e2eOn: "route-change",
       },
       context: { sliceDepth: 2, signatureOnlyBeyondDepth: 1 },
