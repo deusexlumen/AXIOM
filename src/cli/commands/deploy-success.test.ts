@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { deployCommand } from "@/cli/commands/deploy.js";
+import { CliError } from "@/cli/errors.js";
+import { ExitCode } from "@/cli/types.js";
 import {
   captureStream,
   makeProject,
@@ -44,7 +46,7 @@ describe("deployCommand success paths", () => {
     const cap = captureStream();
     await deployCommand([], {
       cwd: dir,
-      env: "local",
+      env: "preview",
       out: cap.stream,
       audit: noopAudit,
       runPipelineFn: greenPipeline,
@@ -61,7 +63,7 @@ describe("deployCommand success paths", () => {
     const cap = captureStream();
     await deployCommand([], {
       cwd: dir,
-      env: "local",
+      env: "preview",
       out: cap.stream,
       audit: noopAudit,
       runPipelineFn: greenPipeline,
@@ -77,7 +79,7 @@ describe("deployCommand success paths", () => {
     const cap = captureStream();
     await deployCommand([], {
       cwd: dir,
-      env: "local",
+      env: "preview",
       out: cap.stream,
       audit: noopAudit,
       runPipelineFn: greenPipeline,
@@ -85,5 +87,29 @@ describe("deployCommand success paths", () => {
     const line = JSON.parse(cap.output().trim().split("\n").pop()!);
     expect(line.data.ok).toBe(true);
     expect(line.data.url).toBe("https://env.example.com");
+  });
+
+  it("defaults to preview when --env is omitted", async () => {
+    const cap = captureStream();
+    await deployCommand([], {
+      cwd: dir,
+      out: cap.stream,
+      audit: noopAudit,
+      runPipelineFn: greenPipeline,
+      vercelDeployFn: mockVercel,
+    });
+    const line = JSON.parse(cap.output().trim().split("\n").pop()!);
+    expect(line.data.ok).toBe(true);
+    expect(line.data.url).toBe("https://demo.example.com");
+  });
+
+  it("rejects an invalid --env value", async () => {
+    await expect(
+      deployCommand(["--env", "staging"], {
+        cwd: dir,
+        audit: noopAudit,
+        runPipelineFn: greenPipeline,
+      })
+    ).rejects.toMatchObject({ exitCode: ExitCode.VALIDATION_ERROR });
   });
 });

@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { readContext } from "@/cli/manifest/mutate.js";
 import { verifyMigrationHashes } from "@/cli/commands/db-helpers.js";
 
-export async function dbMigrateDryRun(cwd: string, _env: "local" | "prod"): Promise<void> {
+export async function dbMigrateDryRun(cwd: string): Promise<void> {
   // Dry-run only verifies the local migration hash chain; no live connection is opened.
   const context = await readContext(cwd);
   await verifyMigrationHashes(cwd, context);

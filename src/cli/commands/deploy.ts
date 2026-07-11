@@ -11,7 +11,7 @@ import type { Stage, PipelineOptions, PipelineReport } from "@/cli/pipeline/type
 export interface DeployOptions {
   cwd?: string;
   out?: NodeJS.WritableStream;
-  env?: "local" | "prod";
+  env?: "preview" | "prod";
   prod?: boolean;
   audit?: (options?: AuditOptions) => Promise<void>;
   runPipelineFn?: (cwd: string, stages: Stage[], options?: PipelineOptions) => Promise<PipelineReport>;
@@ -44,7 +44,7 @@ export async function deployCommand(args: string[], options: DeployOptions = {})
     );
   }
 
-  await dbMigrateDryRun(cwd, env);
+  await dbMigrateDryRun(cwd);
 
   if (await checkPreDeployVeto(cwd)) {
     result({ awaitingVeto: true }, options.out);
@@ -55,8 +55,14 @@ export async function deployCommand(args: string[], options: DeployOptions = {})
   result({ ok: true, url }, options.out);
 }
 
-function parseEnv(args: string[]): "local" | "prod" {
+function parseEnv(args: string[]): "preview" | "prod" {
   const { value } = takeValue(args, "--env");
-  if (value === "local") return "local";
-  return "prod";
+  if (value === "prod") return "prod";
+  if (value === undefined || value === "preview") return "preview";
+  throw new CliError(
+    JSON.stringify(
+      cliFixPacket("AXM-V000", `Invalid --env value: ${value}. Allowed values: preview|prod`, ["I-11"])
+    ),
+    ExitCode.VALIDATION_ERROR
+  );
 }

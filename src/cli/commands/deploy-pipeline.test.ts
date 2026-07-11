@@ -17,7 +17,7 @@ describe("deployCommand pipeline abort", () => {
 
   it("aborts when the pipeline is RED", async () => {
     await expect(
-      deployCommand([], { cwd: dir, env: "local", audit: noopAudit, runPipelineFn: redPipeline })
+      deployCommand([], { cwd: dir, env: "preview", audit: noopAudit, runPipelineFn: redPipeline })
     ).rejects.toMatchObject({ exitCode: ExitCode.VALIDATION_ERROR });
   });
 });

@@ -25,7 +25,7 @@ describe("deployCommand migration hash abort", () => {
       "sha256:0000000000000000000000000000000000000000000000000000000000000000";
     await writeAgentContext(dir, context);
     await expect(
-      deployCommand([], { cwd: dir, env: "local", audit: noopAudit, runPipelineFn: greenPipeline })
+      deployCommand([], { cwd: dir, env: "preview", audit: noopAudit, runPipelineFn: greenPipeline })
     ).rejects.toMatchObject({ exitCode: ExitCode.VALIDATION_ERROR });
   });
 });

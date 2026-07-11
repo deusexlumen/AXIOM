@@ -63,7 +63,7 @@ describe("axm deploy integration", () => {
     try {
       await deployCommand([], {
         cwd: dir,
-        env: "local",
+        env: "preview",
         audit: s001Audit,
         runPipelineFn: greenPipeline,
       });
@@ -80,7 +80,7 @@ describe("axm deploy integration", () => {
     const cap = captureStream();
     await deployCommand([], {
       cwd: dir,
-      env: "local",
+      env: "preview",
       out: cap.stream,
       audit: noopAudit,
       runPipelineFn: greenPipeline,
@@ -97,7 +97,7 @@ describe("axm deploy integration", () => {
     const cap = captureStream();
     await deployCommand([], {
       cwd: dir,
-      env: "local",
+      env: "preview",
       out: cap.stream,
       audit: noopAudit,
       runPipelineFn: greenPipeline,

@@ -17,7 +17,7 @@ describe("deployCommand audit abort", () => {
 
   it("aborts when audit reports a security finding", async () => {
     await expect(
-      deployCommand([], { cwd: dir, env: "local", runPipelineFn: greenPipeline })
+      deployCommand([], { cwd: dir, env: "preview", runPipelineFn: greenPipeline })
     ).rejects.toMatchObject({ exitCode: ExitCode.SECURITY_ERROR });
   });
 });
