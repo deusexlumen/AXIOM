@@ -5,6 +5,10 @@ function easeTuple(curve: [number, number, number, number]): string {
 }
 
 export function motionTs(motion: MotionJson): string {
+  const max = motion.dur.max;
+  if (max === undefined) {
+    throw new Error("Missing required dur.max cap");
+  }
   const lines: string[] = [];
   lines.push("export const motion = {");
   lines.push("  ease: {");
@@ -25,9 +29,12 @@ export function motionTs(motion: MotionJson): string {
   lines.push(`  scroll: ${JSON.stringify(motion.scroll)},`);
   lines.push("  transitions: {");
   for (const [key, item] of Object.entries(motion.transitions)) {
-    const dur = typeof item.dur === "number" ? item.dur : motion.dur[item.dur];
+    const dur = motion.dur[item.dur];
     if (dur === undefined) {
       throw new Error(`Missing dur reference "${item.dur}" in transition "${key}"`);
+    }
+    if (dur > max) {
+      throw new Error(`Duration ${dur} for transition "${key}" exceeds dur.max ${max}`);
     }
     const ease = motion.ease[item.ease];
     if (ease === undefined) {
