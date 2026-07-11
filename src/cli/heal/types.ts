@@ -5,6 +5,7 @@ export interface HeadlessOptions {
   maxRetries?: number;
   out?: NodeJS.WritableStream;
   fetchImpl?: typeof fetch;
+  githubFetchImpl?: typeof fetch;
   runPipeline?: RunPipeline;
 }
 

@@ -54,4 +54,18 @@ describe("headlessHeal success", () => {
     });
     expect(existsSync(join(baseDir, "src/components/Box.tsx"))).toBe(false);
   });
+
+  it("skips when ci.headlessHeal is omitted", async () => {
+    const fetchImpl = await writeHeadlessFixture(baseDir, undefined, "src/components/Box.tsx", {
+      patches: [{ file: "src/components/Box.tsx", content: "export function Box() {}" }],
+    });
+    await headlessHeal({
+      cwd: baseDir,
+      out: noopStream(),
+      fetchImpl,
+      runPipeline: async () => greenRun(),
+      maxRetries: 1,
+    });
+    expect(existsSync(join(baseDir, "src/components/Box.tsx"))).toBe(false);
+  });
 });

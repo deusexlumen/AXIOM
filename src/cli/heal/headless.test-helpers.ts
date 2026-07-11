@@ -63,17 +63,19 @@ export function redRun(dir: string, runId: string): PipelineReport {
 
 export async function writeHeadlessFixture(
   dir: string,
-  enabled: boolean,
+  enabled: boolean | undefined,
   target: string,
   response: unknown,
   maxRetries = 3
 ): Promise<typeof fetch> {
-  const config = {
+  const config: Record<string, unknown> = {
     budgets: { maxLocPerFile: 120, maxBytesPerFile: 4096, maxRetries },
     pipeline: { stages: ["validate", "typecheck", "lint", "unit"], e2eOn: "never" },
     context: { sliceDepth: 2, signatureOnlyBeyondDepth: 1 },
-    ci: { headlessHeal: { enabled } },
   };
+  if (enabled !== undefined) {
+    config.ci = { headlessHeal: { enabled } };
+  }
   await writeFile(join(dir, "axiom.config.json"), JSON.stringify(config, null, 2));
   await writeAgentContext(dir, baseContext());
   const packetDir = join(dir, "pipeline", "fix-packets");

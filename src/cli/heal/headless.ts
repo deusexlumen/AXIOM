@@ -24,8 +24,8 @@ async function defaultRunPipeline(cwd: string): Promise<PipelineReport> {
 export async function headlessHeal(options: HeadlessOptions = {}): Promise<void> {
   const cwd = options.cwd ?? process.cwd();
   const config = await loadConfig(cwd);
-  if (config.ci?.headlessHeal?.enabled === false) {
-    emitLine(options.out, { ok: true, skipped: true, reason: "ci.headlessHeal.enabled is false" });
+  if (config.ci?.headlessHeal?.enabled !== true) {
+    emitLine(options.out, { ok: true, skipped: true, reason: "ci.headlessHeal.enabled is not true" });
     return;
   }
   const endpoint = process.env.AXIOM_HEAL_MODEL_ENDPOINT;
@@ -61,7 +61,7 @@ export async function headlessHeal(options: HeadlessOptions = {}): Promise<void>
     await commitAndPush(cwd, attempt);
     const report = await runPipelineImpl(cwd);
     if (report.result === "GREEN") {
-      emitLine(options.out, { ok: true, healedAtAttempt: attempt });
+      emitLine(options.out, { ok: true, healedAtAttempt: attempt, applied });
       return;
     }
     if (report.packetFile !== null) {
@@ -82,7 +82,7 @@ export async function headlessHeal(options: HeadlessOptions = {}): Promise<void>
   const reportPath = resolve(cwd, "pipeline", "reports", `escalation_headless_${last.packet.runId}.json`);
   await writeEscalationReport(reportPath, last.packet.runId, last.packet, maxRetries);
   const body = `ESCALATION_REPORT\nrunId: ${last.packet.runId}\nerrorCode: ${last.packet.errorCode}\nreport: ${reportPath}`;
-  await postPrComment(body, fetchImpl);
+  await postPrComment(body, options.githubFetchImpl ?? globalThis.fetch);
   throw new CliError(
     JSON.stringify(cliFixPacket("AXM-I001", `Headless heal failed after ${maxRetries} attempts`, ["I-11"])),
     ExitCode.INTERNAL_ERROR

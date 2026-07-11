@@ -11,6 +11,7 @@ export async function callModel(endpoint: string, packet: FixPacket, fetchImpl: 
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ packet }),
+    signal: AbortSignal.timeout(60000),
   });
   if (!response.ok) {
     throw new Error(`Model endpoint returned ${response.status}`);

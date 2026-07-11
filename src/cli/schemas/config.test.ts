@@ -31,4 +31,14 @@ describe("AxiomConfig schema", () => {
     };
     expect(AxiomConfig.safeParse(raw).success).toBe(false);
   });
+
+  it("defaults ci.headlessHeal.enabled to false when ci is omitted", () => {
+    const raw = {
+      budgets: { maxLocPerFile: 120, maxBytesPerFile: 4096, maxRetries: 3 },
+      pipeline: { stages: ["validate", "unit"] },
+      context: { sliceDepth: 2, signatureOnlyBeyondDepth: 1 },
+    };
+    const parsed = AxiomConfig.parse(raw);
+    expect(parsed.ci.headlessHeal.enabled).toBe(false);
+  });
 });

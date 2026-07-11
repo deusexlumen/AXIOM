@@ -18,10 +18,10 @@ export const AxiomConfig = z.object({
   ci: z
     .object({
       headlessHeal: z.object({
-        enabled: z.boolean(),
+        enabled: z.boolean().default(false),
       }),
     })
-    .optional(),
+    .default({ headlessHeal: { enabled: false } }),
 });
 
 export type AxiomConfig = z.infer<typeof AxiomConfig>;
