@@ -89,6 +89,7 @@ import Lenis from "lenis";
 
 export function useLenis(): void {
   useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const lenis = new Lenis({ lerp: 0.09 });
     function raf(time: number) {
       lenis.raf(time);
@@ -102,7 +103,6 @@ export function useLenis(): void {
 }
 `;
 }
-
 export function errorBoundaryTsx(): string {
   return `"use client";
 import type { ReactNode } from "react";
