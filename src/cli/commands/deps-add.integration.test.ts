@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdtempSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { execSync } from "node:child_process";
 import { execa } from "execa";
 import { init } from "@/cli/commands/init.js";
 import { noopStream } from "@/cli/commands/context.integration.helpers.js";
@@ -24,7 +23,6 @@ describe("axm deps add integration", () => {
 
   beforeAll(() => {
     base = mkdtempSync(join(tmpdir(), "axiom-deps-add-integ-"));
-    execSync("pnpm build", { cwd: process.cwd(), stdio: "ignore" });
   }, 300000);
 
   afterAll(() => rmSync(base, { recursive: true, force: true, maxRetries: 3 }));

@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { execSync } from "node:child_process";
 import { init } from "@/cli/commands/init.js";
 import { addComponent } from "@/cli/commands/add.js";
 import { contextSliceCommand } from "@/cli/commands/context.js";
@@ -23,8 +22,6 @@ describe("axm context slice cache", () => {
 
   beforeAll(() => {
     baseDir = mkdtempSync(join(tmpdir(), "axiom-slice-cache-integ-"));
-    execSync("pnpm build", { cwd: process.cwd(), stdio: "ignore" });
-    execSync("pnpm --filter eslint-plugin-axiom build", { cwd: process.cwd(), stdio: "ignore" });
   }, 300000);
 
   afterAll(() => rmSync(baseDir, { recursive: true, force: true, maxRetries: 3 }));

@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { execSync } from "node:child_process";
 import { parsePacket } from "@/cli/commands/integration-helpers.js";
 import {
   makeAuditProject,
@@ -19,7 +18,6 @@ describe("axm audit integration", () => {
 
   beforeAll(() => {
     base = mkdtempSync(join(tmpdir(), "axiom-audit-integ-"));
-    execSync("pnpm build", { cwd: process.cwd(), stdio: "ignore" });
   }, 300000);
 
   afterAll(() => rmSync(base, { recursive: true, force: true, maxRetries: 3 }));

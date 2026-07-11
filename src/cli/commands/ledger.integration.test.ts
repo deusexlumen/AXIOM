@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdtempSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { execSync } from "node:child_process";
 import { init } from "@/cli/commands/init.js";
 import { noopStream } from "@/cli/commands/context.integration.helpers.js";
 import { runAxm, parseResult, parsePacket } from "@/cli/commands/integration-helpers.js";
@@ -36,8 +35,6 @@ describe("axm ledger integration", () => {
 
   beforeAll(() => {
     baseDir = mkdtempSync(join(tmpdir(), "axiom-ledger-integ-"));
-    execSync("pnpm build", { cwd: process.cwd(), stdio: "ignore" });
-    execSync("pnpm --filter eslint-plugin-axiom build", { cwd: process.cwd(), stdio: "ignore" });
   }, 300000);
 
   afterAll(() => rmSync(baseDir, { recursive: true, force: true, maxRetries: 3 }));
