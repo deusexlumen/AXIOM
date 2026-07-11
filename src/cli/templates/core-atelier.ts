@@ -1,14 +1,29 @@
 export function stageTsx(): string {
   return `"use client";
-import { useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import * as THREE from "three";
+import { Canvas } from "@react-three/fiber";
 import type { ReactNode } from "react";
-import fragmentShader from "@/shaders/quad.frag.glsl";
+
 interface StageProps {
   children?: ReactNode;
   className?: string;
 }
+
+export function Stage({ children, className }: StageProps) {
+  return (
+    <Canvas className={className} gl={{ antialias: true, alpha: true }}>
+      {children}
+    </Canvas>
+  );
+}
+`;
+}
+
+export function quadMeshTsx(): string {
+  return `"use client";
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import fragmentShader from "@/shaders/quad.frag.glsl";
 
 const vertexShader = \`varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }\`;
 
@@ -29,14 +44,6 @@ export function QuadMesh() {
         uniforms={{ uTime: { value: 0 } }}
       />
     </mesh>
-  );
-}
-
-export function Stage({ children, className }: StageProps) {
-  return (
-    <Canvas className={className} gl={{ antialias: true, alpha: true }}>
-      {children}
-    </Canvas>
   );
 }
 `;

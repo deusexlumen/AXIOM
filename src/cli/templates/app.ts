@@ -7,6 +7,7 @@ import { eslintConfigJs } from "@/cli/templates/eslint-config.js";
 import { vitestConfigTs } from "@/cli/templates/vitest-config.js";
 import { axiomConfigJson, tokensJson } from "@/cli/templates/manifest.js";
 import { routerTs, errorBoundaryTsx, tokenProviderTsx } from "@/cli/templates/core.js";
+import { quadMeshTsx } from "@/cli/templates/core-atelier.js";
 import { axmSelectTs } from "@/cli/templates/playwright-helpers.js";
 import { stylesCss } from "@/cli/templates/generated.js";
 import { mainTsx, appTsx, appTestTsx, indexHtml } from "@/cli/templates/app-entry.js";
@@ -41,6 +42,7 @@ export function appFiles(projectName: string): AppFile[] {
     { path: "src/core/router.ts", content: routerTs() },
     { path: "src/core/error-boundary.tsx", content: errorBoundaryTsx() },
     { path: "src/core/token-provider.tsx", content: tokenProviderTsx() },
+    { path: "src/core/QuadMesh.tsx", content: quadMeshTsx() },
     { path: "src/core/axm-select.ts", content: axmSelectTs() },
     { path: "src/main.tsx", content: mainTsx() },
     { path: "src/App.tsx", content: appTsx() },

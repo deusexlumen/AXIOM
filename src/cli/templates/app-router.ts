@@ -22,7 +22,8 @@ export function pageTsx(): string {
 
 import { useEffect, useRef } from "react";
 import { useChoreo } from "@/core/useChoreo";
-import { Stage, QuadMesh } from "@/core/Stage";
+import { Stage } from "@/core/Stage";
+import { QuadMesh } from "@/core/QuadMesh";
 import { useLenis } from "@/core/lenis";
 import { motion } from "@/generated/motion";
 
