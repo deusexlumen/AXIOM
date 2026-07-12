@@ -47,6 +47,7 @@ export default tseslint.config(
       "axiom/require-axm-id": "error",
       "axiom/no-raw-motion-engine": "error",
       "axiom/motion-token-usage": "error",
+      "axiom/no-direct-timeline": "error",
     },
   }
 );
