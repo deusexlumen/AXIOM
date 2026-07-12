@@ -109,7 +109,7 @@ describe("tokensBuild", () => {
         text: { family: "InterVariable" },
         scaleRatio: 1.333,
       },
-      color: { story: "Test", tokensDraft: {} },
+      color: { story: "Test", tokensDraft: { "bg-primary": "#0a0a0a" } },
       space: { language: "airy", density: 0.3, gridBias: "asymmetric" },
       motionPersonality: { adjectives: ["calm"], tempo: "mid", playfulness: 0.5 },
       texture: { grain: 0, noiseShader: false },
@@ -122,6 +122,8 @@ describe("tokensBuild", () => {
     const css = readFileSync(resolve(baseDir, "src", "generated", "theme.css"), "utf-8");
     expect(css).toContain("--font-size-base:");
     expect(css).toContain("--font-family-display:");
+    expect(css).toContain("--color-bg-primary:");
+    expect(css).toContain("--space-4:");
     expect(css).toContain("clamp(");
   });
 

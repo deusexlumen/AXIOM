@@ -6,7 +6,7 @@ import { MotionJson } from "@/cli/schemas/motion.js";
 import { DirectionJson } from "@/cli/schemas/direction.js";
 import { themeCss } from "@/cli/generators/tokens.js";
 import { motionTs } from "@/cli/generators/motion.js";
-import { typographyTokensFromDirection } from "@/cli/generators/typography.js";
+import { directionTokens } from "@/cli/generators/direction-tokens.js";
 import { hashString } from "@/cli/manifest/hash.js";
 import { writeTextFile } from "@/cli/utils/fs.js";
 import { result } from "@/cli/utils/ndjson.js";
@@ -44,7 +44,7 @@ export async function tokensBuild(cwd: string, out?: NodeJS.WritableStream): Pro
   if (await fileExists(directionPath)) {
     const directionRaw = await readFile(directionPath, "utf-8");
     const direction = DirectionJson.parse(JSON.parse(directionRaw));
-    Object.assign(extraTokens, typographyTokensFromDirection(direction));
+    Object.assign(extraTokens, directionTokens(direction));
   }
 
   const css = themeCss(tokens, extraTokens);
