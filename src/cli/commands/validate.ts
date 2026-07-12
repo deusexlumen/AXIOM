@@ -17,6 +17,7 @@ import {
   checkDynamicImports,
   checkOwnership,
   checkIntegrity,
+  checkDirectionFreeze,
 } from "@/cli/validate/checks.js";
 import { runEslintChecks } from "@/cli/validate/lint.js";
 import { checkLedger } from "@/cli/validate/ledger.js";
@@ -68,6 +69,7 @@ export async function validate(
     () => checkDynamicImports(cwd, context),
     () => Promise.resolve(checkOwnership(cwd, context)),
     () => checkIntegrity(cwd, context),
+    () => checkDirectionFreeze(cwd, context),
     () => runEslintChecks(cwd, files),
     ...(options?.ledger ? [() => checkLedger(cwd, context)] : []),
   ];

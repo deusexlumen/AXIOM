@@ -96,6 +96,13 @@ export const AgentContext = z.object({
   endpoints: z.array(EndpointEntry).optional(),
   db: DbContext.optional(),
   tokens: z.object({ file: z.string(), hash: z.string() }),
+  direction: z
+    .object({
+      file: z.string(),
+      hash: z.string(),
+      frozenAt: z.string().datetime().optional(),
+    })
+    .optional(),
   integrity: z.object({
     lockedFiles: z.record(z.string(), z.string()),
     machineFiles: z.record(z.string(), z.string()),

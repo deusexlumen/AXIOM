@@ -107,6 +107,11 @@ export async function checkIntegrity(cwd: string, context: AgentContext) {
       violations.push({ file: context.tokens.file, expected: context.tokens.hash, actual });
     }
   }
+  const frozenDirectionFile = context.direction?.file;
+  const index = violations.findIndex((v) => v.file === frozenDirectionFile);
+  if (index !== -1) {
+    violations.splice(index, 1);
+  }
   if (violations.length > 0) {
     const file = violations[0]!.file;
     return buildFixPacket(
@@ -116,6 +121,23 @@ export async function checkIntegrity(cwd: string, context: AgentContext) {
       ["I-10"],
       "Re-run 'axm init' or restore the original file.",
       "File changed after manifest was written."
+    );
+  }
+  return null;
+}
+
+export async function checkDirectionFreeze(cwd: string, context: AgentContext) {
+  if (!context.direction) return null;
+  const filePath = resolve(cwd, context.direction.file);
+  const actual = await hashFile(filePath);
+  if (actual !== context.direction.hash) {
+    return buildFixPacket(
+      "AXM-R002",
+      `Direction hash drift: ${context.direction.file} was changed after freeze at ${context.direction.frozenAt ?? "unknown"}.`,
+      context.direction.file,
+      ["I-20"],
+      "Use 'atl direct amend --reason <text>' to update the frozen hash, or restore the original file.",
+      "Agent mutated a frozen DIRECTION.axm.json without amending."
     );
   }
   return null;

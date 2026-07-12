@@ -7,6 +7,7 @@ import { pipelineCommand } from "@/cli/commands/pipeline.js";
 import { healHandler } from "@/cli/commands/heal-handler.js";
 import { runAddCommand } from "@/cli/bin-commands.js";
 import { tokensBuild, motionBuild } from "@/cli/commands/tokens-build.js";
+import { directGenerate, directChoose, directAmend } from "@/cli/commands/direct.js";
 import { apiCommand } from "@/cli/commands/api.js";
 import { dbCommand } from "@/cli/commands/db.js";
 import { contextSliceCommand } from "@/cli/commands/context.js";
@@ -60,6 +61,25 @@ async function motionHandler(args: string[]): Promise<number> {
   unknownSubcommand("motion", sub);
 }
 
+async function directHandler(args: string[]): Promise<number> {
+  const sub = args[0];
+  const cwd = process.cwd();
+  if (sub === "generate") {
+    await directGenerate({ cwd });
+    return ExitCode.OK;
+  }
+  if (sub === "choose") {
+    await directChoose({ cwd, directionId: requireArg(args[1], "<id>") });
+    return ExitCode.OK;
+  }
+  if (sub === "amend") {
+    const { value: reason } = takeValue(args.slice(1), "--reason");
+    await directAmend({ cwd, reason: requireArg(reason, "--reason <text>") });
+    return ExitCode.OK;
+  }
+  unknownSubcommand("direct", sub);
+}
+
 async function contextHandler(args: string[]): Promise<number> {
   const sub = args[0];
   if (sub === "slice") {
@@ -101,6 +121,7 @@ const registry: Record<string, Handler> = {
   add: (args) => runAddCommand(args),
   tokens: tokensHandler,
   motion: motionHandler,
+  direct: directHandler,
   api: wrap(apiCommand),
   db: wrap(dbCommand),
   context: contextHandler,
