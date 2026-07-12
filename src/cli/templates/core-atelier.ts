@@ -57,19 +57,37 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+interface ReducedMotionOptions {
+  strategy: "opacity-only" | "instant" | "none";
+  durFactor?: number;
+}
+
 interface ChoreoOptions {
   id: string;
+  reducedMotion: ReducedMotionOptions | "opacity-only" | "instant";
 }
 
 interface ChoreoResult {
   timeline: gsap.core.Timeline;
   isReducedMotion: boolean;
+  reducedMotionOptions: ReducedMotionOptions;
+}
+
+function normalizeReducedMotion(
+  input: ReducedMotionOptions | "opacity-only" | "instant",
+): ReducedMotionOptions {
+  if (typeof input === "string") {
+    return { strategy: input };
+  }
+  return input;
 }
 
 export function useChoreo(options: ChoreoOptions): ChoreoResult {
   const isReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const reducedMotionOptions = normalizeReducedMotion(options.reducedMotion);
 
   const timeline = useMemo(() => {
     return gsap.timeline({ id: options.id });
@@ -84,7 +102,7 @@ export function useChoreo(options: ChoreoOptions): ChoreoResult {
     };
   }, [timeline, options.id]);
 
-  return { timeline, isReducedMotion };
+  return { timeline, isReducedMotion, reducedMotionOptions };
 }
 `;
 }

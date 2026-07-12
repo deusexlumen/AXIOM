@@ -48,6 +48,7 @@ export default tseslint.config(
       "axiom/no-raw-motion-engine": "error",
       "axiom/motion-token-usage": "error",
       "axiom/no-direct-timeline": "error",
+      "axiom/require-reduced-motion": "error",
     },
   }
 );

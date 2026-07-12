@@ -9,6 +9,7 @@ import { requireAxmId } from "@/rules/require-axm-id.js";
 import { noRawMotionEngine } from "@/rules/no-raw-motion-engine.js";
 import { motionTokenUsage } from "@/rules/motion-token-usage.js";
 import { noDirectTimeline } from "@/rules/no-direct-timeline.js";
+import { requireReducedMotion } from "@/rules/require-reduced-motion.js";
 
 const plugin = {
   meta: {
@@ -27,6 +28,7 @@ const plugin = {
     "no-raw-motion-engine": noRawMotionEngine,
     "motion-token-usage": motionTokenUsage,
     "no-direct-timeline": noDirectTimeline,
+    "require-reduced-motion": requireReducedMotion,
   },
 };
 
