@@ -17,6 +17,7 @@ import {
 import { axmSelectTs } from "@/cli/templates/playwright-helpers.js";
 import { quadFragGlsl, glslDts } from "@/cli/templates/shader.js";
 import { motionAxmJson } from "@/cli/templates/motion.js";
+import { directionAxmJson } from "@/cli/templates/direction.js";
 import { smokeSpecTs } from "@/cli/templates/e2e/smoke.spec.js";
 import { playwrightConfigTs } from "@/cli/templates/playwright-config.js";
 import { ciWorkflowYaml } from "@/cli/templates/ci-workflow.js";
@@ -44,6 +45,7 @@ export function appFiles(projectName: string): AppFile[] {
     { path: "axiom.config.json", content: axiomConfigJson() },
     { path: "tokens.json", content: tokensJson() },
     { path: "MOTION.axm.json", content: motionAxmJson() },
+    { path: "DIRECTION.axm.json", content: directionAxmJson() },
     { path: "app/layout.tsx", content: layoutTsx(projectName) },
     { path: "app/page.tsx", content: pageTsx() },
     { path: "app/globals.css", content: globalsCss() },
