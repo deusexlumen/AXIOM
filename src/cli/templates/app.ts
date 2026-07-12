@@ -19,6 +19,7 @@ import { quadFragGlsl, glslDts } from "@/cli/templates/shader.js";
 import { motionAxmJson } from "@/cli/templates/motion.js";
 import { directionAxmJson } from "@/cli/templates/direction.js";
 import { smokeSpecTs } from "@/cli/templates/e2e/smoke.spec.js";
+import { reducedMotionSpecTs } from "@/cli/templates/e2e/reduced-motion.spec.js";
 import { playwrightConfigTs } from "@/cli/templates/playwright-config.js";
 import { ciWorkflowYaml } from "@/cli/templates/ci-workflow.js";
 import { gitignore } from "@/cli/templates/gitignore.js";
@@ -67,6 +68,7 @@ export function appFiles(projectName: string): AppFile[] {
     { path: "pipeline/bench/cost.ndjson", content: gitkeepTemplate() },
     { path: "e2e/.gitkeep", content: gitkeepTemplate() },
     { path: "e2e/smoke.spec.ts", content: smokeSpecTs() },
+    { path: "e2e/reduced-motion.spec.ts", content: reducedMotionSpecTs() },
     { path: ".gitignore", content: gitignore() },
   ];
 }
