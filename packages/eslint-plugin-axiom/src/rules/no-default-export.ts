@@ -10,7 +10,11 @@ export const noDefaultExport = createRule({
   },
   create(context: Rule.RuleContext): Rule.NodeListener {
     const filename = context.filename ?? "";
-    if (/\.config\.[mc]?[jt]sx?$/.test(filename) || /\.route\.[mc]?[jt]sx?$/.test(filename)) {
+    if (
+      /\.config\.[mc]?[jt]sx?$/.test(filename) ||
+      /\.route\.[mc]?[jt]sx?$/.test(filename) ||
+      /app\/(layout|page)\.[mc]?[jt]sx?$/.test(filename)
+    ) {
       return {};
     }
     return {
