@@ -7,6 +7,7 @@ import { noEscapeHatch } from "@/rules/no-escape-hatch.js";
 import { staticImports } from "@/rules/static-imports.js";
 import { requireAxmId } from "@/rules/require-axm-id.js";
 import { noRawMotionEngine } from "@/rules/no-raw-motion-engine.js";
+import { motionTokenUsage } from "@/rules/motion-token-usage.js";
 
 const plugin = {
   meta: {
@@ -23,6 +24,7 @@ const plugin = {
     "static-imports": staticImports,
     "require-axm-id": requireAxmId,
     "no-raw-motion-engine": noRawMotionEngine,
+    "motion-token-usage": motionTokenUsage,
   },
 };
 

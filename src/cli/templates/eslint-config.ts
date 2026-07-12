@@ -46,6 +46,7 @@ export default tseslint.config(
       "axiom/static-imports": "error",
       "axiom/require-axm-id": "error",
       "axiom/no-raw-motion-engine": "error",
+      "axiom/motion-token-usage": "error",
     },
   }
 );
