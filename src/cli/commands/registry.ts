@@ -8,6 +8,7 @@ import { healHandler } from "@/cli/commands/heal-handler.js";
 import { runAddCommand } from "@/cli/bin-commands.js";
 import { tokensBuild, motionBuild } from "@/cli/commands/tokens-build.js";
 import { directGenerate, directChoose, directAmend } from "@/cli/commands/direct.js";
+import { briefElicit, briefValidate } from "@/cli/commands/brief.js";
 import { apiCommand } from "@/cli/commands/api.js";
 import { dbCommand } from "@/cli/commands/db.js";
 import { contextSliceCommand } from "@/cli/commands/context.js";
@@ -80,6 +81,21 @@ async function directHandler(args: string[]): Promise<number> {
   unknownSubcommand("direct", sub);
 }
 
+async function briefHandler(args: string[]): Promise<number> {
+  const sub = args[0];
+  const cwd = process.cwd();
+  if (sub === "elicit") {
+    const { value: answersPath } = takeValue(args.slice(1), "--answers");
+    await briefElicit({ cwd, answersPath });
+    return ExitCode.OK;
+  }
+  if (sub === "validate") {
+    await briefValidate({ cwd });
+    return ExitCode.OK;
+  }
+  unknownSubcommand("brief", sub);
+}
+
 async function contextHandler(args: string[]): Promise<number> {
   const sub = args[0];
   if (sub === "slice") {
@@ -122,6 +138,7 @@ const registry: Record<string, Handler> = {
   tokens: tokensHandler,
   motion: motionHandler,
   direct: directHandler,
+  brief: briefHandler,
   api: wrap(apiCommand),
   db: wrap(dbCommand),
   context: contextHandler,

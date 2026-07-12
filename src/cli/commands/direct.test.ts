@@ -34,11 +34,14 @@ describe("direct commands", () => {
     rmSync(baseDir, { recursive: true, force: true });
   });
 
-  it("generate creates three direction candidates", async () => {
+  it("generate creates three direction candidates and style-tile orders", async () => {
     await directGenerate({ cwd: baseDir, out: noopStream() });
     expect(existsSync(resolve(baseDir, "DIRECTION_A.axm.json"))).toBe(true);
     expect(existsSync(resolve(baseDir, "DIRECTION_B.axm.json"))).toBe(true);
     expect(existsSync(resolve(baseDir, "DIRECTION_C.axm.json"))).toBe(true);
+    expect(existsSync(resolve(baseDir, "orders", "open", "style-tile-dir_a.json"))).toBe(true);
+    expect(existsSync(resolve(baseDir, "orders", "open", "style-tile-dir_b.json"))).toBe(true);
+    expect(existsSync(resolve(baseDir, "orders", "open", "style-tile-dir_c.json"))).toBe(true);
   });
 
   it("choose copies a candidate to DIRECTION.axm.json and freezes it", async () => {

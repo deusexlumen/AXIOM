@@ -2,10 +2,12 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { readContext, writeContext } from "@/cli/manifest/mutate.js";
 import { DirectionJson } from "@/cli/schemas/direction.js";
-import { hashFile, hashString } from "@/cli/manifest/hash.js";
+import { WorkOrder } from "@/cli/schemas/work-order.js";
+import { hashFile } from "@/cli/manifest/hash.js";
 import { result } from "@/cli/utils/ndjson.js";
 import { CliError } from "@/cli/errors.js";
 import { buildFixPacket } from "@/cli/validate/packet.js";
+import { styleTileOrder } from "@/cli/templates/style-tile-order.js";
 import { ExitCode } from "@/cli/types.js";
 
 const CANDIDATES = ["A", "B", "C"] as const;
@@ -34,7 +36,15 @@ export async function directGenerate({ cwd, out }: DirectGenerateOptions): Promi
     const direction = sampleDirection(candidate);
     await writeFile(path, `${JSON.stringify(direction, null, 2)}\n`, "utf-8");
   }
-  result({ ok: true, candidates: CANDIDATES.map((c) => `dir_${c}`) }, out);
+  const ordersDir = resolve(cwd, "orders", "open");
+  await mkdir(ordersDir, { recursive: true });
+  const orders: WorkOrder[] = [];
+  for (const candidate of CANDIDATES) {
+    const order = styleTileOrder(`dir_${candidate.toLowerCase()}`);
+    await writeFile(resolve(ordersDir, `${order.orderId}.json`), `${JSON.stringify(order, null, 2)}\n`, "utf-8");
+    orders.push(order);
+  }
+  result({ ok: true, candidates: CANDIDATES.map((c) => `dir_${c}`), orders: orders.map((o) => o.orderId) }, out);
 }
 
 export async function directChoose({ cwd, directionId, out }: DirectChooseOptions): Promise<void> {
