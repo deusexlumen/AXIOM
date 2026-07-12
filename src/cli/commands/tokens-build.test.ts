@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, readFileSync, writeFileSync, mkdirSync, existsSync
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { Writable } from "node:stream";
-import { tokensBuild } from "@/cli/commands/tokens-build.js";
+import { tokensBuild, motionBuild } from "@/cli/commands/tokens-build.js";
 
 function noopStream(): NodeJS.WritableStream {
   return new Writable({ write() {} });
@@ -88,15 +88,49 @@ describe("tokensBuild", () => {
     expect(context.integrity.machineFiles["src/generated/motion.ts"]).toMatch(/^sha256:/);
   });
 
-  it("reports both generated files in CLI output", async () => {
+  it("reports generated files in CLI output", async () => {
     const { stream, lines } = captureStream();
     await tokensBuild(baseDir, stream);
 
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toMatchObject({ type: "result", ok: true });
+    expect((lines[0] as { data: { files: string[] } }).data.files).toContain("src/generated/motion.ts");
+    expect(lines[1]).toMatchObject({ type: "result", ok: true });
+    expect((lines[1] as { data: { files: string[] } }).data.files).toContain("src/generated/theme.css");
+    expect((lines[1] as { data: { files: string[] } }).data.files).toContain("src/generated/motion.ts");
+  });
+
+  it("injects fluid typography tokens when DIRECTION.axm.json exists", async () => {
+    writeJson(resolve(baseDir, "DIRECTION.axm.json"), {
+      directionId: "dir_test",
+      thesis: "Test",
+      typography: {
+        display: { family: "FrauncesVariable", axis: { wght: [200, 900] } },
+        text: { family: "InterVariable" },
+        scaleRatio: 1.333,
+      },
+      color: { story: "Test", tokensDraft: {} },
+      space: { language: "airy", density: 0.3, gridBias: "asymmetric" },
+      motionPersonality: { adjectives: ["calm"], tempo: "mid", playfulness: 0.5 },
+      texture: { grain: 0, noiseShader: false },
+      webglLevel: 0,
+      sceneIdeas: ["Test"],
+    });
+
+    await tokensBuild(baseDir, noopStream());
+
+    const css = readFileSync(resolve(baseDir, "src", "generated", "theme.css"), "utf-8");
+    expect(css).toContain("--font-size-base:");
+    expect(css).toContain("--font-family-display:");
+    expect(css).toContain("clamp(");
+  });
+
+  it("motionBuild generates only motion.ts", async () => {
+    const { stream, lines } = captureStream();
+    await motionBuild(baseDir, stream);
+
     expect(lines).toHaveLength(1);
-    const result = lines[0] as { type: string; ok: boolean; data: { files: string[] } };
-    expect(result.type).toBe("result");
-    expect(result.ok).toBe(true);
-    expect(result.data.files).toContain("src/generated/theme.css");
-    expect(result.data.files).toContain("src/generated/motion.ts");
+    expect(lines[0]).toMatchObject({ type: "result", ok: true });
+    expect((lines[0] as { data: { files: string[] } }).data.files).toEqual(["src/generated/motion.ts"]);
   });
 });

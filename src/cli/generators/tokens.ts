@@ -10,13 +10,17 @@ function flatten(prefix: string, value: TokenValue, out: Record<string, string>)
   }
 }
 
-export function themeCss(tokens: TokensJson): string {
+export function themeCss(tokens: TokensJson, extraTokens: Record<string, string> = {}): string {
   const map: Record<string, string> = {};
 
   for (const [category, values] of Object.entries(tokens)) {
     for (const [name, value] of Object.entries(values)) {
       flatten(`${category}-${name}`, value, map);
     }
+  }
+
+  for (const [key, value] of Object.entries(extraTokens)) {
+    map[key] = value;
   }
 
   const keys = Object.keys(map).sort();

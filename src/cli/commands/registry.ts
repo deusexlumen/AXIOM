@@ -6,7 +6,7 @@ import { validateCommand } from "@/cli/commands/validate.js";
 import { pipelineCommand } from "@/cli/commands/pipeline.js";
 import { healHandler } from "@/cli/commands/heal-handler.js";
 import { runAddCommand } from "@/cli/bin-commands.js";
-import { tokensBuild } from "@/cli/commands/tokens-build.js";
+import { tokensBuild, motionBuild } from "@/cli/commands/tokens-build.js";
 import { apiCommand } from "@/cli/commands/api.js";
 import { dbCommand } from "@/cli/commands/db.js";
 import { contextSliceCommand } from "@/cli/commands/context.js";
@@ -51,6 +51,15 @@ async function tokensHandler(args: string[]): Promise<number> {
   unknownSubcommand("tokens", sub);
 }
 
+async function motionHandler(args: string[]): Promise<number> {
+  const sub = args[0];
+  if (sub === "build") {
+    await motionBuild(process.cwd());
+    return ExitCode.OK;
+  }
+  unknownSubcommand("motion", sub);
+}
+
 async function contextHandler(args: string[]): Promise<number> {
   const sub = args[0];
   if (sub === "slice") {
@@ -91,6 +100,7 @@ const registry: Record<string, Handler> = {
   heal: healHandler,
   add: (args) => runAddCommand(args),
   tokens: tokensHandler,
+  motion: motionHandler,
   api: wrap(apiCommand),
   db: wrap(dbCommand),
   context: contextHandler,
