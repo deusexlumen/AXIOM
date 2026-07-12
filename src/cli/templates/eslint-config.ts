@@ -1,21 +1,39 @@
 export function eslintConfigJs(): string {
-  return `import { FlatCompat } from "@eslint/eslintrc";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
+  return `import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import axiom from "eslint-plugin-axiom";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const compat = new FlatCompat({ baseDirectory: __dirname });
-
 export default tseslint.config(
-  { ignores: ["dist/**", "node_modules/**", ".next/**"] },
-  js.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      ".next/**",
+      "packages/**",
+      "next-env.d.ts",
+      "eslint.config.js",
+    ],
+  },
+  js.configs.recommended,
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    extends: [...tseslint.configs.strictTypeChecked],
     languageOptions: { parserOptions: { project: "./tsconfig.json" } },
+  },
+  {
+    files: ["**/*.js"],
+    extends: [tseslint.configs.disableTypeChecked],
+  },
+  {
+    files: ["next.config.ts"],
+    rules: {
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+    },
+  },
+  {
+    files: ["**/*.ts", "**/*.tsx", "**/*.js"],
     plugins: { axiom },
     rules: {
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],

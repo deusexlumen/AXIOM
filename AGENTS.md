@@ -81,6 +81,7 @@ axiom-app/
 | I-10 | Verzeichnisse haben Ownership-Zonen |
 | I-11 | Jeder CLI-Output ist NDJSON; jeder Fehler folgt dem FIX_PACKET-Schema |
 | I-12 | Keine dynamischen Imports mit variablen Pfaden |
+| I-13 | Jede Komponente rendert `data-axm-id="<Name>"` auf dem Root-JSX-Element |
 
 ## CLI-Vertrag (`axm`)
 

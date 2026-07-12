@@ -30,7 +30,7 @@ const vertexShader = \`varying vec2 vUv; void main() { vUv = uv; gl_Position = p
 export function QuadMesh() {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   useFrame(({ clock }) => {
-    if (materialRef.current) {
+    if (materialRef.current?.uniforms.uTime) {
       materialRef.current.uniforms.uTime.value = clock.getElapsedTime();
     }
   });

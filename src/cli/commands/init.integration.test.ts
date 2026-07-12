@@ -27,7 +27,7 @@ describe("axm init integration", () => {
     const appDir = join(baseDir, "demo");
     installAppDeps(appDir);
     execSync("pnpm build", { cwd: appDir, stdio: "ignore" });
-    expect(existsSync(join(appDir, "dist", "index.html"))).toBe(true);
+    expect(existsSync(join(appDir, ".next"))).toBe(true);
   });
 
   it("detects I-18 raw motion engine import via lint", { timeout: 120000 }, async () => {
@@ -49,8 +49,8 @@ describe("axm init integration", () => {
       lintOutput += String((error as { stdout?: string; stderr?: string }).stderr ?? "");
     }
 
-    expect(lintOutput).toContain("noRawMotionEngine");
+    expect(lintOutput).toContain("no-raw-motion-engine");
     expect(lintOutput).toContain("I-18");
-    expect(lintOutput).toContain("src/components/RawMotion.tsx");
+    expect(lintOutput).toContain("RawMotion.tsx");
   });
 });

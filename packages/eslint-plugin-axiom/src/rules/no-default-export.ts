@@ -9,11 +9,12 @@ export const noDefaultExport = createRule({
     messages: { noDefaultExport: "I-04: Default exports are forbidden. Use named exports only." },
   },
   create(context: Rule.RuleContext): Rule.NodeListener {
-    const filename = context.filename ?? "";
+    const filename = (context.filename ?? "").replace(/^file:\/\//, "").replace(/\\/g, "/");
     if (
       /\.config\.[mc]?[jt]sx?$/.test(filename) ||
       /\.route\.[mc]?[jt]sx?$/.test(filename) ||
-      /app\/(layout|page)\.[mc]?[jt]sx?$/.test(filename)
+      /app\/(layout|page)\.[mc]?[jt]sx?$/.test(filename) ||
+      /\.d\.ts$/.test(filename)
     ) {
       return {};
     }

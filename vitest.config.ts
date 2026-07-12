@@ -20,6 +20,7 @@ export default defineConfig({
       "demo/**",
       "verify-app/**",
       "m1-demo/**",
+      "atelier-a0-demo/**",
       "packages/**",
       "**/*/node_modules/**",
       "**/*.integration.test.ts",

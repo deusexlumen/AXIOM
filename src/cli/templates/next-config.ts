@@ -4,13 +4,11 @@ export function nextConfigTs(): string {
 const nextConfig: NextConfig = {
   output: "export",
   distDir: "dist",
-  webpack(config, { isServer }) {
-    if (!isServer) {
-      config.module.rules.push({
-        test: /\\.glsl$/,
-        use: "raw-loader",
-      });
-    }
+  webpack(config) {
+    config.module.rules.unshift({
+      test: /\\.glsl$/,
+      use: "raw-loader",
+    });
     return config;
   },
 };

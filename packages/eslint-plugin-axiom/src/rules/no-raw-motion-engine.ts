@@ -28,9 +28,8 @@ export const noRawMotionEngine = createRule({
     },
   },
   create(context: Rule.RuleContext): Rule.NodeListener {
-    const filename = context.filename ?? "";
-    const normalized = filename.replace(/\\/g, "/");
-    if (/src\/core\//.test(normalized)) {
+    const filename = (context.filename ?? "").replace(/^file:\/\//, "").replace(/\\/g, "/");
+    if (/src\/core\//.test(filename)) {
       return {};
     }
     return {
