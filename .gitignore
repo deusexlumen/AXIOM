@@ -10,3 +10,11 @@ coverage/
 test-app/
 pipeline/reports/
 pipeline/fix-packets/
+logs/
+tmp/
+demo/
+.axiom/
+.claude/
+ledger/
+pipeline/bench/
+**/pipeline/reports/
