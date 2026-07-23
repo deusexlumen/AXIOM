@@ -4,7 +4,7 @@ export function handlerStub(contractName: string, routeKey: string, route: Contr
   const routeName = `${contractName}.${routeKey}`;
   return `import type { HandlerFor } from "@/api/generated/handler-types";
 
-export async function ${routeKey}Handler(
+export function ${routeKey}Handler(
   input: HandlerFor<"${routeName}">["input"]
 ): Promise<HandlerFor<"${routeName}">["output"]> {
   // TODO: implement ${route.method} ${route.path}

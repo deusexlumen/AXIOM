@@ -1,6 +1,8 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readlinkSync, statSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { join, resolve } from "node:path";
+import { readContext, writeContext } from "@/cli/manifest/mutate.js";
+import { hashFile } from "@/cli/manifest/hash.js";
 
 const PARENT_NODE_MODULES = resolve(process.cwd(), "node_modules");
 
@@ -33,11 +35,17 @@ export function installPackage(cwd: string, name: string): void {
   copyDirOrSymlink(src, target);
 }
 
-export function installAppDeps(cwd: string): void {
+export async function installAppDeps(cwd: string): Promise<void> {
   execSync("pnpm install --ignore-scripts --prefer-offline", {
     cwd,
     stdio: "ignore",
     timeout: 180000,
     windowsHide: true,
   });
+  const lockfile = resolve(cwd, "pnpm-lock.yaml");
+  if (existsSync(lockfile)) {
+    const context = await readContext(cwd);
+    context.integrity.machineFiles["pnpm-lock.yaml"] = await hashFile(lockfile);
+    await writeContext(cwd, context);
+  }
 }

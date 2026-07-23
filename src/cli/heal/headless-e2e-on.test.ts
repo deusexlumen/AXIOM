@@ -33,7 +33,7 @@ function packet(target: string): FixPacket {
 
 const stageNames = () => STAGES.map((s) => s.name);
 
-const withoutE2e = () => stageNames().filter((n) => n !== "e2e");
+const withoutE2eAndPerf = () => stageNames().filter((n) => n !== "e2e" && n !== "perf");
 
 describe("selectStagesForHeal", () => {
   it('includes e2e when e2eOn is "always"', () => {
@@ -42,15 +42,15 @@ describe("selectStagesForHeal", () => {
     );
   });
 
-  it('excludes e2e when e2eOn is "never"', () => {
+  it('excludes e2e and perf when e2eOn is "never"', () => {
     expect(selectStagesForHeal(config("never"), packet("src/routes/Home.tsx")).map((s) => s.name)).toEqual(
-      withoutE2e()
+      withoutE2eAndPerf()
     );
   });
 
-  it('excludes e2e for "route-change" when target is not a route', () => {
+  it('excludes e2e and perf for "route-change" when target is not a route', () => {
     expect(selectStagesForHeal(config("route-change"), packet("src/components/Box.tsx")).map((s) => s.name)).toEqual(
-      withoutE2e()
+      withoutE2eAndPerf()
     );
   });
 
@@ -60,7 +60,7 @@ describe("selectStagesForHeal", () => {
     );
   });
 
-  it('excludes e2e for "route-change" when no packet is available', () => {
-    expect(selectStagesForHeal(config("route-change"), undefined).map((s) => s.name)).toEqual(withoutE2e());
+  it('excludes e2e and perf for "route-change" when no packet is available', () => {
+    expect(selectStagesForHeal(config("route-change"), undefined).map((s) => s.name)).toEqual(withoutE2eAndPerf());
   });
 });

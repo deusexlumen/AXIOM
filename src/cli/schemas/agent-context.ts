@@ -1,6 +1,7 @@
 import { z } from "zod/v3";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { DbContext } from "@/cli/schemas/db.js";
+import { AssetEntry } from "@/cli/schemas/asset.js";
 
 export const Status = z.enum(["GREEN", "RED", "STALE", "ORPHAN"]);
 
@@ -58,6 +59,17 @@ export const StoreEntry = z.object({
   shapeHash: z.string(),
 });
 
+export const PatternEntry = z.object({
+  name: z.string(),
+  category: z.enum(["webgl", "scroll", "typo", "nav"]),
+  file: z.string(),
+  fixture: z.string(),
+  patternJson: z.string(),
+  shader: z.string().optional(),
+  status: Status,
+});
+export type PatternEntry = z.infer<typeof PatternEntry>;
+
 export const OrderCounts = z.object({
   open: z.number().int().nonnegative(),
   active: z.number().int().nonnegative(),
@@ -93,6 +105,8 @@ export const AgentContext = z.object({
   components: z.array(ComponentEntry).default([]),
   routes: z.array(RouteEntry).default([]),
   stores: z.array(StoreEntry).default([]),
+  patterns: z.array(PatternEntry).optional(),
+  assets: z.array(AssetEntry).optional(),
   endpoints: z.array(EndpointEntry).optional(),
   db: DbContext.optional(),
   tokens: z.object({ file: z.string(), hash: z.string() }),

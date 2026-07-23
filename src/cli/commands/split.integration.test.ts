@@ -7,7 +7,8 @@ import { init } from "@/cli/commands/init.js";
 import { addComponent } from "@/cli/commands/add.js";
 import { readContext, writeContext } from "@/cli/manifest/mutate.js";
 import { countLoc } from "@/cli/commands/add-helpers.js";
-import { noopStream, runValidate } from "@/cli/commands/validate.integration.helpers.js";
+import { noopStream } from "@/cli/commands/validate.integration.context.js";
+import { runValidate } from "@/cli/commands/validate.integration.run.js";
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
 
 const binPath: string = join(process.cwd(), "dist", "cli", "bin.js");

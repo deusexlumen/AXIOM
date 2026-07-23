@@ -5,7 +5,7 @@ export function axiomConfigJson(): string {
     {
       budgets: { maxLocPerFile: 120, maxBytesPerFile: 4096, maxRetries: 3 },
       pipeline: {
-        stages: ["validate", "typecheck", "lint", "unit", "e2e"],
+        stages: ["validate", "typecheck", "lint", "unit", "e2e", "perf", "critic"],
         e2eOn: "route-change",
       },
       context: { sliceDepth: 2, signatureOnlyBeyondDepth: 1 },
@@ -26,6 +26,7 @@ export function initialAgentContext(name: string, tokenHash: string): AgentConte
     components: [],
     routes: [],
     stores: [],
+    patterns: [],
     endpoints: [],
     db: { schemaFiles: [], migrationHead: null, migrationHashes: {} },
     tokens: { file: "tokens.json", hash: tokenHash },
@@ -46,6 +47,8 @@ export function tokensJson(): string {
   return JSON.stringify(
     {
       color: {
+        primary: "#4F46E5",
+        "primary-fg": "#F5F7FA",
         action: { primary: "#4F46E5", danger: "#DC2626" },
         surface: { base: "#0B0F19", raised: "#151B2B" },
         text: { primary: "#F5F7FA", muted: "#8A93A6" },

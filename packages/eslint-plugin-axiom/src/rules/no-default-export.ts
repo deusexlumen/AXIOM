@@ -13,7 +13,8 @@ export const noDefaultExport = createRule({
     if (
       /\.config\.[mc]?[jt]sx?$/.test(filename) ||
       /\.route\.[mc]?[jt]sx?$/.test(filename) ||
-      /app\/(layout|page)\.[mc]?[jt]sx?$/.test(filename) ||
+      /app\/(?:.*\/)?(layout|page)\.[mc]?[jt]sx?$/.test(filename) ||
+      /fixture\.[mc]?[jt]sx?$/.test(filename) ||
       /\.d\.ts$/.test(filename)
     ) {
       return {};

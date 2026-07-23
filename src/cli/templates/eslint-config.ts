@@ -7,6 +7,7 @@ export default tseslint.config(
   {
     ignores: [
       "dist/**",
+      "out/**",
       "node_modules/**",
       ".next/**",
       "packages/**",
@@ -49,6 +50,11 @@ export default tseslint.config(
       "axiom/motion-token-usage": "error",
       "axiom/no-direct-timeline": "error",
       "axiom/require-reduced-motion": "error",
+      "axiom/max-concurrent-timelines": ["error", { max: 3 }],
+      "axiom/a11y-img-alt": "error",
+      "axiom/a11y-button-label": "error",
+      "axiom/a11y-link-href": "error",
+      "axiom/a11y-input-label": "error",
     },
   }
 );

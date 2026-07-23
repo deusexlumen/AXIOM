@@ -6,7 +6,13 @@ import { ExitCode } from "@/cli/types.js";
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
 
 export async function listMigrationSqlFiles(cwd: string): Promise<string[]> {
-  const entries = await readdir(resolve(cwd, "db/migrations"));
+  let entries: string[];
+  try {
+    entries = await readdir(resolve(cwd, "db/migrations"));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw error;
+  }
   return entries.filter((f) => f.endsWith(".sql")).sort();
 }
 

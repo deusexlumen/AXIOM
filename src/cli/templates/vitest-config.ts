@@ -13,7 +13,8 @@ export default defineConfig({
     globals: false,
     environment: "happy-dom",
     reporters: ["json"],
-    exclude: ["node_modules/**", "dist/**", ".next/**", "packages/**", "e2e/**"],
+    passWithNoTests: true,
+    exclude: ["node_modules/**", "dist/**", "out/**", ".next/**", "packages/**", "e2e/**"],
   },
 });
 `;

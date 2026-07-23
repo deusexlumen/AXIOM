@@ -37,7 +37,7 @@ export async function runContractStage(cwd: string): Promise<StageResult> {
   }
 
   for (const ep of endpoints) {
-    const contract = await loadContract(resolve(cwd, ep.contract)).catch(() => null);
+    const contract = await loadContract(resolve(cwd, ep.contract), cwd).catch(() => null);
     if (!contract) {
       return contractPacket(`Contract drift or invalid contract for ${ep.name}`, ep.contract, "AXM-C004", "I-14");
     }

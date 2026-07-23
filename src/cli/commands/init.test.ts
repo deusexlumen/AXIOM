@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, readFileSync, readdirSync, statSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, readFileSync, readdirSync, statSync, existsSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { Writable } from "node:stream";
 import { init } from "@/cli/commands/init.js";
+import { installPackage } from "@/cli/commands/integration-deps.js";
 
 function hashFile(path: string): string {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
@@ -35,6 +36,11 @@ function noopStream(): NodeJS.WritableStream {
   return new Writable({ write() {} });
 }
 
+function prepareAppDir(dir: string): void {
+  mkdirSync(dir, { recursive: true });
+  installPackage(dir, "zod");
+}
+
 describe("axm init", () => {
   let baseDir: string;
 
@@ -47,8 +53,9 @@ describe("axm init", () => {
   });
 
   it("creates expected Next.js scaffold files", { timeout: 30000 }, async () => {
-    await init("demo", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const appDir = join(baseDir, "demo");
+    prepareAppDir(appDir);
+    await init("demo", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const files = readdirSync(appDir, { recursive: true, encoding: "utf-8" })
       .filter((f) => f !== "")
       .sort();
@@ -73,11 +80,13 @@ describe("axm init", () => {
   });
 
   it("is deterministic across runs", { timeout: 30000 }, async () => {
+    prepareAppDir(join(baseDir, "a"));
     await init("a", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const first = snapshotDir(join(baseDir, "a"));
 
     rmSync(join(baseDir, "a"), { recursive: true, force: true });
 
+    prepareAppDir(join(baseDir, "a"));
     await init("a", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const second = snapshotDir(join(baseDir, "a"));
 

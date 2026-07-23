@@ -5,7 +5,9 @@
   "private": true,
   "type": "module",
   "bin": {
-    "axm": "./dist/cli/bin.js"
+    "axm": "./dist/cli/bin.js",
+    "atl": "./dist/cli/bin.js",
+    "atelier-mcp": "./dist/cli/mcp/server.js"
   },
   "scripts": {
     "build": "tsc && tsc-alias",
@@ -35,6 +37,7 @@
     "@electric-sql/pglite": "0.2.17",
     "@hono/zod-openapi": "1.4.0",
     "@hono/zod-validator": "0.8.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@playwright/test": "1.61.1",
     "drizzle-orm": "0.41.0",
     "eslint": "9.17.0",

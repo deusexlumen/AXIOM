@@ -46,7 +46,7 @@ async function apiAdd(args: string[]): Promise<void> {
   validateName(name);
   const cwd = process.cwd();
   const context = await readContext(cwd);
-  const sourceContract = await loadContract(resolve(cwd, contractPath));
+  const sourceContract = await loadContract(resolve(cwd, contractPath), cwd);
   const agentFiles = [contractFile(name), ...Object.keys(sourceContract.routes).map((k) => handlerFile(name, k))];
   if (agentId) await requireActiveLease(cwd, agentId, agentFiles);
   if (sourceContract.name !== name) {
@@ -70,7 +70,7 @@ async function apiBuild(): Promise<void> {
   const context = await readContext(cwd);
   const names = uniqueContractNames(context.endpoints ?? []);
   for (const name of names) {
-    const contract = await loadContract(resolve(cwd, contractFile(name)));
+    const contract = await loadContract(resolve(cwd, contractFile(name)), cwd);
     const expected = context.integrity.machineFiles[contractFile(name)];
     if (expected && expected !== contractHash(contract)) {
       throw new CliError(

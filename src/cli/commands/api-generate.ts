@@ -34,11 +34,13 @@ export async function generateHandlers(name: string, contract: ContractDefinitio
 export async function regenerateArtifacts(
   cwd: string,
   context: AgentContext,
-  newContractName?: string
+  newContractName?: string,
+  preloaded?: Record<string, ContractDefinition>
 ): Promise<void> {
   const names = uniqueContractNames(context.endpoints ?? []);
   if (newContractName && !names.includes(newContractName)) names.push(newContractName);
-  const contracts = await loadContracts(cwd, names);
+  const toLoad = names.filter((name) => !preloaded?.[name]);
+  const contracts = { ...(await loadContracts(cwd, toLoad)), ...preloaded };
   const endpoints = names.flatMap((name) => endpointEntries(name, contracts[name]!));
   const handlerTypes = handlerTypesTs(names);
   const client = clientTs(endpoints);
@@ -58,7 +60,7 @@ export async function regenerateArtifacts(
 async function loadContracts(cwd: string, names: string[]): Promise<Record<string, ContractDefinition>> {
   const out: Record<string, ContractDefinition> = {};
   for (const name of names) {
-    out[name] = await loadContract(resolve(cwd, contractFile(name)));
+    out[name] = await loadContract(resolve(cwd, contractFile(name)), cwd);
   }
   return out;
 }

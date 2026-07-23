@@ -21,10 +21,12 @@ export default defineConfig({
       "verify-app/**",
       "m1-demo/**",
       "atelier-a0-demo/**",
+      "tmp/**",
       "packages/**",
       "**/*/node_modules/**",
       "**/*.integration.test.ts",
       "src/cli/templates/**",
+      "src/cli/fixtures/**",
     ],
   },
 });

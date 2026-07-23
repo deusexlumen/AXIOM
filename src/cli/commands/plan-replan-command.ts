@@ -3,23 +3,17 @@ import { readContext, writeContext } from "@/cli/manifest/mutate.js";
 import { result } from "@/cli/utils/ndjson.js";
 import { CliError, cliFixPacket } from "@/cli/errors.js";
 import { ExitCode } from "@/cli/types.js";
-import { Vision } from "@/cli/schemas/vision.js";
-import { generatePlan } from "@/cli/commands/plan-generate.js";
+import { BriefJson } from "@/cli/schemas/brief.js";
+import { loadBrief } from "@/cli/commands/brief.js";
+import { generateTrackPlan } from "@/cli/commands/plan-generate-track.js";
 import { writeOrderFile, readOrderFiles, moveToBlocked } from "@/cli/commands/plan-fs.js";
 import { deepMerge } from "@/cli/commands/plan-merge.js";
-import {
-  loadVision,
-  parseDelta,
-  upsertVision,
-  countOrders,
-  preserveActiveState,
-  PlanOptions,
-} from "@/cli/commands/plan-common.js";
+import { parseDelta, upsertVision, countOrders, preserveActiveState, PlanOptions } from "@/cli/commands/plan-common.js";
 
 export async function runReplan(args: string[], options: PlanOptions): Promise<void> {
   const cwd = options.cwd ?? process.cwd();
   const { value: deltaRaw } = takeValue(args, "--delta");
-  const { value: visionId } = takeValue(args, "--vision");
+  const { value: planId } = takeValue(args, "--plan");
   if (!deltaRaw) {
     throw new CliError(
       JSON.stringify(cliFixPacket("AXM-V000", "Missing required flag: --delta <text|json>", ["I-11"])),
@@ -29,10 +23,10 @@ export async function runReplan(args: string[], options: PlanOptions): Promise<v
 
   const context = await readContext(cwd);
   const visions = context.visions ?? [];
-  const targetId = visionId ?? visions[0]?.visionId;
+  const targetId = planId ?? visions[0]?.visionId;
   if (!targetId) {
     throw new CliError(
-      JSON.stringify(cliFixPacket("AXM-P001", "No vision found to replan", ["I-11"])),
+      JSON.stringify(cliFixPacket("AXM-P001", "No plan found to replan", ["I-11"])),
       ExitCode.VALIDATION_ERROR
     );
   }
@@ -40,16 +34,15 @@ export async function runReplan(args: string[], options: PlanOptions): Promise<v
   const existing = await readOrderFiles(cwd, "open");
   const existingMap = new Map(existing.filter((o) => o.visionId === targetId).map((o) => [o.orderId, o]));
 
-  const vision = await loadVision(cwd, "VISION.axm.json");
-  if (vision.visionId !== targetId) {
+  const brief = await loadBrief(cwd);
+  deepMerge(brief as unknown as Record<string, unknown>, parseDelta(deltaRaw));
+  const plan = generateTrackPlan({ brief: BriefJson.parse(brief) });
+  if (plan.planId !== targetId) {
     throw new CliError(
-      JSON.stringify(cliFixPacket("AXM-P001", `VISION.axm.json does not match visionId ${targetId}`, ["I-11"])),
+      JSON.stringify(cliFixPacket("AXM-P001", `BRIEF.axm.json does not match planId ${targetId}`, ["I-11"])),
       ExitCode.VALIDATION_ERROR
     );
   }
-
-  deepMerge(vision as unknown as Record<string, unknown>, parseDelta(deltaRaw));
-  const plan = generatePlan(Vision.parse(vision));
   const newIds = new Set(plan.orders.map((o) => o.orderId));
 
   const blockedIds: string[] = [];
@@ -79,7 +72,7 @@ export async function runReplan(args: string[], options: PlanOptions): Promise<v
 
   result(
     {
-      visionId: targetId,
+      planId: targetId,
       orders: plan.orders.length,
       blockedIds,
       dagDepth: plan.dagDepth,

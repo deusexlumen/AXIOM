@@ -9,7 +9,7 @@ import { addComponent } from "@/cli/commands/add.js";
 import { healCommand } from "@/cli/commands/heal.js";
 import { CliError } from "@/cli/errors.js";
 import { installAppDeps } from "@/cli/commands/integration-deps.js";
-import { noopStream } from "@/cli/commands/validate.integration.helpers.js";
+import { noopStream } from "@/cli/commands/validate.integration.context.js";
 import type { FixPacket } from "@/cli/schemas/fix-packet.js";
 
 beforeAll(() => {
@@ -32,7 +32,7 @@ async function makeApp(): Promise<{ base: string; dir: string }> {
   const name = `app_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   await init(name, { cwd: base, skipInstall: true, out: noopStream() });
   const dir = join(base, name);
-  installAppDeps(dir);
+  await installAppDeps(dir);
   writeFileSync(
     join(dir, "playwright.config.ts"),
     'import { defineConfig } from "@playwright/test";\nexport default defineConfig({ testDir: "e2e", projects: [] });\n'

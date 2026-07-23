@@ -25,7 +25,7 @@ describe("axm init integration", () => {
   it("scaffold installs and builds with pnpm", { timeout: 300000 }, async () => {
     await init("demo", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const appDir = join(baseDir, "demo");
-    installAppDeps(appDir);
+    await installAppDeps(appDir);
     execSync("pnpm build", { cwd: appDir, stdio: "ignore" });
     expect(existsSync(join(appDir, ".next"))).toBe(true);
   });
@@ -33,7 +33,7 @@ describe("axm init integration", () => {
   it("detects I-18 raw motion engine import via lint", { timeout: 120000 }, async () => {
     await init("demo", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const appDir = join(baseDir, "demo");
-    installAppDeps(appDir);
+    await installAppDeps(appDir);
 
     writeFileSync(
       join(appDir, "src", "components", "RawMotion.tsx"),

@@ -3,7 +3,6 @@ export function nextConfigTs(): string {
 
 const nextConfig: NextConfig = {
   output: "export",
-  distDir: "dist",
   webpack(config) {
     config.module.rules.unshift({
       test: /\\.glsl$/,

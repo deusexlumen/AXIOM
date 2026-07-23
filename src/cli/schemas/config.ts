@@ -8,7 +8,7 @@ export const AxiomConfig = z.object({
     maxRetries: z.number().int().positive(),
   }),
   pipeline: z.object({
-    stages: z.array(z.enum(["validate", "contract", "typecheck", "lint", "unit", "e2e"])),
+    stages: z.array(z.enum(["validate", "contract", "typecheck", "lint", "build", "unit", "e2e", "perf", "critic"])),
     e2eOn: z.enum(["never", "route-change", "always"]).default("route-change"),
   }),
   context: z.object({

@@ -14,6 +14,11 @@ import { bundleEslintPlugin, bundleCliPackage } from "@/cli/commands/init-bundle
 import { result } from "@/cli/utils/ndjson.js";
 import type { InitResult } from "@/cli/types.js";
 import { fileURLToPath } from "node:url";
+import { contractHash } from "@/cli/api/contract.js";
+import { loadContract, contractFile, handlerFile } from "@/cli/commands/api-helpers.js";
+import { generateHandlers, regenerateArtifacts, addEndpoints } from "@/cli/commands/api-generate.js";
+import { contactHandlerTemplate } from "@/cli/templates/api/contact-handler.js";
+import { contactContractDefinition } from "@/cli/templates/api/contact-contract.js";
 
 export interface InitOptions {
   cwd?: string;
@@ -60,14 +65,30 @@ export async function init(name: string, options: InitOptions = {}): Promise<voi
 
   await tokensBuild(targetDir, options.out);
 
+  const contactContract = contactContractDefinition;
+  await generateHandlers("contact", contactContract, targetDir);
+  await writeTextFile(
+    resolve(targetDir, handlerFile("contact", "create")),
+    contactHandlerTemplate()
+  );
+
   const updatedContext = await readContext(targetDir);
+  await regenerateArtifacts(targetDir, updatedContext, "contact", { contact: contactContract });
+  addEndpoints(updatedContext, "contact", contactContract);
+
   const ownership = ownershipFiles();
   for (const file of ownership.locked) {
     updatedContext.integrity.lockedFiles[file] = await hashFile(resolve(targetDir, file));
   }
   for (const file of ownership.machine) {
     if (file === "agent-context.json") continue;
-    updatedContext.integrity.machineFiles[file] = await hashFile(resolve(targetDir, file));
+    if (file.endsWith(".contract.ts")) {
+      const contract =
+        file === contractFile("contact") ? contactContract : await loadContract(resolve(targetDir, file), targetDir);
+      updatedContext.integrity.machineFiles[file] = contractHash(contract);
+    } else {
+      updatedContext.integrity.machineFiles[file] = await hashFile(resolve(targetDir, file));
+    }
   }
   await writeContext(targetDir, updatedContext);
 

@@ -18,6 +18,8 @@ export function packageJson(name: string): string {
         next: "15.5.20",
         react: "19.2.7",
         "react-dom": "19.2.7",
+        hono: "4.12.29",
+        "@hono/zod-validator": "0.8.0",
         "@react-three/fiber": "9.6.1",
         "@react-three/drei": "10.7.7",
         three: "0.185.1",
@@ -48,6 +50,11 @@ export function packageJson(name: string): string {
         "happy-dom": "20.10.6",
         tailwindcss: "4.3.2",
         "raw-loader": "4.0.2",
+      },
+      pnpm: {
+        overrides: {
+          sharp: "0.35.3",
+        },
       },
     },
     null,

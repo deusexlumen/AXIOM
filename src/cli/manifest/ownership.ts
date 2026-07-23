@@ -15,7 +15,7 @@ export function getOwnershipZone(file: string, context: AgentContext): Ownership
   if (locked.has(file)) return "LOCKED";
   if (machine.has(file)) return "MACHINE";
   if (file === "tokens.json") return "OPERATOR";
-  if (file.startsWith("src/components") || file.startsWith("src/state") || file.startsWith("e2e")) return "AGENT";
+  if (file.startsWith("src/components") || file.startsWith("src/state") || file.startsWith("e2e") || file.startsWith("perf")) return "AGENT";
   if (file.startsWith("src/core") || file.startsWith("src/generated") || file.startsWith("src/routes")) return "MACHINE";
   if (/^src\/[^/]+\.tsx?$/.test(file)) return "AGENT";
   if (file.startsWith("api/generated")) return "MACHINE";

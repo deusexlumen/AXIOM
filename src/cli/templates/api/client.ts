@@ -15,8 +15,8 @@ export function clientTs(endpoints: ApiEndpoint[]): string {
     const body = ep.method === "GET" ? "" : `, headers: { "Content-Type": "application/json" }, body: JSON.stringify(input)`;
     return `export async function ${ep.clientMethod}(input: ${inputType}): Promise<${outputType}> {
   const res = await fetch(\`\${API_BASE}${ep.path}\`, { method: "${ep.method}"${body} });
-  if (!res.ok) throw new Error(\`API error: \${res.status}\`);
-  return res.json();
+  if (!res.ok) throw new Error(\`API error: \${String(res.status)}\`);
+  return (await res.json()) as ${outputType};
 }`;
   }).join("\n\n");
   return `import { z } from "zod";

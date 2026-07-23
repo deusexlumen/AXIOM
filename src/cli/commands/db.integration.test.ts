@@ -41,7 +41,7 @@ describe("axm db integration", () => {
     execSync("pnpm --filter eslint-plugin-axiom build", { cwd: process.cwd(), stdio: "ignore" });
     await init("demo", { cwd: base, skipInstall: true });
     app = join(base, "demo");
-    installAppDeps(app);
+    await installAppDeps(app);
     writeFileSync(join(app, "db", "schema", "tasks.ts"), schema());
   }, 300000);
 

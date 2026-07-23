@@ -20,7 +20,7 @@ export interface DeployOptions {
 
 function stageExitCode(stage: string): ExitCode {
   if (stage === "typecheck") return ExitCode.TYPE_ERROR;
-  if (stage === "unit" || stage === "e2e") return ExitCode.TEST_ERROR;
+  if (stage === "unit" || stage === "e2e" || stage === "perf") return ExitCode.TEST_ERROR;
   return ExitCode.VALIDATION_ERROR;
 }
 

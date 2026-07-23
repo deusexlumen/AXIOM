@@ -182,4 +182,7 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 - Meilenstein M0 ist implementiert und die Akzeptanzkriterien sind erfüllt.
 - Meilenstein M1 (Manifest-Kern) ist implementiert: `agent-context.json` ist die SSOT, alle Schemas existieren als Zod-Schemas mit JSON-Schema-Export, `axm init` schreibt echte SHA-256-Hashes, `axm validate` prüft Manifest-Integrität, und 1.000 zufällige Manifest-Mutationen bleiben schema-valide.
 - `axm init <name>` scaffolded ein installierbares, bau- und testbares Projekt.
-- Nächste Arbeitspakete: Meilenstein M2 (Custom-ESLint-Plugin und Invarianten-Enforcement I-01…I-12) und M3 (Komponenten-/Route-/Store-Generierung).
+- Meilenstein M2 (Custom-ESLint-Plugin und Invarianten-Enforcement I-01…I-12) ist implementiert.
+- `axm plan` liest `BRIEF.axm.json` und erzeugt track-aware Arbeitsaufträge: Track-A (curated) wählt ein Preset aus dem Katalog und spawnt Direction → Tokens → Motion → Pattern → Build → E2E → PERF → CRITIC; Track-B (bespoke) spawnt Brief-Review → Direction-Generate → Operator-Veto → Style-Tile → Tokens → Motion → Custom Components → Build → E2E → PERF → CRITIC.
+- `atl direct generate` liest `BRIEF.track`: bei `curated` wird das passende Preset direkt als `DIRECTION.axm.json` eingefroren; bei `bespoke` werden drei Brief-bezogene Richtungskandidaten generiert.
+- Nächste Arbeitspakete: Meilenstein M3 (Komponenten-/Route-/Store-Generierung) und die weiteren A8-Tasks.

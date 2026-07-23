@@ -10,19 +10,30 @@ import { layoutTsx, pageTsx, globalsCss } from "@/cli/templates/app-router.js";
 import {
   stageTsx,
   quadMeshTsx,
-  useChoreoTs,
   lenisTs,
   errorBoundaryTsx,
 } from "@/cli/templates/core-atelier.js";
+import { useChoreoTs } from "@/cli/templates/core-use-choreo.js";
+import { heroDemoTsx } from "@/cli/templates/components/hero-demo.js";
+import { contactFormComponent } from "@/cli/templates/components/ContactForm.js";
 import { axmSelectTs } from "@/cli/templates/playwright-helpers.js";
 import { quadFragGlsl, glslDts } from "@/cli/templates/shader.js";
 import { motionAxmJson } from "@/cli/templates/motion.js";
 import { directionAxmJson } from "@/cli/templates/direction.js";
 import { smokeSpecTs } from "@/cli/templates/e2e/smoke.spec.js";
 import { reducedMotionSpecTs } from "@/cli/templates/e2e/reduced-motion.spec.js";
+import { contactFormSpecTs } from "@/cli/templates/e2e/contact-form.spec.js";
+import { homePerfJson } from "@/cli/templates/perf-scenario.js";
 import { playwrightConfigTs } from "@/cli/templates/playwright-config.js";
 import { ciWorkflowYaml } from "@/cli/templates/ci-workflow.js";
 import { gitignore } from "@/cli/templates/gitignore.js";
+import { contactContractTemplate } from "@/cli/templates/api/contact-contract.js";
+import { contactHandlerTemplate } from "@/cli/templates/api/contact-handler.js";
+import { handlerTypesTs } from "@/cli/templates/api/handler-types.js";
+import { clientTs } from "@/cli/templates/api/client.js";
+import { openapiJson } from "@/cli/templates/api/openapi.js";
+import { contactPageTemplate } from "@/cli/templates/pages/contact.js";
+import { contactSchemaTs } from "@/cli/templates/schemas/contact.js";
 
 export function gitkeepTemplate(): string {
   return "";
@@ -49,7 +60,14 @@ export function appFiles(projectName: string): AppFile[] {
     { path: "DIRECTION.axm.json", content: directionAxmJson() },
     { path: "app/layout.tsx", content: layoutTsx(projectName) },
     { path: "app/page.tsx", content: pageTsx() },
+    { path: "app/contact/page.tsx", content: contactPageTemplate() },
     { path: "app/globals.css", content: globalsCss() },
+    { path: "src/schemas/contact.ts", content: contactSchemaTs() },
+    { path: "api/contracts/contact.contract.ts", content: contactContractTemplate() },
+    { path: "api/handlers/contact.create.ts", content: contactHandlerTemplate() },
+    { path: "api/generated/handler-types.ts", content: handlerTypesTs([]) },
+    { path: "src/generated/api-client.ts", content: clientTs([]) },
+    { path: "api/generated/openapi.json", content: `${JSON.stringify(openapiJson([]), null, 2)}\n` },
     { path: "src/core/Stage.tsx", content: stageTsx() },
     { path: "src/core/QuadMesh.tsx", content: quadMeshTsx() },
     { path: "src/core/useChoreo.ts", content: useChoreoTs() },
@@ -59,6 +77,8 @@ export function appFiles(projectName: string): AppFile[] {
     { path: "src/shaders/quad.frag.glsl", content: quadFragGlsl() },
     { path: "src/types/glsl.d.ts", content: glslDts() },
     { path: "src/components/.gitkeep", content: gitkeepTemplate() },
+    { path: "src/components/HeroDemo.tsx", content: heroDemoTsx() },
+    { path: "src/components/ContactForm.tsx", content: contactFormComponent() },
     { path: "src/state/.gitkeep", content: gitkeepTemplate() },
     { path: ".axiom/.gitkeep", content: gitkeepTemplate() },
     { path: "orders/done/.gitkeep", content: gitkeepTemplate() },
@@ -69,6 +89,9 @@ export function appFiles(projectName: string): AppFile[] {
     { path: "e2e/.gitkeep", content: gitkeepTemplate() },
     { path: "e2e/smoke.spec.ts", content: smokeSpecTs() },
     { path: "e2e/reduced-motion.spec.ts", content: reducedMotionSpecTs() },
+    { path: "e2e/contact-form.spec.ts", content: contactFormSpecTs() },
+    { path: "perf/.gitkeep", content: gitkeepTemplate() },
+    { path: "perf/home.perf.json", content: homePerfJson() },
     { path: ".gitignore", content: gitignore() },
   ];
 }

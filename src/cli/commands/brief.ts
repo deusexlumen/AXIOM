@@ -45,6 +45,36 @@ export async function briefElicit({
   result({ ok: true, file: "BRIEF.axm.json" }, out);
 }
 
+export async function loadBrief(cwd: string): Promise<BriefJson> {
+  const briefPath = resolve(cwd, "BRIEF.axm.json");
+  let raw: string;
+  try {
+    raw = await readFile(briefPath, "utf-8");
+  } catch {
+    throw new CliError(
+      JSON.stringify(buildFixPacket("AXM-P001", "Brief file not found: BRIEF.axm.json", "BRIEF.axm.json", ["I-11"], "Run atl brief elicit first.", "Missing BRIEF.axm.json")),
+      ExitCode.VALIDATION_ERROR
+    );
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new CliError(
+      JSON.stringify(buildFixPacket("AXM-P001", "Brief file is not valid JSON", "BRIEF.axm.json", ["I-11"], "Validate or regenerate BRIEF.axm.json.", "Invalid BRIEF JSON")),
+      ExitCode.VALIDATION_ERROR
+    );
+  }
+  const validated = BriefJson.safeParse(parsed);
+  if (!validated.success) {
+    throw new CliError(
+      JSON.stringify(buildFixPacket("AXM-P001", `Brief schema invalid: ${validated.error.message}`, "BRIEF.axm.json", ["I-11"], "Fix the fields listed in the error.", "Brief schema invalid")),
+      ExitCode.VALIDATION_ERROR
+    );
+  }
+  return validated.data;
+}
+
 export async function briefValidate({
   cwd,
   out,
@@ -52,8 +82,6 @@ export async function briefValidate({
   cwd: string;
   out?: NodeJS.WritableStream;
 }): Promise<void> {
-  const briefPath = resolve(cwd, "BRIEF.axm.json");
-  const raw = await readFile(briefPath, "utf-8");
-  BriefJson.parse(JSON.parse(raw));
+  await loadBrief(cwd);
   result({ ok: true, valid: true }, out);
 }

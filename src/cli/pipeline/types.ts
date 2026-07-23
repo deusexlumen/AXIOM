@@ -1,6 +1,6 @@
 import type { FixPacket } from "@/cli/schemas/fix-packet.js";
 
-export type StageName = "generate" | "validate" | "contract" | "typecheck" | "lint" | "unit" | "e2e";
+export type StageName = "generate" | "validate" | "contract" | "typecheck" | "lint" | "build" | "unit" | "e2e" | "perf" | "critic";
 
 export interface StageResult {
   ok: boolean;

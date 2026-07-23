@@ -1,7 +1,7 @@
 export function stageTsx(): string {
   return `"use client";
-import { Canvas } from "@react-three/fiber";
-import type { ReactNode } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useEffect, useState, type ReactNode } from "react";
 
 interface StageProps {
   children?: ReactNode;
@@ -9,12 +9,19 @@ interface StageProps {
 }
 
 export function Stage({ children, className }: StageProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) return null;
   return (
     <Canvas className={className} gl={{ antialias: true, alpha: true }}>
       {children}
     </Canvas>
   );
 }
+
+export const useStageFrame = useFrame;
 `;
 }
 
@@ -45,64 +52,6 @@ export function QuadMesh() {
       />
     </mesh>
   );
-}
-`;
-}
-
-export function useChoreoTs(): string {
-  return `"use client";
-import { useEffect, useMemo } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface ReducedMotionOptions {
-  strategy: "opacity-only" | "instant" | "none";
-  durFactor?: number;
-}
-
-interface ChoreoOptions {
-  id: string;
-  reducedMotion: ReducedMotionOptions | "opacity-only" | "instant";
-}
-
-interface ChoreoResult {
-  timeline: gsap.core.Timeline;
-  isReducedMotion: boolean;
-  reducedMotionOptions: ReducedMotionOptions;
-}
-
-function normalizeReducedMotion(
-  input: ReducedMotionOptions | "opacity-only" | "instant",
-): ReducedMotionOptions {
-  if (typeof input === "string") {
-    return { strategy: input };
-  }
-  return input;
-}
-
-export function useChoreo(options: ChoreoOptions): ChoreoResult {
-  const isReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  const reducedMotionOptions = normalizeReducedMotion(options.reducedMotion);
-
-  const timeline = useMemo(() => {
-    return gsap.timeline({ id: options.id });
-  }, [options.id]);
-
-  useEffect(() => {
-    return () => {
-      timeline.kill();
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.vars.id === options.id) st.kill();
-      });
-    };
-  }, [timeline, options.id]);
-
-  return { timeline, isReducedMotion, reducedMotionOptions };
 }
 `;
 }

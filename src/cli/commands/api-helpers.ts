@@ -1,5 +1,6 @@
 import { register } from "tsx/esm/api";
 import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
 import { z } from "zod/v3";
 import { ContractDefinition, HttpMethod } from "@/cli/schemas/contract.js";
 import { CliError, cliFixPacket } from "@/cli/errors.js";
@@ -16,8 +17,10 @@ export interface ApiEndpoint {
   clientMethod: string;
 }
 
-export async function loadContract(path: string): Promise<ContractDefinition> {
-  const unregister = register();
+export async function loadContract(path: string, cwd?: string): Promise<ContractDefinition> {
+  const unregister = register(
+    cwd ? { tsconfig: resolve(cwd, "tsconfig.json") } : undefined
+  );
   try {
     const url = pathToFileURL(path).href;
     const mod = (await import(url)) as Record<string, unknown>;

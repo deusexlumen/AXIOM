@@ -5,7 +5,7 @@ import { init } from "@/cli/commands/init.js";
 import { validateCommand } from "@/cli/commands/validate.js";
 import { pipelineCommand } from "@/cli/commands/pipeline.js";
 import { healHandler } from "@/cli/commands/heal-handler.js";
-import { runAddCommand } from "@/cli/bin-commands.js";
+import { runAddCommand, runPatternCommand, runAssetsCommand } from "@/cli/bin-commands.js";
 import { tokensBuild, motionBuild } from "@/cli/commands/tokens-build.js";
 import { directGenerate, directChoose, directAmend } from "@/cli/commands/direct.js";
 import { briefElicit, briefValidate } from "@/cli/commands/brief.js";
@@ -20,6 +20,7 @@ import { conductCommand } from "@/cli/commands/conduct.js";
 import { ledgerCommand } from "@/cli/commands/ledger.js";
 import { benchCommand } from "@/cli/commands/bench.js";
 import { auditCommand } from "@/cli/commands/audit.js";
+import { criticCommand } from "@/cli/commands/critic.js";
 import { depsCommand } from "@/cli/commands/deps.js";
 import { deployCommand } from "@/cli/commands/deploy.js";
 
@@ -135,6 +136,8 @@ const registry: Record<string, Handler> = {
   pipeline: wrap(pipelineCommand),
   heal: healHandler,
   add: (args) => runAddCommand(args),
+  pattern: (args) => runPatternCommand(args),
+  assets: (args) => runAssetsCommand(args),
   tokens: tokensHandler,
   motion: motionHandler,
   direct: directHandler,
@@ -150,6 +153,7 @@ const registry: Record<string, Handler> = {
   ledger: wrap(ledgerCommand),
   bench: wrap(benchCommand),
   audit: auditHandler,
+  critic: wrap(criticCommand),
   deps: wrap(depsCommand),
   deploy: deployHandler,
 };

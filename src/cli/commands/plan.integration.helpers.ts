@@ -1,18 +1,29 @@
 import { expect } from "vitest";
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { writeFileSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { planCommand } from "@/cli/commands/plan.js";
 import { CliError } from "@/cli/errors.js";
 import { captureStream, parseLastLine } from "@/cli/commands/context.integration.helpers.js";
 
-const fixturePath = join(process.cwd(), "test", "fixtures", "vision");
-
-export function readVision(name: string): string {
-  return readFileSync(join(fixturePath, `${name}.json`), "utf-8");
+export function sampleBrief(track: "curated" | "bespoke" = "curated"): Record<string, unknown> {
+  return {
+    track,
+    brand: { name: "Test", oneLiner: "Test.", existingAssets: [], voice: ["clear"] },
+    audience: { who: "users", device: "balanced", attention: "explorativ" },
+    goal: { primary: "awareness", successMetric: "time on site" },
+    references: [
+      { url: "https://a.co", liked: [], disliked: [] },
+      { url: "https://b.co", liked: [], disliked: [] },
+    ],
+    mood: { words: ["clean", "modern"], antiWords: ["clutter"] },
+    content: { sections: ["hero"], assets: "vorhanden" },
+    constraints: { deadlineDays: 14, mustHave: [], verboten: [] },
+    webglAppetite: 0,
+  };
 }
 
-export function writeVision(dir: string, name: string): void {
-  writeFileSync(join(dir, "VISION.axm.json"), readVision(name), "utf-8");
+export function writeBrief(dir: string, track: "curated" | "bespoke" = "curated"): void {
+  writeFileSync(join(dir, "BRIEF.axm.json"), `${JSON.stringify(sampleBrief(track), null, 2)}\n`, "utf-8");
 }
 
 export function orderContents(dir: string): string {

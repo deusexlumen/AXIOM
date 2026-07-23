@@ -9,10 +9,11 @@ export function handlerTypesTs(contractNames: string[]): string {
   const entries = contractNames
     .map(
       (name) =>
-        `  & { [K in keyof typeof ${name}Contract.routes as \`${name}.\${K & string}\`]: { input: typeof ${name}Contract.routes[K]["input"]; output: typeof ${name}Contract.routes[K]["output"] }; }`
+        `  & { [K in keyof typeof ${name}Contract.routes as \`${name}.\${K & string}\`]: { input: z.infer<typeof ${name}Contract.routes[K]["input"]>; output: z.infer<typeof ${name}Contract.routes[K]["output"]>; }; }`
     )
     .join("\n");
-  return `${imports}
+  return `import { z } from "zod";
+${imports}
 
 type RouteMap =
 ${entries};

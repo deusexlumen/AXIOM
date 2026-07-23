@@ -9,7 +9,8 @@ import { addRoute } from "@/cli/commands/add-route.js";
 import { writeContext } from "@/cli/manifest/mutate.js";
 import { countLoc } from "@/cli/commands/add-helpers.js";
 import { installAppDeps } from "@/cli/commands/integration-deps.js";
-import { noopStream, runPipeline, parseReport, readPacket } from "@/cli/commands/validate.integration.helpers.js";
+import { noopStream } from "@/cli/commands/validate.integration.context.js";
+import { runPipeline, parseReport, readPacket } from "@/cli/commands/validate.integration.run.js";
 import type { AgentContext } from "@/cli/schemas/agent-context.js";
 
 const HeaderTsx = `export function Header() {
@@ -70,7 +71,7 @@ describe("S-06 acceptance scenario", () => {
   it("scaffolds an accessible page and runs the pipeline green", { timeout: 300000 }, async () => {
     await init("s06", { cwd: baseDir, skipInstall: true, out: noopStream() });
     const dir = join(baseDir, "s06");
-    installAppDeps(dir);
+    await installAppDeps(dir);
 
     await addComponent("Header", { cwd: dir, out: noopStream() });
     await addComponent("Card", { cwd: dir, out: noopStream() });

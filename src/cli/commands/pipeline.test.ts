@@ -14,20 +14,20 @@ function config(e2eOn: AxiomConfig["pipeline"]["e2eOn"]): AxiomConfig {
 
 const stageNames = () => STAGES.map((s) => s.name);
 
-const withoutE2e = () => stageNames().filter((n) => n !== "e2e");
+const withoutE2eAndPerf = () => stageNames().filter((n) => n !== "e2e" && n !== "perf");
 
 describe("selectStagesForPipeline", () => {
   it('includes e2e when e2eOn is "always"', () => {
     expect(selectStagesForPipeline(config("always"), "src/components/Box.tsx").map((s) => s.name)).toEqual(stageNames());
   });
 
-  it('excludes e2e when e2eOn is "never"', () => {
-    expect(selectStagesForPipeline(config("never"), "src/routes/Home.tsx").map((s) => s.name)).toEqual(withoutE2e());
+  it('excludes e2e and perf when e2eOn is "never"', () => {
+    expect(selectStagesForPipeline(config("never"), "src/routes/Home.tsx").map((s) => s.name)).toEqual(withoutE2eAndPerf());
   });
 
-  it('excludes e2e for "route-change" with a non-route scope', () => {
+  it('excludes e2e and perf for "route-change" with a non-route scope', () => {
     expect(selectStagesForPipeline(config("route-change"), "src/components/Box.tsx").map((s) => s.name)).toEqual(
-      withoutE2e()
+      withoutE2eAndPerf()
     );
   });
 
@@ -39,6 +39,12 @@ describe("selectStagesForPipeline", () => {
 
   it('includes e2e when --stage e2e is explicitly requested', () => {
     expect(selectStagesForPipeline(config("never"), "src/components/Box.tsx", "e2e" as StageName).map((s) => s.name)).toEqual(
+      stageNames()
+    );
+  });
+
+  it('includes perf when --stage perf is explicitly requested', () => {
+    expect(selectStagesForPipeline(config("never"), "src/components/Box.tsx", "perf" as StageName).map((s) => s.name)).toEqual(
       stageNames()
     );
   });

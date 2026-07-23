@@ -5,7 +5,8 @@ import { join } from "node:path";
 import { execSync } from "node:child_process";
 import { init } from "@/cli/commands/init.js";
 import { installAppDeps } from "@/cli/commands/integration-deps.js";
-import { runPipeline, parseReport, readPacket, noopStream } from "@/cli/commands/validate.integration.helpers.js";
+import { noopStream } from "@/cli/commands/validate.integration.context.js";
+import { runPipeline, parseReport, readPacket } from "@/cli/commands/validate.integration.run.js";
 
 const binPath: string = join(process.cwd(), "dist", "cli", "bin.js");
 const fixturePath: string = join(process.cwd(), "test", "fixtures", "contracts", "tasks.contract.ts");
@@ -23,7 +24,7 @@ describe("contract pipeline stage", () => {
     execSync("pnpm --filter eslint-plugin-axiom build", { cwd: process.cwd(), stdio: "ignore" });
     await init("demo", { cwd: baseDir, skipInstall: true, out: noopStream() });
     appDir = join(baseDir, "demo");
-    installAppDeps(appDir);
+    await installAppDeps(appDir);
     cpSync(fixturePath, join(appDir, "tasks.contract.ts"));
     runIn(appDir, "api add tasks --contract ./tasks.contract.ts");
   }, 600000);

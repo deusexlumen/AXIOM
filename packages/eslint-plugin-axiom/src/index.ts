@@ -10,6 +10,11 @@ import { noRawMotionEngine } from "@/rules/no-raw-motion-engine.js";
 import { motionTokenUsage } from "@/rules/motion-token-usage.js";
 import { noDirectTimeline } from "@/rules/no-direct-timeline.js";
 import { requireReducedMotion } from "@/rules/require-reduced-motion.js";
+import { maxConcurrentTimelines } from "@/rules/max-concurrent-timelines.js";
+import { a11yImgAlt } from "@/rules/a11y-img-alt.js";
+import { a11yButtonLabel } from "@/rules/a11y-button-label.js";
+import { a11yLinkHref } from "@/rules/a11y-link-href.js";
+import { a11yInputLabel } from "@/rules/a11y-input-label.js";
 
 const plugin = {
   meta: {
@@ -29,6 +34,11 @@ const plugin = {
     "motion-token-usage": motionTokenUsage,
     "no-direct-timeline": noDirectTimeline,
     "require-reduced-motion": requireReducedMotion,
+    "max-concurrent-timelines": maxConcurrentTimelines,
+    "a11y-img-alt": a11yImgAlt,
+    "a11y-button-label": a11yButtonLabel,
+    "a11y-link-href": a11yLinkHref,
+    "a11y-input-label": a11yInputLabel,
   },
 };
 

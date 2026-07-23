@@ -1,13 +1,16 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
-import { readContext, writeContext } from "@/cli/manifest/mutate.js";
 import { DirectionJson } from "@/cli/schemas/direction.js";
+import { BriefJson } from "@/cli/schemas/brief.js";
 import { WorkOrder } from "@/cli/schemas/work-order.js";
-import { hashFile } from "@/cli/manifest/hash.js";
 import { result } from "@/cli/utils/ndjson.js";
 import { CliError } from "@/cli/errors.js";
 import { buildFixPacket } from "@/cli/validate/packet.js";
 import { styleTileOrder } from "@/cli/templates/style-tile-order.js";
+import { selectPresetForBrief } from "@/cli/presets/catalog.js";
+import { freezeDirection } from "@/cli/commands/direct-freeze.js";
+import { sampleDirection, bespokeDirection } from "@/cli/commands/direct-directions.js";
+import { directAmend } from "@/cli/commands/direct-amend.js";
 import { ExitCode } from "@/cli/types.js";
 
 const CANDIDATES = ["A", "B", "C"] as const;
@@ -23,19 +26,34 @@ export interface DirectChooseOptions {
   out?: NodeJS.WritableStream;
 }
 
-export interface DirectAmendOptions {
-  cwd: string;
-  reason: string;
-  out?: NodeJS.WritableStream;
+export { directAmend };
+
+async function loadBriefSafe(cwd: string): Promise<BriefJson | undefined> {
+  try {
+    const raw = await readFile(resolve(cwd, "BRIEF.axm.json"), "utf-8");
+    return BriefJson.parse(JSON.parse(raw));
+  } catch {
+    return undefined;
+  }
 }
 
 export async function directGenerate({ cwd, out }: DirectGenerateOptions): Promise<void> {
+  const brief = await loadBriefSafe(cwd);
+
+  if (brief?.track === "curated") {
+    const preset = selectPresetForBrief(brief);
+    await freezeDirection(cwd, preset, preset.directionId);
+    result({ ok: true, track: "curated", directionId: preset.directionId, frozen: true }, out);
+    return;
+  }
+
   for (const candidate of CANDIDATES) {
     const path = resolve(cwd, `DIRECTION_${candidate}.axm.json`);
     await mkdir(dirname(path), { recursive: true });
-    const direction = sampleDirection(candidate);
+    const direction = brief ? bespokeDirection(candidate, brief) : sampleDirection(candidate);
     await writeFile(path, `${JSON.stringify(direction, null, 2)}\n`, "utf-8");
   }
+
   const ordersDir = resolve(cwd, "orders", "open");
   await mkdir(ordersDir, { recursive: true });
   const orders: WorkOrder[] = [];
@@ -44,7 +62,7 @@ export async function directGenerate({ cwd, out }: DirectGenerateOptions): Promi
     await writeFile(resolve(ordersDir, `${order.orderId}.json`), `${JSON.stringify(order, null, 2)}\n`, "utf-8");
     orders.push(order);
   }
-  result({ ok: true, candidates: CANDIDATES.map((c) => `dir_${c}`), orders: orders.map((o) => o.orderId) }, out);
+  result({ ok: true, track: brief?.track ?? "bespoke", candidates: CANDIDATES.map((c) => `dir_${c}`), orders: orders.map((o) => o.orderId) }, out);
 }
 
 export async function directChoose({ cwd, directionId, out }: DirectChooseOptions): Promise<void> {
@@ -66,88 +84,9 @@ export async function directChoose({ cwd, directionId, out }: DirectChooseOption
   }
 
   const sourcePath = resolve(cwd, `DIRECTION_${candidate}.axm.json`);
-  const targetPath = resolve(cwd, "DIRECTION.axm.json");
   const raw = await readFile(sourcePath, "utf-8");
   const parsed = DirectionJson.parse(JSON.parse(raw));
-  parsed.directionId = directionId;
-  await writeFile(targetPath, `${JSON.stringify(parsed, null, 2)}\n`, "utf-8");
-
-  const context = await readContext(cwd);
-  context.direction = {
-    file: "DIRECTION.axm.json",
-    hash: await hashFile(targetPath),
-    frozenAt: new Date().toISOString(),
-  };
-  context.integrity.machineFiles["DIRECTION.axm.json"] = await hashFile(targetPath);
-  await writeContext(cwd, context);
+  await freezeDirection(cwd, parsed, directionId);
 
   result({ ok: true, directionId, frozen: true }, out);
-}
-
-export async function directAmend({ cwd, reason, out }: DirectAmendOptions): Promise<void> {
-  if (!reason || reason.trim().length === 0) {
-    throw new CliError(
-      JSON.stringify(
-        buildFixPacket(
-          "AXM-V000",
-          "amend requires --reason <text>",
-          "DIRECTION.axm.json",
-          ["I-20"],
-          "Provide --reason with a concise rationale for the direction change.",
-          "Missing required --reason argument."
-        )
-      ),
-      ExitCode.VALIDATION_ERROR
-    );
-  }
-
-  const targetPath = resolve(cwd, "DIRECTION.axm.json");
-  const context = await readContext(cwd);
-  if (!context.direction) {
-    throw new CliError(
-      JSON.stringify(
-        buildFixPacket(
-          "AXM-R002",
-          "DIRECTION is not frozen; use atl direct choose first",
-          "DIRECTION.axm.json",
-          ["I-20"],
-          "Run 'atl direct generate' and 'atl direct choose <id>' before amending.",
-          "Attempted amend before direction was frozen."
-        )
-      ),
-      ExitCode.VALIDATION_ERROR
-    );
-  }
-
-  const currentHash = await hashFile(targetPath);
-  context.direction.hash = currentHash;
-  context.direction.frozenAt = new Date().toISOString();
-  context.integrity.machineFiles["DIRECTION.axm.json"] = currentHash;
-  await writeContext(cwd, context);
-
-  result({ ok: true, directionId: context.direction.file, amended: true, reason }, out);
-}
-
-function sampleDirection(candidate: string): Record<string, unknown> {
-  return {
-    directionId: `dir_${candidate}`,
-    thesis: `Sample direction ${candidate} — generated by atl direct generate.`,
-    typography: {
-      display: { family: "InterVariable", case: "mixed" },
-      text: { family: "InterVariable" },
-      scaleRatio: 1.333,
-    },
-    color: {
-      story: "Dark surface, light text.",
-      tokensDraft: {
-        "bg-primary": "#0B0F19",
-        "text-primary": "#F5F7FA",
-      },
-    },
-    space: { language: "airy", density: 0.3, gridBias: "asymmetric" },
-    motionPersonality: { adjectives: ["calm"], tempo: "mid", playfulness: 0.2 },
-    texture: { grain: 0.05, noiseShader: false },
-    webglLevel: 0,
-    sceneIdeas: ["Hero: large display type over dark field"],
-  };
 }

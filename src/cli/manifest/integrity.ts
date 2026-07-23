@@ -42,6 +42,10 @@ export async function verifyIntegrity(
   const all = { ...context.integrity.lockedFiles, ...context.integrity.machineFiles };
 
   for (const [file, expected] of Object.entries(all)) {
+    // .contract.ts files are hashed structurally (contractHash) at write time, not by raw
+    // file content; the dedicated contract pipeline stage (AXM-C004) verifies them instead.
+    if (file.endsWith(".contract.ts")) continue;
+
     let actual: string | null = null;
 
     if (file === "agent-context.json") {

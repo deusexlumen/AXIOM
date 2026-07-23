@@ -18,23 +18,22 @@ export const tokensOnly = createRule({
     },
   },
   create(context: Rule.RuleContext): Rule.NodeListener {
-    function checkLiteral(node: { value?: unknown }): void {
-      const value = node.value;
+    function checkLiteral(node: Rule.Node, value: unknown): void {
       if (typeof value !== "string") return;
       const lower = value.toLowerCase();
       if (HEX_COLOR.test(value) || RGB_RGBA.test(value) || HSL_HSLA.test(value) || NAMED_CSS_COLORS.has(lower)) {
-        context.report({ node: node as never, messageId: "rawValue" });
+        context.report({ node, messageId: "rawValue" });
       }
       if (ARBITRARY_VALUE.test(value)) {
-        context.report({ node: node as never, messageId: "arbitraryValue" });
+        context.report({ node, messageId: "arbitraryValue" });
       }
     }
     return {
-      Literal(node): void { checkLiteral(node); },
-      JSXText(node): void { checkLiteral(node as never); },
+      Literal(node): void { checkLiteral(node, (node as { value?: unknown }).value); },
+      JSXText(node): void { checkLiteral(node as never, (node as unknown as { value?: unknown }).value); },
       TemplateElement(node): void {
         if (node.value.cooked !== null) {
-          checkLiteral({ value: node.value.cooked });
+          checkLiteral(node as never, node.value.cooked);
         }
       },
     };

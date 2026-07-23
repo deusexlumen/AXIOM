@@ -6,7 +6,9 @@ import { execSync } from "node:child_process";
 import { init } from "@/cli/commands/init.js";
 import { addComponent } from "@/cli/commands/add.js";
 import { installAppDeps } from "@/cli/commands/integration-deps.js";
-import { installComponent, runPipeline, parseReport, readPacket, noopStream } from "@/cli/commands/validate.integration.helpers.js";
+import { noopStream } from "@/cli/commands/validate.integration.context.js";
+import { runPipeline, parseReport, readPacket } from "@/cli/commands/validate.integration.run.js";
+import { installComponent } from "@/cli/commands/validate.integration.install.js";
 
 beforeAll(() => {
   execSync("pnpm --filter eslint-plugin-axiom build", { cwd: process.cwd(), stdio: "ignore" });
@@ -18,7 +20,7 @@ async function scaffold(install = false): Promise<{ base: string; dir: string }>
   await init(name, { cwd: base, skipInstall: true, out: noopStream() });
   const dir = join(base, name);
   if (install) {
-    installAppDeps(dir);
+    await installAppDeps(dir);
   }
   return { base, dir };
 }

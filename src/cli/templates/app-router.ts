@@ -22,6 +22,7 @@ export function pageTsx(): string {
 
 import { useEffect, useRef } from "react";
 import { useChoreo } from "@/core/useChoreo";
+import { HeroDemo } from "@/components/HeroDemo";
 import { Stage } from "@/core/Stage";
 import { QuadMesh } from "@/core/QuadMesh";
 import { useLenis } from "@/core/lenis";
@@ -29,7 +30,7 @@ import { motion } from "@/generated/motion";
 
 export default function HomePage() {
   const sectionRef = useRef<HTMLElement>(null);
-  const { timeline, isReducedMotion } = useChoreo({ id: "hero" });
+  const { timeline, isReducedMotion } = useChoreo({ id: "hero", reducedMotion: "instant" });
   useLenis();
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function HomePage() {
 
   return (
     <main>
+      <HeroDemo />
       <section
         ref={sectionRef}
         data-axm-id="hero"
