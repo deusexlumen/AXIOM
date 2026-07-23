@@ -1,0 +1,45 @@
+{
+  "$schema": "./node_modules/@axiom/cli/dist/schemas/brief.schema.json",
+  "track": "bespoke",
+  "brand": {
+    "name": "Studio Obscura",
+    "oneLiner": "A bespoke portfolio for a digital craft studio.",
+    "existingAssets": ["logo.svg"],
+    "voice": ["precise", "atmospheric", "uncompromising"]
+  },
+  "audience": {
+    "who": "Art directors, design-led startups, cultural institutions",
+    "device": "desktop-first",
+    "attention": "explorativ"
+  },
+  "goal": {
+    "primary": "portfolio",
+    "successMetric": "Inbound project inquiries"
+  },
+  "references": [
+    {
+      "url": "https://darkroom.engineering",
+      "liked": ["Cursor system", "Fluid WebGL"],
+      "disliked": ["Navigation ambiguity"]
+    },
+    {
+      "url": "https://dogstudio.co",
+      "liked": ["Scene transitions", "Typography confidence"],
+      "disliked": ["Sound autoplay"]
+    }
+  ],
+  "mood": {
+    "words": ["monolithisch", "neblig", "technisch", "düster-romantisch"],
+    "antiWords": ["verspielt", "startup-bunt", "glatt"]
+  },
+  "content": {
+    "sections": ["hero", "work", "about", "contact"],
+    "assets": "gemischt"
+  },
+  "constraints": {
+    "deadlineDays": 21,
+    "mustHave": ["flowmap-hero", "depth-gallery", "page-mask-transition", "cursor-system"],
+    "verboten": ["Stock-Fotos", "Systemfonts"]
+  },
+  "webglAppetite": 2
+}

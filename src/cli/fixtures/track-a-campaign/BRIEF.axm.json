@@ -1,0 +1,45 @@
+{
+  "$schema": "./node_modules/@axiom/cli/dist/schemas/brief.schema.json",
+  "track": "curated",
+  "brand": {
+    "name": "Neon Launch",
+    "oneLiner": "A curated campaign for the next big release.",
+    "existingAssets": [],
+    "voice": ["energetic", "confident", "playful"]
+  },
+  "audience": {
+    "who": "Tech-savvy early adopters and creative professionals",
+    "device": "balanced",
+    "attention": "explorativ"
+  },
+  "goal": {
+    "primary": "awareness",
+    "successMetric": "Waitlist signups and social shares"
+  },
+  "references": [
+    {
+      "url": "https://activetheory.net",
+      "liked": ["Immersive scroll", "Bold typography"],
+      "disliked": ["Heavy loading time"]
+    },
+    {
+      "url": "https://locomotive.ca",
+      "liked": ["Smooth transitions", "Editorial layout"],
+      "disliked": ["Small body text"]
+    }
+  ],
+  "mood": {
+    "words": ["neon", "electric", "playful", "bold"],
+    "antiWords": ["corporate", "muted", "boring"]
+  },
+  "content": {
+    "sections": ["hero", "marquee", "cta", "contact"],
+    "assets": "zu-erzeugen"
+  },
+  "constraints": {
+    "deadlineDays": 14,
+    "mustHave": ["preloader", "magnetic-cta", "marquee"],
+    "verboten": ["Stock-Fotos"]
+  },
+  "webglAppetite": 1
+}

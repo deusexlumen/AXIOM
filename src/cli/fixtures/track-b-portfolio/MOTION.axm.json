@@ -1,0 +1,59 @@
+{
+  "ease": {
+    "hero": {
+      "curve": [0.16, 1, 0.3, 1],
+      "meaning": "large reveals"
+    },
+    "snap": {
+      "curve": [0.83, 0, 0.17, 1],
+      "meaning": "UI feedback"
+    },
+    "drift": {
+      "curve": [0.25, 0.1, 0.25, 1],
+      "meaning": "ambient drift"
+    },
+    "cinematic": {
+      "curve": [0.6, 0.05, 0.01, 0.9],
+      "meaning": "heavy scene transitions"
+    }
+  },
+  "dur": {
+    "micro": 0.22,
+    "ui": 0.45,
+    "reveal": 1.2,
+    "scene": 2.0,
+    "max": 2.5
+  },
+  "stagger": {
+    "chars": 0.025,
+    "lines": 0.1,
+    "items": 0.15
+  },
+  "scroll": {
+    "lenis": {
+      "lerp": 0.07
+    },
+    "scrubDefault": 1.0,
+    "pinSpacing": true
+  },
+  "transitions": {
+    "pageEnter": {
+      "grammar": "mask-wipe-up",
+      "dur": "scene",
+      "ease": "hero"
+    },
+    "pageExit": {
+      "grammar": "fade-scale-098",
+      "dur": "ui",
+      "ease": "snap"
+    }
+  },
+  "choreography": {
+    "revealOrder": ["preloader", "display-text", "media", "body-text", "meta"],
+    "maxConcurrentTimelines": 3
+  },
+  "reducedMotion": {
+    "strategy": "opacity-only",
+    "durFactor": 0.5
+  }
+}
