@@ -4,13 +4,18 @@
 
 ## Projekt-Übersicht
 
-AXIOM ist ein Framework für eine deterministische, agenten-native Web-Infrastruktur; die Meilensteine **M0 und M1 sind implementiert**. Ziel ist eine Web-SPA, die als vorhersagbare Zielumgebung für KI-Agenten dient.
+AXIOM ist ein Framework für eine deterministische, agenten-native Web-Infrastruktur. Aktuelle Spezifikationen: `AXIOM_SPEC_v2.0.md` (ersetzt v1.0) und `ATELIER_SPEC_v3.0.md` (ATELIER-Erweiterung: Brief→Direction→Build-Workflow). Die gesamte aktive Entwicklung liegt auf diesem Branch (`feat/m2`), der de facto der Integrationsbranch ist; `master` enthält nur den Initial-Commit.
+
+Implementierungsstand:
+
+- **AXIOM M0–M12** — alle Meilensteine implementiert und GREEN (Repo-Skeleton, Manifest Core, Invarianten-Enforcement, Generatoren, Pipeline/Heal, API/DB-Modul, Deploy, Visual Gate u.a.)
+- **ATELIER A0–A7** — GREEN (Acceptance-Reports unter `docs/superpowers/plans/`): Next.js-Scaffold, Tokens v3 + Motion-System, Brief-/Direction-Workflow, Pattern-System, PERF-/BUILD-Stages, CRITIC-Stage mit Anti-Template-Heuristik, MCP-Server `atelier-mcp` (15 Tools)
+- **ATELIER A8 / S-20** — Track-A (CURATED Kampagnen-Page) end-to-end GREEN (Commit `c5dde44`, 474s Vollpipeline inkl. Deploy + CRITIC); Track-B (BESPOKE Portfolio) ist der verbleibende offene Teil
 
 Der aktuelle Stand umfasst:
 
-- `AXIOM_SPEC_v1.0.md` — vollständige Implementierungsspezifikation v1.0 (Status: BUILD-READY)
-- `axm`-CLI mit funktionsfähigem `axm init <name>` und `axm validate`
-- Scaffolding für Vite, React, TypeScript, Tailwind, Zustand, Zod, Vitest, Playwright und ESLint
+- `axm`-CLI mit funktionsfähigem `axm init <name>` und `axm validate`; zusätzlich die ATELIER-CLI `atl` (gleicher CLI-Vertrag) und der MCP-Server `atelier-mcp`
+- Scaffolding für Next.js 15, React 19, TypeScript, Tailwind, GSAP/R3F, Zod, Vitest, Playwright und ESLint
 - Manifest-Kern (M1): Zod-Schemas, Reader/Writer, SHA-256-Hashes, Integritätsprüfung, FIX_PACKET-Fehlerformat
 
 ## Zentrale Design-Doktrin
@@ -26,8 +31,9 @@ Der aktuelle Stand umfasst:
 |-------|--------------|
 | Runtime | Node.js 22 LTS |
 | Package Manager | pnpm 9 |
-| Build Tool | Vite 6 |
+| Framework/Build | Next.js 15 (App Router, `output: "export"`) — ersetzt seit ATELIER A0 das ursprünglich geplante Vite-6-Setup |
 | UI Library | React 19 (ausschließlich Function Components) |
+| Motion | GSAP + React Three Fiber, gekapselt in Core-Wrappern (`useChoreo` u.a.), Motion-Tokens aus `MOTION.axm.json` |
 | Styling | Tailwind v4, Theme aus `tokens.json` generiert |
 | State Management | Zustand 5 |
 | Schema/Validation | Zod 4 |
@@ -135,7 +141,7 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 ### Befehle (nach Implementierung)
 
 - `pnpm install` — Abhängigkeiten installieren.
-- `pnpm build` — Vite-Build.
+- `pnpm build` — Next.js-Build.
 - `pnpm test` — Vitest ausführen.
 - `pnpm test:e2e` — Playwright ausführen.
 - `pnpm lint` — ESLint ausführen.
@@ -179,10 +185,8 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 
 ## Offener Stand
 
-- Meilenstein M0 ist implementiert und die Akzeptanzkriterien sind erfüllt.
-- Meilenstein M1 (Manifest-Kern) ist implementiert: `agent-context.json` ist die SSOT, alle Schemas existieren als Zod-Schemas mit JSON-Schema-Export, `axm init` schreibt echte SHA-256-Hashes, `axm validate` prüft Manifest-Integrität, und 1.000 zufällige Manifest-Mutationen bleiben schema-valide.
-- `axm init <name>` scaffolded ein installierbares, bau- und testbares Projekt.
-- Meilenstein M2 (Custom-ESLint-Plugin und Invarianten-Enforcement I-01…I-12) ist implementiert.
+- AXIOM M0–M12 sind implementiert und grün; ATELIER A0–A7 sind per Acceptance-Report abgenommen.
+- A8/S-20 Track-A (CURATED) ist end-to-end grün inkl. Deploy und CRITIC-Report.
 - `axm plan` liest `BRIEF.axm.json` und erzeugt track-aware Arbeitsaufträge: Track-A (curated) wählt ein Preset aus dem Katalog und spawnt Direction → Tokens → Motion → Pattern → Build → E2E → PERF → CRITIC; Track-B (bespoke) spawnt Brief-Review → Direction-Generate → Operator-Veto → Style-Tile → Tokens → Motion → Custom Components → Build → E2E → PERF → CRITIC.
 - `atl direct generate` liest `BRIEF.track`: bei `curated` wird das passende Preset direkt als `DIRECTION.axm.json` eingefroren; bei `bespoke` werden drei Brief-bezogene Richtungskandidaten generiert.
-- Nächste Arbeitspakete: Meilenstein M3 (Komponenten-/Route-/Store-Generierung) und die weiteren A8-Tasks.
+- Nächstes Arbeitspaket: **A8 Track-B** (BESPOKE-Portfolio-Referenzprojekt, siehe `docs/superpowers/plans/2026-07-12-atelier-a8-plan.md`); Fixtures und Tests dafür liegen bereits im Repo (`src/cli/fixtures/track-b-portfolio/`, `src/cli/commands/track-b-fixture.test.ts`).
