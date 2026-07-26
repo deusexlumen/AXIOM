@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "@fontsource-variable/fraunces";
+
+@theme {
+  --color-void: #0a0a0c;
+  --color-fog: #14141a;
+  --color-light: #f4f1ea;
+  --color-accent: #c9a76b;
+  --font-display: "Fraunces Variable", serif;
+}
+
+html, body, #root { height: 100%; background: var(--color-void); color: var(--color-light); }
+body { margin: 0; overscroll-behavior: none; }
+
+.line { overflow: hidden; display: block; }

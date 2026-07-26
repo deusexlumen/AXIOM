@@ -6,3 +6,10 @@ dist/
 .env
 .env.local
 coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+*.tsbuildinfo
+
+# Playwright MCP session output
+.playwright-mcp/

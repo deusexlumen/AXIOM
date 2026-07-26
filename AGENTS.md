@@ -4,13 +4,15 @@
 
 ## Projekt-Übersicht
 
-AXIOM ist ein spezifiziertes, aber noch **nicht implementiertes** Framework für eine deterministische, agenten-native Web-Infrastruktur. Ziel ist eine Web-SPA, die als vorhersagbare Zielumgebung für KI-Agenten dient.
+AXIOM ist ein Framework für eine deterministische, agenten-native Web-Infrastruktur. Aktuelle Spezifikationen: `AXIOM_SPEC_v2.0.md` (ersetzt v1.0) und `ATELIER_SPEC_v3.0.md` (ATELIER-Erweiterung: Brief→Direction→Build-Workflow). Die gesamte aktive Entwicklung liegt auf dem Branch **`feat/m2`** (Worktree `.worktrees/m2`), der de facto der Integrationsbranch ist; `master` enthält nur den Initial-Commit.
 
-Der einzige Inhalt des Repositories ist momentan:
+Implementierungsstand auf `feat/m2`:
 
-- `AXIOM_SPEC_v1.0.md` — vollständige Implementierungsspezifikation v1.0 (Status: BUILD-READY)
+- **AXIOM M0–M12** — alle Meilensteine implementiert und GREEN (Repo-Skeleton, Manifest Core, Invarianten-Enforcement, Generatoren, Pipeline/Heal, API/DB-Modul, Deploy, Visual Gate u.a.)
+- **ATELIER A0–A7** — GREEN (Acceptance-Reports unter `docs/superpowers/plans/`): Next.js-Scaffold, Tokens v3 + Motion-System, Brief-/Direction-Workflow, Pattern-System, PERF-/BUILD-Stages, CRITIC-Stage mit Anti-Template-Heuristik, MCP-Server `atelier-mcp` (15 Tools)
+- **ATELIER A8 / S-20** — Track-A (CURATED Kampagnen-Page) end-to-end GREEN (Commit `c5dde44`, 474s Vollpipeline inkl. Deploy + CRITIC); Track-B (BESPOKE Portfolio) ist der verbleibende offene Teil
 
-Es existieren noch keine Konfigurationsdateien wie `package.json`, `tsconfig.json`, `vite.config.ts`, ESLint-Config, Tests oder Quellcode. Jede Implementierungsarbeit beginnt daher mit dem Scaffolding gemäß Spezifikation.
+Jede Implementierungsarbeit beginnt mit dem Scaffolding gemäß aktueller Spezifikation.
 
 ## Zentrale Design-Doktrin
 
@@ -25,8 +27,9 @@ Es existieren noch keine Konfigurationsdateien wie `package.json`, `tsconfig.jso
 |-------|--------------|
 | Runtime | Node.js 22 LTS |
 | Package Manager | pnpm 9 |
-| Build Tool | Vite 6 |
+| Framework/Build | Next.js 15 (App Router, `output: "export"`) — ersetzt seit ATELIER A0 das ursprünglich geplante Vite-6-Setup |
 | UI Library | React 19 (ausschließlich Function Components) |
+| Motion | GSAP + React Three Fiber, gekapselt in Core-Wrappern (`useChoreo` u.a.), Motion-Tokens aus `MOTION.axm.json` |
 | Styling | Tailwind v4, Theme aus `tokens.json` generiert |
 | State Management | Zustand 5 |
 | Schema/Validation | Zod 4 |
@@ -34,6 +37,11 @@ Es existieren noch keine Konfigurationsdateien wie `package.json`, `tsconfig.jso
 | Unit Tests | Vitest 3 (`--reporter=json`) |
 | E2E Tests | Playwright (`--reporter=json`) + axe-core |
 | Linting | ESLint 9 Flat Config + Custom-Plugin `eslint-plugin-axiom` |
+| API-Runtime | Hono 4 auf Node.js |
+| Datenbank-ORM | Drizzle ORM |
+| Lokale DB | PGlite (In-Process Postgres/WASM) |
+| Produktions-DB | PostgreSQL (Supabase-kompatibel) |
+| API-Vertrag | Zod → OpenAPI 3.1 → generierter Client |
 | Sprache | TypeScript 5.x, `strict: true`, `noUncheckedIndexedAccess: true` |
 
 ## Repository-Layout (geplant)
@@ -133,7 +141,7 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 ### Befehle (nach Implementierung)
 
 - `pnpm install` — Abhängigkeiten installieren.
-- `pnpm build` — Vite-Build.
+- `pnpm build` — Next.js-Build.
 - `pnpm test` — Vitest ausführen.
 - `pnpm test:e2e` — Playwright ausführen.
 - `pnpm lint` — ESLint ausführen.
@@ -167,6 +175,8 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 
 ## Offener Stand
 
-- Die Spezifikation ist vollständig, aber **nicht implementiert**.
-- Keine `package.json`, `tsconfig.json`, Build-Configs oder Quellcode vorhanden.
-- Erster Arbeitsschritt bei Implementierung: Meilenstein M0 (`axm init` funktionsfähig machen).
+- `AXIOM_SPEC_v2.0.md` (ersetzt v1.0) und `ATELIER_SPEC_v3.0.md` sind die aktuellen Spezifikationen.
+- AXIOM M0–M12 und ATELIER A0–A7 sind implementiert und grün; A8/S-20 Track-A ist end-to-end grün.
+- Nächstes Arbeitspaket: **A8 Track-B** (BESPOKE-Portfolio-Referenzprojekt, siehe `docs/superpowers/plans/2026-07-12-atelier-a8-plan.md`); Fixtures/Tests dafür liegen bereits auf `feat/m2`.
+- Neben `axm` existiert die ATELIER-CLI **`atl`** (gleicher CLI-Vertrag; u.a. `atl brief`, `atl direct`, `atl pattern`, `atl critic run`, `atl deploy`) sowie der MCP-Server `atelier-mcp`.
+- Alle Änderungen an LOCKED-/MACHINE-Zonen müssen über `axm`-/`atl`-Befehle oder explizite Framework-Updates erfolgen.
