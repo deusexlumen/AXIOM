@@ -1,8 +1,12 @@
+let cached: boolean | null = null;
+
 export function hasWebGL(): boolean {
+  if (cached !== null) return cached;
   try {
     const canvas = document.createElement("canvas");
-    return !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+    cached = !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
   } catch {
-    return false;
+    cached = false;
   }
+  return cached;
 }

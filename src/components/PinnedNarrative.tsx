@@ -1,17 +1,16 @@
 import { useRef } from "react";
 import { useChoreo } from "@/motion/useChoreo";
+import { useReducedMotion } from "@/motion/useReducedMotion";
 import { SCROLL } from "@/motion/tokens";
 
 const PANELS = ["Schwere", "Licht", "Stille"];
 
 export function PinnedNarrative() {
   const root = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
 
   useChoreo((ctx) => {
-    if (ctx.reduced) {
-      ctx.gsap.set(root.current!.querySelectorAll("[data-panel]"), { autoAlpha: 1 });
-      return;
-    }
+    if (ctx.reduced) return;
     const panels = root.current!.querySelectorAll("[data-panel]");
     const tl = ctx.gsap.timeline({
       scrollTrigger: {
@@ -27,6 +26,22 @@ export function PinnedNarrative() {
       if (i < panels.length - 1) tl.to(p, { autoAlpha: 0, yPercent: -8 });
     });
   }, [], root);
+
+  if (reduced) {
+    return (
+      <section ref={root}>
+        {PANELS.map((label) => (
+          <div
+            key={label}
+            data-panel
+            className="grid h-screen place-items-center font-display text-7xl text-[var(--color-accent)]"
+          >
+            {label}
+          </div>
+        ))}
+      </section>
+    );
+  }
 
   return (
     <section ref={root} className="relative h-screen">

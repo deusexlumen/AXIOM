@@ -10,16 +10,18 @@ export default function App() {
   return (
     <>
       {!ready && <Preloader onDone={() => setReady(true)} />}
-      <LenisProvider>
-        <div className="relative">
-          <div className="fixed inset-0 -z-10"><Stage /></div>
-          <Hero />
-          <PinnedNarrative />
-          <section className="grid h-screen place-items-center font-display text-3xl">
-            Ende
-          </section>
-        </div>
-      </LenisProvider>
+      {ready && (
+        <LenisProvider>
+          <div className="relative">
+            <div className="fixed inset-0 -z-10"><Stage /></div>
+            <Hero />
+            <PinnedNarrative />
+            <section className="grid h-screen place-items-center font-display text-3xl">
+              Ende
+            </section>
+          </div>
+        </LenisProvider>
+      )}
     </>
   );
 }
