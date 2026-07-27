@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-// Minimal stub — full E2E configuration lands in Task 9.
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "tests/e2e",
+  webServer: { command: "pnpm build && pnpm preview --port 4173", url: "http://localhost:4173", reuseExistingServer: false },
+  use: { baseURL: "http://localhost:4173", channel: "chromium" },
 });
