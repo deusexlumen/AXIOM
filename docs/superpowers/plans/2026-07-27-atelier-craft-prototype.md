@@ -1,6 +1,6 @@
 # ATELIER Craft Prototype Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build a single runnable Vite page that demonstrates ATELIER agency-grade output-craft (preloader, split-reveal hero, smooth scroll, one WebGL scene, pinned narrative) on the spec-mandated GSAP/Lenis/R3F stack.
 
@@ -30,7 +30,7 @@
 **Interfaces:**
 - Produces: a Vite React 19 + TS app that builds clean; `App` default export renders a placeholder; Tailwind v4 active; `pnpm test` (Vitest) and `pnpm test:e2e` (Playwright) wired.
 
-- [ ] **Step 1: Scaffold and install**
+- [x] **Step 1: Scaffold and install**
 
 The repo root currently holds only docs. Create the app at repo root (not a subdir).
 
@@ -45,7 +45,7 @@ pnpm add -D vitest @vitest/browser jsdom @testing-library/react @testing-library
 pnpm add -D @playwright/test
 ```
 
-- [ ] **Step 2: `vite.config.ts`**
+- [x] **Step 2: `vite.config.ts`**
 
 ```ts
 import { defineConfig } from "vite";
@@ -68,7 +68,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3: `tsconfig.json`** (strict, React 19 JSX, GLSL `?raw` module typing)
+- [x] **Step 3: `tsconfig.json`** (strict, React 19 JSX, GLSL `?raw` module typing)
 
 ```json
 {
@@ -94,7 +94,7 @@ Add `src/glsl.d.ts`:
 declare module "*.glsl?raw" { const src: string; export default src; }
 ```
 
-- [ ] **Step 4: `src/styles/index.css`** (Tailwind v4 + theme + font)
+- [x] **Step 4: `src/styles/index.css`** (Tailwind v4 + theme + font)
 
 ```css
 @import "tailwindcss";
@@ -112,7 +112,7 @@ html, body, #root { height: 100%; background: var(--color-void); color: var(--co
 body { margin: 0; overscroll-behavior: none; }
 ```
 
-- [ ] **Step 5: `index.html`, `src/main.tsx`, placeholder `src/App.tsx`**
+- [x] **Step 5: `index.html`, `src/main.tsx`, placeholder `src/App.tsx`**
 
 `src/main.tsx`:
 ```tsx
@@ -133,7 +133,7 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 6: package.json scripts**
+- [x] **Step 6: package.json scripts**
 
 ```json
 {
@@ -147,13 +147,13 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 7: Verify build + dev**
+- [x] **Step 7: Verify build + dev**
 
 Run: `pnpm build`
 Expected: typecheck + bundle succeed, no errors.
 Run: `pnpm dev` → open browser → dark page with "ATELIER" in serif visible.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add -A
@@ -177,7 +177,7 @@ git commit -m "chore: scaffold Vite+React+GSAP+R3F prototype"
   - `REDUCED: { strategy: "opacity-only"; durFactor: number }`
   - `cssEase(name: keyof typeof EASE): string` → `"cubic-bezier(a,b,c,d)"` (for GSAP `ease` via `CustomEase`? No — GSAP accepts cubic-bezier via `gsap.parseEase`; return the raw array for GSAP and a string helper for CSS).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 import { describe, it, expect } from "vitest";
@@ -199,12 +199,12 @@ describe("motion tokens", () => {
 });
 ```
 
-- [ ] **Step 2: Run test → FAIL**
+- [x] **Step 2: Run test → FAIL**
 
 Run: `pnpm test tests/motion/tokens.test.ts`
 Expected: FAIL (module not found).
 
-- [ ] **Step 3: Implement `src/motion/tokens.ts`** (shape mirrors ATELIER §5.4 MOTION.axm.json)
+- [x] **Step 3: Implement `src/motion/tokens.ts`** (shape mirrors ATELIER §5.4 MOTION.axm.json)
 
 ```ts
 export const EASE = {
@@ -224,12 +224,12 @@ export function cssEase(name: keyof typeof EASE): string {
 }
 ```
 
-- [ ] **Step 4: Run test → PASS**
+- [x] **Step 4: Run test → PASS**
 
 Run: `pnpm test tests/motion/tokens.test.ts`
 Expected: PASS (4 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/motion/tokens.ts tests/motion/tokens.test.ts
@@ -247,7 +247,7 @@ git commit -m "feat: motion tokens (ease/dur/stagger) from ATELIER §5.4"
 **Interfaces:**
 - Produces: `useReducedMotion(): boolean` — reactive to `matchMedia("(prefers-reduced-motion: reduce)")`.
 
-- [ ] **Step 1: Write the failing test** (jsdom; mock matchMedia)
+- [x] **Step 1: Write the failing test** (jsdom; mock matchMedia)
 
 ```ts
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -279,12 +279,12 @@ describe("useReducedMotion", () => {
 
 Add `tests/setup.ts` (registered in vitest.config) with `import "@testing-library/jest-dom";` and set `test.environment = "jsdom"`.
 
-- [ ] **Step 2: Run → FAIL**
+- [x] **Step 2: Run → FAIL**
 
 Run: `pnpm test tests/motion/useReducedMotion.test.ts`
 Expected: FAIL (module not found).
 
-- [ ] **Step 3: Implement `src/motion/useReducedMotion.ts`**
+- [x] **Step 3: Implement `src/motion/useReducedMotion.ts`**
 
 ```ts
 import { useSyncExternalStore } from "react";
@@ -306,12 +306,12 @@ export function useReducedMotion(): boolean {
 }
 ```
 
-- [ ] **Step 4: Run → PASS**
+- [x] **Step 4: Run → PASS**
 
 Run: `pnpm test tests/motion/useReducedMotion.test.ts`
 Expected: PASS (2 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/motion/useReducedMotion.ts tests/motion/useReducedMotion.test.ts tests/setup.ts vitest.config.ts
@@ -335,7 +335,7 @@ git commit -m "feat: useReducedMotion hook (spec I-19)"
     where `ChoreoCtx = { gsap: typeof gsap; reduced: boolean; ease: (n: keyof typeof EASE) => gsap.EaseFunction | string; dur: (n: keyof typeof DUR) => number }`.
   - When `reduced` is true, `dur()` multiplies by `REDUCED.durFactor`; callers use `reduced` to swap transforms for opacity-only. `useChoreo` runs inside `useGSAP` so cleanup/StrictMode is handled.
 
-- [ ] **Step 1: Implement `src/motion/gsap.ts`** (no test — pure registration)
+- [x] **Step 1: Implement `src/motion/gsap.ts`** (no test — pure registration)
 
 ```ts
 import { gsap } from "gsap";
@@ -348,7 +348,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 export { gsap, ScrollTrigger, SplitText, useGSAP };
 ```
 
-- [ ] **Step 2: Write the failing test** (verifies reduced-motion shortens duration)
+- [x] **Step 2: Write the failing test** (verifies reduced-motion shortens duration)
 
 ```tsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -377,12 +377,12 @@ describe("useChoreo", () => {
 });
 ```
 
-- [ ] **Step 3: Run → FAIL**
+- [x] **Step 3: Run → FAIL**
 
 Run: `pnpm test tests/motion/useChoreo.test.tsx`
 Expected: FAIL (module not found).
 
-- [ ] **Step 4: Implement `src/motion/useChoreo.ts`**
+- [x] **Step 4: Implement `src/motion/useChoreo.ts`**
 
 ```ts
 import type { RefObject } from "react";
@@ -418,12 +418,12 @@ export function useChoreo(
 }
 ```
 
-- [ ] **Step 5: Run → PASS**
+- [x] **Step 5: Run → PASS**
 
 Run: `pnpm test tests/motion/useChoreo.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/motion/gsap.ts src/motion/useChoreo.ts tests/motion/useChoreo.test.tsx
@@ -442,7 +442,7 @@ git commit -m "feat: useChoreo wrapper — GSAP + reduced-motion + StrictMode cl
 - Consumes: `SCROLL.lerp` from tokens; `ScrollTrigger`, `gsap` from `@/motion/gsap`.
 - Produces: `<LenisProvider>{children}</LenisProvider>` — mounts one Lenis instance, drives it from `gsap.ticker`, syncs `ScrollTrigger.update` on Lenis scroll, disables `lagSmoothing`. Under reduced-motion, Lenis is instantiated with `smoothWheel: false` (native scroll).
 
-- [ ] **Step 1: Implement `src/scroll/LenisProvider.tsx`**
+- [x] **Step 1: Implement `src/scroll/LenisProvider.tsx`**
 
 ```tsx
 import { useEffect, type ReactNode } from "react";
@@ -473,7 +473,7 @@ export function LenisProvider({ children }: { children: ReactNode }) {
 }
 ```
 
-- [ ] **Step 2: Temporary manual verification harness**
+- [x] **Step 2: Temporary manual verification harness**
 
 Temporarily wrap the placeholder `App` content with `<LenisProvider>` and add ~3 full-viewport `<section>`s plus a trivial ScrollTrigger to confirm wiring:
 
@@ -487,7 +487,7 @@ useChoreo((ctx) => {
 
 Run: `pnpm dev` → scroll. Expected: momentum/smooth scroll present; the probe element fades in when scrolled into view (proves Lenis + ScrollTrigger share the loop). Remove the temporary harness after verifying.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/scroll/LenisProvider.tsx
@@ -514,7 +514,7 @@ git commit -m "feat: Lenis provider wired to GSAP ticker + ScrollTrigger"
   - `<Stage />` — renders R3F `<Canvas frameloop="always">` with `<MeshGradient />` when WebGL available and not reduced-motion; otherwise `<img src="/poster.webp" alt="" aria-hidden>`.
   - `<MeshGradient />` — fullscreen plane, drift-animated fragment shader via `useFrame` updating a `uTime` uniform.
 
-- [ ] **Step 1: Write the failing test for `hasWebGL`**
+- [x] **Step 1: Write the failing test for `hasWebGL`**
 
 ```ts
 import { describe, it, expect, vi } from "vitest";
@@ -528,7 +528,7 @@ describe("hasWebGL", () => {
 });
 ```
 
-- [ ] **Step 2: Run → FAIL**, then implement `src/webgl/hasWebGL.ts`
+- [x] **Step 2: Run → FAIL**, then implement `src/webgl/hasWebGL.ts`
 
 ```ts
 export function hasWebGL(): boolean {
@@ -543,7 +543,7 @@ export function hasWebGL(): boolean {
 
 Run: `pnpm test tests/webgl/hasWebGL.test.ts` → PASS.
 
-- [ ] **Step 3: Shaders**
+- [x] **Step 3: Shaders**
 
 `src/webgl/meshGradient.vert.glsl`:
 ```glsl
@@ -590,7 +590,7 @@ void main(){
 }
 ```
 
-- [ ] **Step 4: `src/webgl/MeshGradient.tsx`**
+- [x] **Step 4: `src/webgl/MeshGradient.tsx`**
 
 ```tsx
 import { useRef } from "react";
@@ -623,7 +623,7 @@ export function MeshGradient() {
 }
 ```
 
-- [ ] **Step 5: `src/webgl/Stage.tsx`**
+- [x] **Step 5: `src/webgl/Stage.tsx`**
 
 ```tsx
 import { Canvas } from "@react-three/fiber";
@@ -648,7 +648,7 @@ export function Stage() {
 }
 ```
 
-- [ ] **Step 6: Poster placeholder**
+- [x] **Step 6: Poster placeholder**
 
 Create a minimal `public/poster.webp` — export one frame of the gradient, OR (acceptable for prototype) a solid dark-fog gradient image. Generate quickly:
 ```bash
@@ -657,11 +657,11 @@ magick -size 1600x1000 gradient:'#0a0a0c'-'#14141a' public/poster.webp
 ```
 If no tooling, place any dark placeholder image at `public/poster.webp` — the gate must render *something* without erroring.
 
-- [ ] **Step 7: Verify in browser**
+- [x] **Step 7: Verify in browser**
 
 Run: `pnpm dev` → mount `<Stage />` full-screen temporarily → confirm animated fog gradient renders. Toggle OS reduced-motion → confirm poster shows instead.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/webgl public/poster.webp tests/webgl
@@ -680,7 +680,7 @@ git commit -m "feat: WebGL Stage gate + mesh-gradient fog scene + poster fallbac
 - Consumes: `useChoreo`, `DUR`.
 - Produces: `<Preloader onDone={() => void} />` — counts 0→100 then plays an exit mask reveal, then calls `onDone`. Under reduced-motion: counter still shows but exits via opacity, shortened.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 import { describe, it, expect, vi } from "vitest";
@@ -698,7 +698,7 @@ describe("Preloader", () => {
 });
 ```
 
-- [ ] **Step 2: Run → FAIL**, then implement `src/components/Preloader.tsx`
+- [x] **Step 2: Run → FAIL**, then implement `src/components/Preloader.tsx`
 
 ```tsx
 import { useRef, useState } from "react";
@@ -734,9 +734,9 @@ export function Preloader({ onDone }: { onDone: () => void }) {
 
 Note: GSAP `ease` accepts the cubic-bezier string from `ctx.ease()`. Verify `power1.inOut` (a named GSAP core ease) is acceptable here or replace with `ctx.ease("drift")` to stay token-pure — **use `ctx.ease("drift")`** to honor the no-raw-easing constraint.
 
-- [ ] **Step 3: Run → PASS** (`pnpm test tests/components/Preloader.test.tsx`)
+- [x] **Step 3: Run → PASS** (`pnpm test tests/components/Preloader.test.tsx`)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/Preloader.tsx tests/components/Preloader.test.tsx
@@ -755,7 +755,7 @@ git commit -m "feat: preloader counter + reveal choreography"
 - Consumes: `useChoreo`, `STAGGER`, `SplitText` via `@/motion/gsap`.
 - Produces: `<Hero />` — a full-viewport heading whose lines/chars reveal masked with stagger. Reduced-motion: text set visible instantly (opacity 1), no transform.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 import { describe, it, expect, vi } from "vitest";
@@ -772,7 +772,7 @@ describe("Hero", () => {
 });
 ```
 
-- [ ] **Step 2: Run → FAIL**, then implement `src/components/Hero.tsx`
+- [x] **Step 2: Run → FAIL**, then implement `src/components/Hero.tsx`
 
 ```tsx
 import { useRef } from "react";
@@ -814,11 +814,11 @@ Note: masked reveal requires each `.line` to clip overflow. Add to `src/styles/i
 .line { overflow: hidden; display: block; }
 ```
 
-- [ ] **Step 3: Run → PASS**
+- [x] **Step 3: Run → PASS**
 
-- [ ] **Step 4: Verify in browser** — headline lines rise into view with stagger; reduced-motion shows static headline.
+- [x] **Step 4: Verify in browser** — headline lines rise into view with stagger; reduced-motion shows static headline.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/Hero.tsx tests/components/Hero.test.tsx src/styles/index.css
@@ -837,7 +837,7 @@ git commit -m "feat: hero split-reveal via SplitText"
 - Consumes: `useChoreo`, `SCROLL.scrubDefault`, `ScrollTrigger` via gsap.
 - Produces: `<PinnedNarrative />` — a section that pins while three content panels cross-fade/translate as the user scrolls (scrubbed). Reduced-motion: no pin, panels stacked and statically visible.
 
-- [ ] **Step 1: Implement `src/components/PinnedNarrative.tsx`**
+- [x] **Step 1: Implement `src/components/PinnedNarrative.tsx`**
 
 ```tsx
 import { useRef } from "react";
@@ -886,9 +886,9 @@ export function PinnedNarrative() {
 }
 ```
 
-- [ ] **Step 2: Verify in browser** — section pins, panels scrub through on scroll; reduced-motion shows panels stacked visible, no pin.
+- [x] **Step 2: Verify in browser** — section pins, panels scrub through on scroll; reduced-motion shows panels stacked visible, no pin.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/PinnedNarrative.tsx
@@ -908,7 +908,7 @@ git commit -m "feat: pinned-narrative scrubbed section"
 - Consumes: `LenisProvider`, `Preloader`, `Stage`, `Hero`, `PinnedNarrative`.
 - Produces: final composed page; preloader gates content reveal via `useState`.
 
-- [ ] **Step 1: Implement `src/App.tsx`**
+- [x] **Step 1: Implement `src/App.tsx`**
 
 ```tsx
 import { useState } from "react";
@@ -938,7 +938,7 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 2: `playwright.config.ts`** — run against dev/preview server
+- [x] **Step 2: `playwright.config.ts`** — run against dev/preview server
 
 ```ts
 import { defineConfig } from "@playwright/test";
@@ -950,7 +950,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3: Write smoke test `tests/e2e/smoke.spec.ts`**
+- [x] **Step 3: Write smoke test `tests/e2e/smoke.spec.ts`**
 
 ```ts
 import { test, expect } from "@playwright/test";
@@ -972,13 +972,13 @@ test("renders under reduced motion", async ({ browser }) => {
 });
 ```
 
-- [ ] **Step 4: Run full verification**
+- [x] **Step 4: Run full verification**
 
 Run: `pnpm build` → green.
 Run: `pnpm test` → all Vitest unit tests pass.
 Run: `pnpm test:e2e` → both smoke tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/App.tsx tests/e2e playwright.config.ts
