@@ -1,8 +1,8 @@
 # AXIOM — Gesamt-Design M0–M6
 
 > **Status:** Design approved  
-> **Source:** `AXIOM_SPEC_v1.0.md` (BUILD-READY)  
-> **Approach:** Streng sequenzielle Meilensteine M0 → M6; jeder Meilenstein GREEN bevor der nächste beginnt.
+> **Source:** `AXIOM_SPEC_v2.0.md` (BUILD-READY, ersetzt v1.0 vollständig)  
+> **Approach:** Streng sequenzielle Meilensteine M0 → M12; jeder Meilenstein GREEN bevor der nächste beginnt. M0–M6 sind aus v1.0 unverändert, M7–M12 neu in v2.0.
 
 ---
 

@@ -1,0 +1,163 @@
+import { ExitCode } from "@/cli/types.js";
+import { CliError, cliFixPacket } from "@/cli/errors.js";
+import { takeValue, requireArg } from "@/cli/bin-helpers.js";
+import { init } from "@/cli/commands/init.js";
+import { validateCommand } from "@/cli/commands/validate.js";
+import { pipelineCommand } from "@/cli/commands/pipeline.js";
+import { healHandler } from "@/cli/commands/heal-handler.js";
+import { runAddCommand, runPatternCommand, runAssetsCommand } from "@/cli/bin-commands.js";
+import { tokensBuild, motionBuild } from "@/cli/commands/tokens-build.js";
+import { directGenerate, directChoose, directAmend } from "@/cli/commands/direct.js";
+import { briefElicit, briefValidate } from "@/cli/commands/brief.js";
+import { apiCommand } from "@/cli/commands/api.js";
+import { dbCommand } from "@/cli/commands/db.js";
+import { contextSliceCommand } from "@/cli/commands/context.js";
+import { splitCommand } from "@/cli/commands/split.js";
+import { planCommand } from "@/cli/commands/plan.js";
+import { orderCommand } from "@/cli/commands/order.js";
+import { leaseCommand } from "@/cli/commands/lease.js";
+import { conductCommand } from "@/cli/commands/conduct.js";
+import { ledgerCommand } from "@/cli/commands/ledger.js";
+import { benchCommand } from "@/cli/commands/bench.js";
+import { auditCommand } from "@/cli/commands/audit.js";
+import { criticCommand } from "@/cli/commands/critic.js";
+import { depsCommand } from "@/cli/commands/deps.js";
+import { deployCommand } from "@/cli/commands/deploy.js";
+
+type Handler = (args: string[]) => Promise<number>;
+
+function unknownSubcommand(command: string, sub: string | undefined): never {
+  throw new CliError(
+    JSON.stringify(cliFixPacket("AXM-V000", `Unknown ${command} subcommand: ${sub ?? ""}`, ["I-11"])),
+    ExitCode.VALIDATION_ERROR
+  );
+}
+
+function wrap(voidFn: (args: string[]) => Promise<void>): Handler {
+  return async (args) => {
+    await voidFn(args);
+    return ExitCode.OK;
+  };
+}
+
+async function initHandler(args: string[]): Promise<number> {
+  await init(requireArg(args[0], "<name>"), { skipInstall: args.includes("--skip-install") });
+  return ExitCode.OK;
+}
+
+async function tokensHandler(args: string[]): Promise<number> {
+  const sub = args[0];
+  if (sub === "build") {
+    await tokensBuild(process.cwd());
+    return ExitCode.OK;
+  }
+  unknownSubcommand("tokens", sub);
+}
+
+async function motionHandler(args: string[]): Promise<number> {
+  const sub = args[0];
+  if (sub === "build") {
+    await motionBuild(process.cwd());
+    return ExitCode.OK;
+  }
+  unknownSubcommand("motion", sub);
+}
+
+async function directHandler(args: string[]): Promise<number> {
+  const sub = args[0];
+  const cwd = process.cwd();
+  if (sub === "generate") {
+    await directGenerate({ cwd });
+    return ExitCode.OK;
+  }
+  if (sub === "choose") {
+    await directChoose({ cwd, directionId: requireArg(args[1], "<id>") });
+    return ExitCode.OK;
+  }
+  if (sub === "amend") {
+    const { value: reason } = takeValue(args.slice(1), "--reason");
+    await directAmend({ cwd, reason: requireArg(reason, "--reason <text>") });
+    return ExitCode.OK;
+  }
+  unknownSubcommand("direct", sub);
+}
+
+async function briefHandler(args: string[]): Promise<number> {
+  const sub = args[0];
+  const cwd = process.cwd();
+  if (sub === "elicit") {
+    const { value: answersPath } = takeValue(args.slice(1), "--answers");
+    await briefElicit({ cwd, answersPath });
+    return ExitCode.OK;
+  }
+  if (sub === "validate") {
+    await briefValidate({ cwd });
+    return ExitCode.OK;
+  }
+  unknownSubcommand("brief", sub);
+}
+
+async function contextHandler(args: string[]): Promise<number> {
+  const sub = args[0];
+  if (sub === "slice") {
+    const rest = args.slice(1);
+    const { value: target, rest: afterTarget } = takeValue(rest, "--for");
+    const { value: orderId } = takeValue(afterTarget, "--for-order");
+    await contextSliceCommand({
+      target: requireArg(target, "--for <file>"),
+      orderId,
+    });
+    return ExitCode.OK;
+  }
+  unknownSubcommand("context", sub);
+}
+
+async function splitHandler(args: string[]): Promise<number> {
+  const file = requireArg(args[0], "<file>");
+  const { value: at, rest } = takeValue(args.slice(1), "--at");
+  const { value: agentId } = takeValue(rest, "--agent");
+  await splitCommand({ file, at: requireArg(at, "--at <export|line>"), agentId });
+  return ExitCode.OK;
+}
+
+async function deployHandler(args: string[]): Promise<number> {
+  await deployCommand(args);
+  return ExitCode.OK;
+}
+
+async function auditHandler(): Promise<number> {
+  await auditCommand();
+  return ExitCode.OK;
+}
+
+const registry: Record<string, Handler> = {
+  init: initHandler,
+  validate: wrap(validateCommand),
+  pipeline: wrap(pipelineCommand),
+  heal: healHandler,
+  add: (args) => runAddCommand(args),
+  pattern: (args) => runPatternCommand(args),
+  assets: (args) => runAssetsCommand(args),
+  tokens: tokensHandler,
+  motion: motionHandler,
+  direct: directHandler,
+  brief: briefHandler,
+  api: wrap(apiCommand),
+  db: wrap(dbCommand),
+  context: contextHandler,
+  split: splitHandler,
+  plan: wrap(planCommand),
+  order: wrap(orderCommand),
+  lease: wrap(leaseCommand),
+  conduct: wrap(conductCommand),
+  ledger: wrap(ledgerCommand),
+  bench: wrap(benchCommand),
+  audit: auditHandler,
+  critic: wrap(criticCommand),
+  deps: wrap(depsCommand),
+  deploy: deployHandler,
+};
+
+export function getCommandHandler(name: string): Handler | undefined {
+  return registry[name];
+}

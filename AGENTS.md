@@ -4,15 +4,19 @@
 
 ## Projekt-Übersicht
 
-AXIOM ist ein Framework für eine deterministische, agenten-native Web-Infrastruktur. Aktuelle Spezifikationen: `AXIOM_SPEC_v2.0.md` (ersetzt v1.0) und `ATELIER_SPEC_v3.0.md` (ATELIER-Erweiterung: Brief→Direction→Build-Workflow). Die gesamte aktive Entwicklung liegt auf dem Branch **`feat/m2`** (Worktree `.worktrees/m2`), der de facto der Integrationsbranch ist; `master` enthält nur den Initial-Commit.
+AXIOM ist ein Framework für eine deterministische, agenten-native Web-Infrastruktur. Aktuelle Spezifikationen: `AXIOM_SPEC_v2.0.md` (ersetzt v1.0) und `ATELIER_SPEC_v3.0.md` (ATELIER-Erweiterung: Brief→Direction→Build-Workflow). Die Entwicklung von `feat/m2` ist nach `master` gemergt; `master` ist damit der Integrationsbranch. Der ATELIER Craft Prototype (eigenständige Vite/React-App) liegt unter `apps/craft-prototype/`; der Repo-Root gehört dem AXIOM-Framework.
 
-Implementierungsstand auf `feat/m2`:
+Implementierungsstand:
 
 - **AXIOM M0–M12** — alle Meilensteine implementiert und GREEN (Repo-Skeleton, Manifest Core, Invarianten-Enforcement, Generatoren, Pipeline/Heal, API/DB-Modul, Deploy, Visual Gate u.a.)
 - **ATELIER A0–A7** — GREEN (Acceptance-Reports unter `docs/superpowers/plans/`): Next.js-Scaffold, Tokens v3 + Motion-System, Brief-/Direction-Workflow, Pattern-System, PERF-/BUILD-Stages, CRITIC-Stage mit Anti-Template-Heuristik, MCP-Server `atelier-mcp` (15 Tools)
 - **ATELIER A8 / S-20** — Track-A (CURATED Kampagnen-Page) end-to-end GREEN (Commit `c5dde44`, 474s Vollpipeline inkl. Deploy + CRITIC); Track-B (BESPOKE Portfolio) ist der verbleibende offene Teil
 
-Jede Implementierungsarbeit beginnt mit dem Scaffolding gemäß aktueller Spezifikation.
+Jede Implementierungsarbeit beginnt mit dem Scaffolding gemäß aktueller Spezifikation. Der aktuelle Stand umfasst:
+
+- `axm`-CLI mit funktionsfähigem `axm init <name>` und `axm validate`; zusätzlich die ATELIER-CLI `atl` (gleicher CLI-Vertrag) und der MCP-Server `atelier-mcp`
+- Scaffolding für Next.js 15, React 19, TypeScript, Tailwind, GSAP/R3F, Zod, Vitest, Playwright und ESLint
+- Manifest-Kern (M1): Zod-Schemas, Reader/Writer, SHA-256-Hashes, Integritätsprüfung, FIX_PACKET-Fehlerformat
 
 ## Zentrale Design-Doktrin
 
@@ -88,6 +92,7 @@ axiom-app/
 | I-10 | Verzeichnisse haben Ownership-Zonen |
 | I-11 | Jeder CLI-Output ist NDJSON; jeder Fehler folgt dem FIX_PACKET-Schema |
 | I-12 | Keine dynamischen Imports mit variablen Pfaden |
+| I-13 | Jede Komponente rendert `data-axm-id="<Name>"` auf dem Root-JSX-Element |
 
 ## CLI-Vertrag (`axm`)
 
@@ -173,10 +178,23 @@ GENERATE → VALIDATE → TYPECHECK → LINT → UNIT → E2E → GREEN
 - Überschreite Budgets nicht; verwende `axm split`, wenn Dateien zu groß werden.
 - Halte dich strikt an die Invarianten-Tabelle; Verstöße kompilieren nicht.
 
+## Bekannte M0-Ausnahmen von Invarianten
+
+- **I-04 (Keine Default-Exports):** Die generierten Konfigurationsdateien `vite.config.ts`, `vitest.config.ts` und `eslint.config.js` verwenden zwingend `export default`, weil Vite, Vitest und ESLint 9 diese Form vorschreiben. Diese Dateien liegen in der generierten App und sind nicht AGENT-eigener Komponenten-Code; die Ausnahme wird in M2 im Custom-ESLint-Plugin explizit erlaubt.
+- **I-04 (Keine Default-Exports) — Framework-Code:** Der Entry-Point `packages/eslint-plugin-axiom/src/index.ts` verwendet `export default plugin`, weil ESLint 9 Plugins ausschließlich als Default-Export konsumiert. Diese Ausnahme gilt nur für den Plugin-Entry-Point.
+- **I-04-Konformität in `src/core/error-boundary.tsx`:** Die generierte LOCKED-Datei `src/core/error-boundary.tsx` exportiert eine benannte Function Component `ErrorBoundary`, die intern `react-error-boundary` verwendet. Damit ist sie vollständig I-04-konform; React-Klassenkomponenten werden nicht verwendet.
+
+## Bekannte M1-Ausnahmen
+
+- **Zod 4 + `zod-to-json-schema`:** Die installierte Runtime ist `zod@4.4.3`. `zod-to-json-schema@3.25.2` deklariert seine Typen gegen die Zod-v3-API (`zod/v3`), obwohl der Peer-Dependency-Bereich `^4` erlaubt. Damit `pnpm build` ohne Type-Assertionen grün bleibt, importieren die Schema-Dateien unter `src/cli/schemas/*.ts` `z` aus `zod/v3`. Zur Laufzeit wird weiterhin dieselbe `zod@4`-Installation verwendet.
+
 ## Offener Stand
 
 - `AXIOM_SPEC_v2.0.md` (ersetzt v1.0) und `ATELIER_SPEC_v3.0.md` sind die aktuellen Spezifikationen.
-- AXIOM M0–M12 und ATELIER A0–A7 sind implementiert und grün; A8/S-20 Track-A ist end-to-end grün.
-- Nächstes Arbeitspaket: **A8 Track-B** (BESPOKE-Portfolio-Referenzprojekt, siehe `docs/superpowers/plans/2026-07-12-atelier-a8-plan.md`); Fixtures/Tests dafür liegen bereits auf `feat/m2`.
+- AXIOM M0–M12 sind implementiert und grün; ATELIER A0–A7 sind per Acceptance-Report abgenommen.
+- A8/S-20 Track-A (CURATED) ist end-to-end grün inkl. Deploy und CRITIC-Report.
+- `axm plan` liest `BRIEF.axm.json` und erzeugt track-aware Arbeitsaufträge: Track-A (curated) wählt ein Preset aus dem Katalog und spawnt Direction → Tokens → Motion → Pattern → Build → E2E → PERF → CRITIC; Track-B (bespoke) spawnt Brief-Review → Direction-Generate → Operator-Veto → Style-Tile → Tokens → Motion → Custom Components → Build → E2E → PERF → CRITIC.
+- `atl direct generate` liest `BRIEF.track`: bei `curated` wird das passende Preset direkt als `DIRECTION.axm.json` eingefroren; bei `bespoke` werden drei Brief-bezogene Richtungskandidaten generiert.
 - Neben `axm` existiert die ATELIER-CLI **`atl`** (gleicher CLI-Vertrag; u.a. `atl brief`, `atl direct`, `atl pattern`, `atl critic run`, `atl deploy`) sowie der MCP-Server `atelier-mcp`.
+- Nächstes Arbeitspaket: **A8 Track-B** (BESPOKE-Portfolio-Referenzprojekt, siehe `docs/superpowers/plans/2026-07-12-atelier-a8-plan.md`); Fixtures und Tests dafür liegen bereits im Repo (`src/cli/fixtures/track-b-portfolio/`, `src/cli/commands/track-b-fixture.test.ts`).
 - Alle Änderungen an LOCKED-/MACHINE-Zonen müssen über `axm`-/`atl`-Befehle oder explizite Framework-Updates erfolgen.

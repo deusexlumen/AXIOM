@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "../src/generated/theme.css";
+
+@layer base {
+  body {
+    background-color: var(--color-surface-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-space), sans-serif;
+  }
+}

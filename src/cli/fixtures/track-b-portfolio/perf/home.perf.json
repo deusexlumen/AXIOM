@@ -1,0 +1,19 @@
+{
+  "route": "/",
+  "scenarios": [
+    {
+      "name": "scroll-and-transition",
+      "steps": [
+        { "action": "wait", "ms": 500 },
+        { "action": "scroll", "y": 600 },
+        { "action": "wait", "ms": 400 },
+        { "action": "scroll", "y": 1200 },
+        { "action": "wait", "ms": 300 }
+      ]
+    }
+  ],
+  "budgets": {
+    "maxFrameTimeMs": 16.7,
+    "maxLongTasks": 0
+  }
+}

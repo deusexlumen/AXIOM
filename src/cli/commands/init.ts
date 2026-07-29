@@ -1,0 +1,105 @@
+import { mkdir, readFile } from "node:fs/promises";
+import { resolve, basename, dirname } from "node:path";
+import { execSync } from "node:child_process";
+import { appFiles } from "@/cli/templates/app.js";
+import { ownershipFiles } from "@/cli/templates/ownership.js";
+import { initialAgentContext } from "@/cli/templates/manifest.js";
+import { cursorRules, claudeMd } from "@/cli/templates/docs.js";
+import { writeTextFile } from "@/cli/utils/fs.js";
+import { readContext, writeContext } from "@/cli/manifest/mutate.js";
+import { hashFile, hashString } from "@/cli/manifest/hash.js";
+import { tokensBuild } from "@/cli/commands/tokens-build.js";
+import { writeLeases } from "@/cli/leases/store.js";
+import { bundleEslintPlugin, bundleCliPackage } from "@/cli/commands/init-bundle.js";
+import { result } from "@/cli/utils/ndjson.js";
+import type { InitResult } from "@/cli/types.js";
+import { fileURLToPath } from "node:url";
+import { contractHash } from "@/cli/api/contract.js";
+import { loadContract, contractFile, handlerFile } from "@/cli/commands/api-helpers.js";
+import { generateHandlers, regenerateArtifacts, addEndpoints } from "@/cli/commands/api-generate.js";
+import { contactHandlerTemplate } from "@/cli/templates/api/contact-handler.js";
+import { contactContractDefinition } from "@/cli/templates/api/contact-contract.js";
+
+export interface InitOptions {
+  cwd?: string;
+  skipInstall?: boolean;
+  out?: NodeJS.WritableStream;
+}
+
+export async function init(name: string, options: InitOptions = {}): Promise<void> {
+  const cwd = options.cwd ?? process.cwd();
+  const targetDir = resolve(cwd, name);
+  await mkdir(targetDir, { recursive: true });
+
+  const projectName = basename(name);
+  const created: string[] = [];
+  for (const file of appFiles(projectName)) {
+    const fullPath = resolve(targetDir, file.path);
+    await writeTextFile(fullPath, file.content);
+    created.push(file.path);
+  }
+
+  // init.js lives at <repo>/dist/cli/commands/ or <repo>/src/cli/commands/ during tests.
+  const cliRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+  await bundleEslintPlugin(targetDir, cliRoot);
+  created.push("packages/eslint-plugin-axiom");
+
+  await bundleCliPackage(targetDir, cliRoot);
+  created.push("packages/axiom-cli");
+
+  const tokenContent = await readFile(resolve(targetDir, "tokens.json"), "utf-8");
+  const tokenHash = hashString(tokenContent);
+
+  const context = initialAgentContext(projectName, tokenHash);
+  await writeContext(targetDir, context);
+  created.push("agent-context.json");
+
+  await writeLeases(targetDir, []);
+  created.push(".axiom/leases.json");
+
+  await writeTextFile(resolve(targetDir, ".cursorrules"), cursorRules(context));
+  created.push(".cursorrules");
+  await writeTextFile(resolve(targetDir, "CLAUDE.md"), claudeMd(context));
+  created.push("CLAUDE.md");
+
+  await tokensBuild(targetDir, options.out);
+
+  const contactContract = contactContractDefinition;
+  await generateHandlers("contact", contactContract, targetDir);
+  await writeTextFile(
+    resolve(targetDir, handlerFile("contact", "create")),
+    contactHandlerTemplate()
+  );
+
+  const updatedContext = await readContext(targetDir);
+  await regenerateArtifacts(targetDir, updatedContext, "contact", { contact: contactContract });
+  addEndpoints(updatedContext, "contact", contactContract);
+
+  const ownership = ownershipFiles();
+  for (const file of ownership.locked) {
+    updatedContext.integrity.lockedFiles[file] = await hashFile(resolve(targetDir, file));
+  }
+  for (const file of ownership.machine) {
+    if (file === "agent-context.json") continue;
+    if (file.endsWith(".contract.ts")) {
+      const contract =
+        file === contractFile("contact") ? contactContract : await loadContract(resolve(targetDir, file), targetDir);
+      updatedContext.integrity.machineFiles[file] = contractHash(contract);
+    } else {
+      updatedContext.integrity.machineFiles[file] = await hashFile(resolve(targetDir, file));
+    }
+  }
+  await writeContext(targetDir, updatedContext);
+
+  if (!options.skipInstall) {
+    execSync("pnpm install --prefer-offline", { cwd: targetDir, stdio: "ignore" });
+  }
+
+  const output: InitResult = {
+    ok: true,
+    created,
+    next: "axm add component <Name>",
+  };
+  result(output, options.out);
+}

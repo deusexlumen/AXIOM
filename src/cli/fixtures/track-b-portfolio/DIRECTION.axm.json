@@ -1,0 +1,46 @@
+{
+  "directionId": "dir_bespoke_monolith",
+  "thesis": "Monolith im Nebel — schwere Serif-Displays, tiefe Dunkelfläche, Licht als einziges Ornament.",
+  "typography": {
+    "display": {
+      "family": "FrauncesVariable",
+      "axis": { "wght": [200, 900] },
+      "case": "mixed"
+    },
+    "text": {
+      "family": "FrauncesVariable",
+      "axis": { "wght": [300, 600] }
+    },
+    "scaleRatio": 1.333
+  },
+  "color": {
+    "story": "3 Flächen, 1 Akzent, Akzent nur bei Interaktion.",
+    "tokensDraft": {
+      "bg-primary": "#050508",
+      "text-primary": "#E8E8F0",
+      "accent": "#C9A227",
+      "surface": "#0D0D14",
+      "border": "#1E1E2E",
+      "shadow": "#C9A227"
+    }
+  },
+  "space": {
+    "language": "airy",
+    "density": 0.3,
+    "gridBias": "asymmetric"
+  },
+  "motionPersonality": {
+    "adjectives": ["träge-cinematisch", "gewichtig"],
+    "tempo": "slow",
+    "playfulness": 0.1
+  },
+  "texture": {
+    "grain": 0.15,
+    "noiseShader": true
+  },
+  "webglLevel": 2,
+  "sceneIdeas": [
+    "Hero: volumetrischer Nebel, Maus als Lichtquelle",
+    "Work-Grid: Displacement-Hover und Z-Space-Kamerafahrt"
+  ]
+}

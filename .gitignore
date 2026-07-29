@@ -1,4 +1,3 @@
-.worktrees/
 node_modules/
 dist/
 *.log
@@ -6,10 +5,28 @@ dist/
 .env
 .env.local
 coverage/
+*.tsbuildinfo
+
+# Craft prototype (apps/craft-prototype)
 test-results/
 playwright-report/
 playwright/.cache/
-*.tsbuildinfo
 
 # Playwright MCP session output
 .playwright-mcp/
+
+# Worktrees
+.worktrees/
+
+# AXIOM framework internals
+test-app/
+pipeline/reports/
+pipeline/fix-packets/
+logs/
+tmp/
+demo/
+.axiom/
+.claude/
+ledger/
+pipeline/bench/
+**/pipeline/reports/

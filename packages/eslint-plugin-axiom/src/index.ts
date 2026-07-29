@@ -1,0 +1,45 @@
+import { maxLoc } from "@/rules/max-loc.js";
+import { noDefaultExport } from "@/rules/no-default-export.js";
+import { noBarrel } from "@/rules/no-barrel.js";
+import { absoluteImports } from "@/rules/absolute-imports.js";
+import { tokensOnly } from "@/rules/tokens-only.js";
+import { noEscapeHatch } from "@/rules/no-escape-hatch.js";
+import { staticImports } from "@/rules/static-imports.js";
+import { requireAxmId } from "@/rules/require-axm-id.js";
+import { noRawMotionEngine } from "@/rules/no-raw-motion-engine.js";
+import { motionTokenUsage } from "@/rules/motion-token-usage.js";
+import { noDirectTimeline } from "@/rules/no-direct-timeline.js";
+import { requireReducedMotion } from "@/rules/require-reduced-motion.js";
+import { maxConcurrentTimelines } from "@/rules/max-concurrent-timelines.js";
+import { a11yImgAlt } from "@/rules/a11y-img-alt.js";
+import { a11yButtonLabel } from "@/rules/a11y-button-label.js";
+import { a11yLinkHref } from "@/rules/a11y-link-href.js";
+import { a11yInputLabel } from "@/rules/a11y-input-label.js";
+
+const plugin = {
+  meta: {
+    name: "eslint-plugin-axiom",
+    version: "1.0.0",
+  },
+  rules: {
+    "max-loc": maxLoc,
+    "no-default-export": noDefaultExport,
+    "no-barrel": noBarrel,
+    "absolute-imports": absoluteImports,
+    "tokens-only": tokensOnly,
+    "no-escape-hatch": noEscapeHatch,
+    "static-imports": staticImports,
+    "require-axm-id": requireAxmId,
+    "no-raw-motion-engine": noRawMotionEngine,
+    "motion-token-usage": motionTokenUsage,
+    "no-direct-timeline": noDirectTimeline,
+    "require-reduced-motion": requireReducedMotion,
+    "max-concurrent-timelines": maxConcurrentTimelines,
+    "a11y-img-alt": a11yImgAlt,
+    "a11y-button-label": a11yButtonLabel,
+    "a11y-link-href": a11yLinkHref,
+    "a11y-input-label": a11yInputLabel,
+  },
+};
+
+export default plugin;

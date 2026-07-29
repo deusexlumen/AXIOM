@@ -1,15 +1,32 @@
-import { defineConfig, configDefaults } from "vitest/config";
+import { defineConfig } from "vitest/config";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
+    alias: { "@": path.resolve(__dirname, "./src") },
   },
   test: {
-    environment: "jsdom",
-    setupFiles: ["tests/setup.ts"],
-    exclude: [...configDefaults.exclude, "**/.worktrees/**", "tests/e2e/**"],
+    globals: false,
+    environment: "node",
+    reporters: ["json"],
+    outputFile: "./pipeline/reports/vitest.json",
+    exclude: [
+      "node_modules/**",
+      "dist/**",
+      "test-app/**",
+      "demo/**",
+      "verify-app/**",
+      "m1-demo/**",
+      "atelier-a0-demo/**",
+      "tmp/**",
+      "packages/**",
+      "**/*/node_modules/**",
+      "**/*.integration.test.ts",
+      "src/cli/templates/**",
+      "src/cli/fixtures/**",
+    ],
   },
 });
