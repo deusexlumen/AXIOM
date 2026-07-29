@@ -16,6 +16,7 @@ export default defineConfig({
     exclude: [
       "node_modules/**",
       "dist/**",
+      "apps/**",
       "test-app/**",
       "demo/**",
       "verify-app/**",
