@@ -1,0 +1,4 @@
+# Eigenstaendige App mit eigenem Lockfile — verhindert, dass pnpm die
+# Root-Workspace-Datei (../../pnpm-workspace.yaml) findet und die App
+# dem AXIOM-Framework-Workspace zuschlaegt.
+packages: []

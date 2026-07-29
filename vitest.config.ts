@@ -17,6 +17,7 @@ export default defineConfig({
       "node_modules/**",
       "dist/**",
       "apps/**",
+      ".worktrees/**",
       "test-app/**",
       "demo/**",
       "verify-app/**",
