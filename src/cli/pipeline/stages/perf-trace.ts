@@ -21,12 +21,28 @@ function percentile(sorted: number[], p: number): number {
 // used to do once pages gained real layout and content could scroll out of view.
 const MIN_BUSY_MS = 1;
 
+// Traces contain nested and cross-thread tasks, so overlapping intervals must
+// be merged - summing them raw yields a busy time larger than the window itself.
+// Expects `tasks` sorted by ts.
 function busyMsWithin(tasks: FrameSample[], from: number, to: number): number {
   let busy = 0;
+  let spanStart = 0;
+  let spanEnd = 0;
+  let open = false;
   for (const task of tasks) {
-    const overlap = Math.min(to, task.ts + task.durationMs) - Math.max(from, task.ts);
-    if (overlap > 0) busy += overlap;
+    const start = Math.max(from, task.ts);
+    const end = Math.min(to, task.ts + task.durationMs);
+    if (end <= start) continue;
+    if (open && start <= spanEnd) {
+      spanEnd = Math.max(spanEnd, end);
+      continue;
+    }
+    if (open) busy += spanEnd - spanStart;
+    spanStart = start;
+    spanEnd = end;
+    open = true;
   }
+  if (open) busy += spanEnd - spanStart;
   return busy;
 }
 
