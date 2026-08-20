@@ -1,26 +1,11 @@
-// EXPECTED RED — blocked on the Tailwind/perf work package, not on this test.
+// The Track-B (BESPOKE) counterpart to s-20.integration.test.ts. Getting this
+// green required six framework fixes, all of the same shape: a gate that
+// checked an artifact's form but never its runtime effect. See
+// docs/superpowers/plans/2026-07-12-atelier-a8-acceptance.md.
 //
-// Last observed failure was the e2e stage, with two failing specs:
-// reduced-motion.spec.ts (targeted a HeroDemo the portfolio page lacks — fixed
-// by adding a Track-B reduced-motion fixture) and smoke.spec.ts
-// (cursor-system hidden). The cursor-system failure is the expected remaining
-// blocker but has NOT been re-observed since the fixture fix.
-//
-// Its cause: the scaffold ships `tailwindcss` and `@import "tailwindcss"` but
-// no postcss.config.mjs / @tailwindcss/postcss, so Next's CSS pipeline emits
-// preflight + theme vars and drops every utility class. `cursor-system` sizes
-// itself with `h-4 w-4` and collapses to a 0x0 box, which Playwright reports
-// as hidden.
-//
-// Adding the postcss plugin fixes that, but then `<Stage className="h-screen
-// w-full">` resolves for the first time, the WebGL canvases render at full
-// viewport, and the perf stage fails on BOTH tracks (Track-A: p95 18.3ms with
-// 250ms outliers cold; 132ms p95 warm — resource accumulation across
-// navigations, see AXM-N003 choreography warnings). Perf budgets were
-// calibrated against effectively unstyled pages and have never measured real
-// WebGL cost.
-//
-// Do not soften the cursor-system assertion to get this green.
+// The cursor-system assertion below is load-bearing: it sizes itself with
+// `h-4 w-4`, so it collapses to a 0x0 box and reports as hidden if the scaffold
+// ever stops emitting Tailwind utilities again. Do not soften it.
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, cpSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";

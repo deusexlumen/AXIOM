@@ -1,8 +1,12 @@
 # ATELIER A8 — Abnahme-Report (S-20)
 
-> Status: **Track-A GREEN, Track-B BLOCKED.** Track-B ist nicht an fehlender
-> Implementierung blockiert, sondern an zwei Framework-Blindflecken, die der
-> Track-B-Integrationstest überhaupt erst sichtbar gemacht hat.
+> Status: **Track-A GREEN, Track-B GREEN.**
+>
+> Track-B war nie an fehlender Implementierung blockiert, sondern an sechs
+> Framework-Defekten, die der Track-B-Integrationstest überhaupt erst sichtbar
+> gemacht hat. Alle folgen demselben Muster: **ein Gate prüft die Form eines
+> Artefakts, nie seine Wirkung zur Laufzeit.** Der Abschnitt „Blindflecken"
+> unten ist die Aufarbeitung, nicht mehr die Blockerliste.
 
 ## Ausgangslage
 
@@ -77,71 +81,147 @@ Elemente zielen. Track-Bs `cursor-system` (16×16 via `h-4 w-4`) kollabierte auf
 0×0 → Playwright meldet „hidden". Diese Assertion ist der Kanarienvogel und wird
 **nicht** aufgeweicht.
 
-**Beobachtungsstand:** Der letzte tatsächliche Track-B-Lauf endete in der
-E2E-Stage mit zwei roten Specs — `reduced-motion.spec.ts` (Fehler 5, hier
-behoben) und `smoke.spec.ts` (`cursor-system` hidden). Nach der Fixture-Korrektur
-wurde Track-B nicht erneut vollständig gefahren; dass `cursor-system` der
-verbleibende Blocker ist, ist belegte Schlussfolgerung, keine erneute Messung.
+Bestätigt: Sobald das Plugin ergänzt ist, ist `cursor-system` sichtbar und die
+E2E-Stage grün.
 
-### B2 — Perf-Gate hat nie etwas Reales gemessen
+### B2 — Das Perf-Gate maß nie, was es zu messen vorgab
 
 Sobald B1 behoben ist, greift `<Stage className="h-screen w-full">` zum ersten
 Mal, die WebGL-Canvases rendern in voller Viewport-Größe — und die PERF-Stage
-fällt auf **beiden** Tracks.
+fiel auf **beiden** Tracks. Es steckten vier eigenständige Defekte darin.
 
-Messwerte Track-A (`scroll-and-hover`, Budget 16,7 ms × 1,5 = 25,05 ms):
+**B2a — „Frame-Dauer" war der Abstand zwischen Zeichenvorgängen.**
+`perf-trace.ts` bildete Frames aus dem Zeitabstand aufeinanderfolgender
+`DrawFrame`-Events. Das ist nicht, wie lange ein Frame dauerte, sondern wie
+lange der Browser wartete, bis er wieder zeichnete. Eine idle Seite zeichnet
+nicht — die Stille wurde als ein einzelner riesiger Frame gemeldet.
 
-| Lauf | p95 | schlimmste Frames |
-|---|---|---|
-| Einzelszenario, kalt | 18,3 ms | 250 / 149 / 134 ms |
-| nach vorgeschaltetem Warmup | **132,6 ms** | 317 / 234 / 201 ms |
+Isolation von Track-A machte es eindeutig: `idle-only` grün, `scroll-only` ein
+einziger 617-ms-„Frame". Der WebGL-Hero scrollt aus dem Viewport, seine
+rAF-Schleife verstummt, nichts muss komponiert werden. `longTasks: 0` war die
+ganze Zeit der Hinweis — nichts war blockiert.
 
-Der warme Lauf ist deutlich **schlechter** — also kein einmaliger
-Shader-Compile. Es akkumuliert etwas über Navigationen hinweg; der Runner nutzt
-eine einzige Page für alle Szenarien (`perf-runner.ts:89`). Passt zu den
-`AXM-N003: Too many concurrent choreographies`-Warnungen aus dem Track-B-Lauf.
-Verdacht: WebGL-Kontexte/Timelines werden beim Unmount nicht disponiert.
+Warum es erst jetzt auftrat: es brauchte echtes Layout. Vor B1 hatten die
+Sections keine Höhe, nie scrollte etwas aus dem Bild, immer lief etwas.
 
-Tracing startet **nach** `waitUntil: "networkidle"`, die Frames sind also kein
-Ladeartefakt.
+Eine Lücke zählt jetzt nur als Frame, wenn der Renderer darin beschäftigt war
+(aus `RunTask`/`Task`-Dauern im Intervall).
 
-Das Gate (`perf.ts:55`) failt, sobald einer der drei schlimmsten Frames das
-Budget reißt — ein reines Worst-Frame-Kriterium ohne Startup-/Steady-State-
-Trennung.
+**B2b — `busyMs` summierte Cross-Thread-Tasks doppelt.** Verschachtelte und
+threadübergreifende Tasks ergaben 55,96 ms „Arbeit" in einem 33,53-ms-Fenster.
+Der Idle-Filter war unberührt, die Zahl wertlos. Intervalle werden jetzt
+vereinigt.
 
-**Perf-Budgets wurden nicht angefasst.** Ob hier ein echter Kostenfehler, ein
-Disposal-Leak oder ein falsch geschnittenes Gate vorliegt, ist offen und
-gehört bewusst entschieden, nicht weggekonfiguriert.
+**B2c — Die Choreographie-Attribution hat nie funktioniert.** Der Tracer
+aktivierte nur `devtools.timeline`-Kategorien, nicht `blink.user_timing`. Die
+`choreo:<id>:start/end`-Marks aus `useChoreo` erreichten den Trace nie, `marks`
+war immer leer, und **jedes** je ausgestellte Perf-Packet meldete dem Agenten
+„attributed choreography: unknown". Mit der Kategorie (und Akzeptanz von
+`ph: "R"` neben `"I"`) benennt sie den Verursacher: `split-reveal`.
 
-## Landing-Stand
+**B2d — Eine Nulltoleranz-Richtlinie, die niemand entschieden hatte.** Das Gate
+failte, wenn einer der drei schlimmsten Frames 1,5× Budget riss — praktisch:
+kein einziger ausgelassener Frame im ganzen Szenario. Gemessen an einem festen
+Track-B-Verzeichnis: **1 von 4 Läufen rot, einmal um 0,11 ms**, bei stabilem
+p95 von 17,9 ms gegen ein 16,7-ms-Ziel.
 
-Commit 1 (Fehler 1–5, Hygiene) landet auf `feat/atelier-a8-track-b` ohne den
-Tailwind-Fix: **Track-A grün, Track-B rot mit bekannter Ursache.**
+p99 wurde erwogen und **verworfen**: `percentile()` indiziert
+`ceil(p/100 × len) - 1`, für jede Stichprobe ≤ 100 Frames ist p99 also das
+Maximum. Nach dem Idle-Filter liegt ein Szenario deutlich darunter — p99 hätte
+nichts geändert, und in allen Messdaten ist `p99 === worstFrames[0]`.
 
-Der Tailwind-Fix liegt auf einem **eigenen Branch**
-(`feat/scaffold-tailwind-postcss`), nicht auf dem landefähigen Branch — sonst
-würde er beim Mergen mitgenommen. Er ist korrekt, macht aber ohne Perf-Klärung
-beide Tracks rot.
+Stattdessen ist die Richtlinie jetzt ausgesprochen: `maxFramesOverBudget`,
+Default 1. Eine echte Regression erzeugt viele langsame Frames, Varianz genau
+einen; in jedem roten Lauf war es exakt einer. Danach Track-B 5/5 grün.
 
-Track-A grün ist belegt durch einen Lauf auf exakt diesem funktionalen Stand
-(Generator-Fixes + exakte Pins, ohne Tailwind-Fix). Spätere Änderungen betreffen
-Track-A nicht: der `.worktrees`-Exclude (Testzahl 2 → 1) sowie Track-B-Fixture,
-Kommentare und Doku.
+**B2e — Teilweise idle Lücken meldeten ihre volle Breite.** Der Idle-Filter aus
+B2a entfernte nur *vollständig* leere Lücken. Track-As schlimmster Frame las
+sich als 199,98 ms, enthielt aber nur 66,02 ms Arbeit — die übrigen 134 ms waren
+Leerlauf, den der Betrachter als statische Seite sieht, nicht als Ruckler. Gate
+und Perzentile vergleichen jetzt die zusammengeführte **Arbeitszeit**. Track-As
+p95 fiel dadurch von ~18 ms auf ~9 ms; die beiden echten Startup-Frames blieben
+mit ~75 ms und ~30 ms sichtbar, statt auf 200 ms und 116 ms aufgebläht zu werden.
 
-`s-20-track-b.integration.test.ts` trägt einen Kopfkommentar mit dieser Ursache.
+**B2f — Startup wurde gegen ein Steady-State-Budget gemessen.** Tracing beginnt
+direkt nach `networkidle`, das Gate benotete also Hydration, WebGL-Kontext­erzeugung
+und Shader-Compile mit. Neu: `warmupMs` pro Szenario, **Default 0** — die Ausnahme
+ist opt-in und steht sichtbar in der Fixture statt als globale Lockerung im Gate.
+Auf 500 gesetzt in der Track-A-Fixture und im Scaffold-Default, passend zum
+einleitenden `wait 500`, das beide ohnehin haben und das per Definition nicht der
+Messgegenstand ist. Empirisch bestimmt: 300 failt weiter, 500 und 800 sind grün.
+
+Track-B bekommt **kein** Warmup. Es ist ohne grün, und seine Abdeckung nur der
+Symmetrie wegen zu reduzieren hieße echtes Signal gegen Optik zu tauschen.
+
+**`maxFrameTimeMs`, `maxLongTasks` und `maxFramesOverBudget` wurden nie
+aufgeweicht, um etwas grün zu bekommen.**
+
+### B2g — `preloader-counter` rerenderte ein Vollbild-Overlay pro Tick
+
+Erst mit funktionierender Attribution (B2c) sichtbar: GSAPs `onUpdate` rief
+`setCount`, also wurde ein `fixed inset-0`-Overlay ~60×/s neu gerendert und
+neu gezeichnet — rund 100 Vollbild-Reconciliations pro Ladevorgang. Track-A maß
+**p95 149,8 ms** und 4 Frames über Budget.
+
+Das kostete vorher nichts, weil das Overlay ohne Utilities keine Fläche hatte.
+Der Zähler schreibt jetzt per Ref direkt ins DOM; `done` bleibt State, weil es
+genau einmal kippt. Danach p95 ~9 ms.
+
+Zusätzlich ergab `duration-${motion.dur.reveal}s` die Klasse `duration-0.8s` —
+Tailwind erwartet einheitenlose Millisekunden, die Klasse tat also nichts und
+das Overlay sprang statt zu faden. Jetzt Inline-`transitionDuration`, denn ein
+dynamisch zusammengesetzter Klassenname wäre für Tailwinds Scanner ohnehin
+unsichtbar. **Diese Falle gilt allgemein und wurde nicht repo-weit geprüft.**
+
+### B3 — Laufzeit-Cap, statisch pro Datei geprüft
+
+Patterns leiten ihre Choreo-ID vom Pattern-Namen ab, alle Instanzen teilen sie
+also — die Track-B-Page rendert `SplitReveal` dreimal. Die Registry war ein
+`Set<string>`: die Cap-Prüfung lief pro Instanz, sodass Instanz 2 und 3 den
+Limiter erneut auslösten und die Timeline eines lebenden Geschwisters killten.
+Zudem gab die erste unmountende Instanz die geteilte ID frei und riss
+ScrollTrigger ab, während die anderen noch animierten.
+
+Jetzt refcounted. **Kein Disposal-Leak** — `useChoreo` hat immer korrekt
+aufgeräumt. Den Cap hochzusetzen, wie AXM-N003 und `rule-map-motion.ts` selbst
+vorschlagen, hätte den Fehler nur maskiert.
+
+Offene Gate-Lücke: `rule-map-motion.ts` zählt `useChoreo`-Aufrufe **pro Datei**,
+der Cap gilt aber **global zur Laufzeit über die komponierte Page**. Ein
+Per-File-Check kann Komposition prinzipiell nicht erfassen.
+
+## Branches
+
+- **`feat/atelier-a8-track-b`** — Fehler 1–5 plus Hygiene. Landefähig für sich
+  allein: Track-A grün, Track-B rot mit bekannter Ursache.
+- **`feat/scaffold-tailwind-postcss`** — B1, darauf aufbauend.
+- **`feat/atelier-runtime-gates`** — B2a–g und B3, darauf aufbauend.
+  **Hier sind beide Tracks grün**, verifiziert im selben Lauf.
+
+Die Aufteilung ist bewusst: B1 allein macht beide Tracks rot, weil er B2
+auslöst. Erst mit den Gate-Fixes zusammen ergibt die Reihe einen grünen Stand.
 
 ## Offen
 
-1. **B2 entscheiden** — WebGL-Disposal im `Stage`-Wrapper prüfen; echte
-   Frame-Kosten der Patterns ermitteln; klären ob das Gate p95 statt
-   Worst-Frame prüfen sollte (mit eigenem Startup-Budget).
-2. **Regressionstest für B1** — eine Utility-Klasse muss nachweislich im
-   emittierten CSS landen. Ohne diesen Test kann B1 jederzeit zurückkehren; das
-   ist die eigentliche Lücke, nicht der fehlende Plugin-Eintrag. Der Test kann
-   nur mit dem Fix zusammen grün sein und gehört deshalb auf
-   `feat/scaffold-tailwind-postcss`, nicht davor.
-3. Danach Tailwind-Branch mergen und Track-B erstmals vollständig grün
-   nachweisen.
+1. **Regressionstest für B1** — eine Utility-Klasse muss nachweislich im
+   emittierten CSS landen. Ohne ihn kann B1 jederzeit unbemerkt zurückkehren;
+   das ist die eigentliche Lücke, nicht der fehlende Plugin-Eintrag.
+   Vorerst hält die `cursor-system`-Assertion in
+   `s-20-track-b.integration.test.ts` die Stellung — sie kollabiert auf 0×0,
+   wenn die Utilities verschwinden. Ein gezielter Test ist verlässlicher.
+2. **Komposition statt Per-File** — `rule-map-motion.ts` prüft den
+   Choreographie-Cap pro Datei, er gilt aber global über die komponierte Page.
+   Dieselbe Klasse von Blindfleck wie B1/B2.
+3. **ScrollTrigger-Cleanup greift nie** — `useChoreo` räumt Trigger über
+   `st.vars.id === options.id` ab, aber von `timeline.from({scrollTrigger})`
+   erzeugte Trigger tragen diese ID nie. Latent, ohne beobachtete Auswirkung.
+4. **Dynamische Tailwind-Klassennamen** — der Fall aus B2g
+   (`duration-${...}`) wurde behoben, aber nicht repo-weit gesucht. Solche
+   Klassen sind für Tailwinds Scanner unsichtbar und schlagen still fehl.
+5. **Attribution ist „nächster Mark"** — `perf-trace.ts` ordnet dem
+   schlimmsten Frame die zeitlich nächste Choreographie zu. Das ist ein
+   Korrelat, kein Nachweis; bei dicht gesetzten Marks kann es danebenliegen.
+6. Branches zusammenführen und A8 formal abnehmen.
 
 ## Hygiene
 
