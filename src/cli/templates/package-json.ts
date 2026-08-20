@@ -49,6 +49,7 @@ export function packageJson(name: string): string {
         "@testing-library/dom": "10.4.0",
         "happy-dom": "20.10.6",
         tailwindcss: "4.3.2",
+        "@tailwindcss/postcss": "4.3.3",
         "raw-loader": "4.0.2",
       },
       pnpm: {
