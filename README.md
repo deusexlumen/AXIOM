@@ -127,4 +127,6 @@ pnpm test                                              # unit — run files indi
 pnpm vitest run --config vitest.integration.config.ts <file>   # integration — sequentially, they scaffold real apps
 ```
 
+CI (`.github/workflows/ci.yml`) runs `pnpm build` + `pnpm test` on every push and PR. It's the only automated check right now — no integration/e2e/perf in CI yet, those spin up real headless Chromium and scaffold real apps.
+
 `AGENTS.md` is the deeper, German-language source of truth for agents working in this repo — invariant table, CLI contract, and known exceptions in full. `CLAUDE.md` is the shorter onboarding doc for Claude Code specifically.
