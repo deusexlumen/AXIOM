@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, delimiter } from "node:path";
 import { runUnitStage } from "@/cli/pipeline/stages/unit.js";
 
 function installPnpmMock(binDir: string, exitCode: number, stdout: string): void {
@@ -40,7 +40,7 @@ describe("runUnitStage", () => {
       ],
     });
     installPnpmMock(binDir, 1, report);
-    process.env.PATH = `${binDir};${originalPath}`;
+    process.env.PATH = `${binDir}${delimiter}${originalPath}`;
   });
 
   afterEach(() => {

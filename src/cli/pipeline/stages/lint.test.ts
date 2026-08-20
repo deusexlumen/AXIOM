@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, delimiter } from "node:path";
 import { runLintStage } from "@/cli/pipeline/stages/lint.js";
 
 function installPnpmMock(binDir: string, exitCode: number, stdout: string): void {
@@ -30,7 +30,7 @@ describe("runLintStage", () => {
       },
     ]);
     installPnpmMock(binDir, 1, eslintOutput);
-    process.env.PATH = `${binDir};${originalPath}`;
+    process.env.PATH = `${binDir}${delimiter}${originalPath}`;
   });
 
   afterEach(() => {

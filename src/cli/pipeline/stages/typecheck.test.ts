@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, delimiter } from "node:path";
 import { runTypecheckStage } from "@/cli/pipeline/stages/typecheck.js";
 
 function installPnpmMock(binDir: string, exitCode: number, stderr: string, stdout: string): void {
@@ -29,7 +29,7 @@ describe("runTypecheckStage", () => {
       "src/components/Demo.tsx(7,23): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.\n",
       ""
     );
-    process.env.PATH = `${binDir};${originalPath}`;
+    process.env.PATH = `${binDir}${delimiter}${originalPath}`;
   });
 
   afterEach(() => {
