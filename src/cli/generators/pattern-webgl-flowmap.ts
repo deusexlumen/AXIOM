@@ -32,17 +32,18 @@ import fragmentShader from "./shader.frag.glsl";
 
 const vertexShader = \`${vertexShader}\`;
 
-interface Props {
-  trailStrength?: number;
-  dissipation?: number;
+interface Uniforms {
+  uTime: { value: number };
+  uTrailStrength: { value: number };
+  uDissipation: { value: number };
 }
 
-export function ${pascal}({ trailStrength = 0.4, dissipation = 0.92 }: Props) {
-  interface Uniforms {
-    uTime: { value: number };
-    uTrailStrength: { value: number };
-    uDissipation: { value: number };
-  }
+interface MeshProps {
+  trailStrength: number;
+  dissipation: number;
+}
+
+function ${pascal}Mesh({ trailStrength, dissipation }: MeshProps) {
   const materialRef = useRef<{ uniforms: Uniforms }>(null);
   useStageFrame(({ clock }) => {
     const material = materialRef.current;
@@ -52,16 +53,27 @@ export function ${pascal}({ trailStrength = 0.4, dissipation = 0.92 }: Props) {
     material.uniforms.uDissipation.value = dissipation;
   });
   return (
+    <mesh>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial
+        ref={materialRef}
+        vertexShader={vertexShader}
+        fragmentShader={fragmentShader}
+        uniforms={{ uTime: { value: 0 }, uTrailStrength: { value: trailStrength }, uDissipation: { value: dissipation } }}
+      />
+    </mesh>
+  );
+}
+
+interface Props {
+  trailStrength?: number;
+  dissipation?: number;
+}
+
+export function ${pascal}({ trailStrength = 0.4, dissipation = 0.92 }: Props) {
+  return (
     <Stage className="h-screen w-full">
-      <mesh>
-        <planeGeometry args={[2, 2]} />
-        <shaderMaterial
-          ref={materialRef}
-          vertexShader={vertexShader}
-          fragmentShader={fragmentShader}
-          uniforms={{ uTime: { value: 0 }, uTrailStrength: { value: trailStrength }, uDissipation: { value: dissipation } }}
-        />
-      </mesh>
+      <${pascal}Mesh trailStrength={trailStrength} dissipation={dissipation} />
     </Stage>
   );
 }

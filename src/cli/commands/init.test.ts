@@ -71,7 +71,7 @@ describe("axm init", () => {
     const pkg = JSON.parse(readFileSync(join(appDir, "package.json"), "utf-8"));
     expect(pkg.name).toBe("demo");
     expect(pkg.packageManager).toBe("pnpm@9.15.0");
-    expect(pkg.dependencies.next).toBe("15.5.20");
+    expect(pkg.dependencies.next).toBe("15.5.21");
     expect(pkg.devDependencies).toHaveProperty("@axiom/cli");
 
     const workflow = readFileSync(join(appDir, ".github", "workflows", "axiom.yml"), "utf-8");
