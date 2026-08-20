@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, delimiter } from "node:path";
 import { runTypecheckStage } from "@/cli/pipeline/stages/typecheck.js";
@@ -10,7 +10,9 @@ function installPnpmMock(binDir: string, exitCode: number, stderr: string, stdou
     scriptPath,
     `process.stdout.write(${JSON.stringify(stdout)});\nprocess.stderr.write(${JSON.stringify(stderr)});\nprocess.exit(${exitCode});\n`
   );
-  writeFileSync(join(binDir, "pnpm"), `#!/bin/sh\nexec node "$(dirname "$0")/pnpm-mock.js" "$@"\n`);
+  const shScript = join(binDir, "pnpm");
+  writeFileSync(shScript, `#!/bin/sh\nexec node "$(dirname "$0")/pnpm-mock.js" "$@"\n`);
+  chmodSync(shScript, 0o755);
   writeFileSync(join(binDir, "pnpm.cmd"), `@echo off\nnode "%~dp0pnpm-mock.js" %*\n`);
 }
 
