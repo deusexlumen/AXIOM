@@ -53,7 +53,7 @@ function busyMsWithin(tasks: FrameSample[], from: number, to: number): number {
   return busy;
 }
 
-export function analyzeTraceEvents(events: TraceEvent[]): PerfAnalysis {
+export function analyzeTraceEvents(events: TraceEvent[], warmupMs = 0): PerfAnalysis {
   const timestamps: number[] = [];
   const longTasks: FrameSample[] = [];
   const tasks: FrameSample[] = [];
@@ -79,12 +79,14 @@ export function analyzeTraceEvents(events: TraceEvent[]): PerfAnalysis {
   }
   timestamps.sort((a, b) => a - b);
   tasks.sort((a, b) => a.ts - b.ts);
+  const measureFrom = (timestamps[0] ?? 0) + warmupMs;
   const frames: FrameSample[] = [];
   for (let i = 1; i < timestamps.length; i++) {
     const from = timestamps[i - 1]!;
     const to = timestamps[i]!;
     const duration = to - from;
     if (duration <= 0) continue;
+    if (from < measureFrom) continue;
     const busyMs = busyMsWithin(tasks, from, to);
     if (busyMs < MIN_BUSY_MS) continue;
     frames.push({ ts: from, durationMs: duration, busyMs });

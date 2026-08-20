@@ -12,6 +12,12 @@ const PerfFileSchema = z.object({
   route: z.string(),
   scenarios: z.array(z.object({
     name: z.string(),
+    // Frames in this opening window are not judged. Tracing begins right after
+    // networkidle, so without it a steady-state frame budget also grades
+    // hydration, WebGL context creation and shader compilation - startup costs
+    // that say nothing about animation smoothness. Default 0: opt in per
+    // scenario, so the exemption is always visible in the fixture.
+    warmupMs: z.number().nonnegative().default(0),
     steps: z.array(z.object({
       action: z.enum(["scroll", "click", "wait"]),
       y: z.number().optional(),
@@ -55,7 +61,7 @@ export async function runPerfStage(cwd: string): Promise<StageResult> {
         const pf = loadPerfFile(file);
         for (const scenario of pf.scenarios) {
           const events = await runScenario(page, server.url, pf.route, scenario);
-          const analysis = analyzeTraceEvents(events);
+          const analysis = analyzeTraceEvents(events, scenario.warmupMs);
           const frameBudget = pf.budgets.maxFrameTimeMs * 1.5;
           const framesOverBudget = analysis.frameDurationsMs.filter((d) => d > frameBudget).length;
           if (framesOverBudget > pf.budgets.maxFramesOverBudget || analysis.longTasks.length > pf.budgets.maxLongTasks) {
