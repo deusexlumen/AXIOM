@@ -113,7 +113,7 @@ describe("buildPerfFailure", () => {
     const a = {
       p95FrameMs: 20,
       p99FrameMs: 100,
-      frameDurationsMs: [12, 40, 100],
+      frameBusyMs: [12, 40, 100],
       worstFrames: [{ ts: 0, durationMs: 100 }],
       longTasks: [],
       attributedChoreoId: "hero",

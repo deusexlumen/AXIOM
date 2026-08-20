@@ -9,7 +9,7 @@ export type PerfAnalysis = {
    * work means the renderer was overloaded for 66ms and idle for the rest,
    * which the viewer sees as a static page, not a 200ms freeze.
    */
-  frameDurationsMs: number[];
+  frameBusyMs: number[];
   worstFrames: FrameSample[];
   longTasks: FrameSample[];
   lcpMs?: number;
@@ -104,7 +104,7 @@ export function analyzeTraceEvents(events: TraceEvent[], warmupMs = 0): PerfAnal
   return {
     p95FrameMs: percentile(durations, 95),
     p99FrameMs: percentile(durations, 99),
-    frameDurationsMs: durations,
+    frameBusyMs: durations,
     worstFrames,
     longTasks,
     lcpMs,

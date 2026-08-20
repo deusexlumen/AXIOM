@@ -63,7 +63,7 @@ export async function runPerfStage(cwd: string): Promise<StageResult> {
           const events = await runScenario(page, server.url, pf.route, scenario);
           const analysis = analyzeTraceEvents(events, scenario.warmupMs);
           const frameBudget = pf.budgets.maxFrameTimeMs * 1.5;
-          const framesOverBudget = analysis.frameDurationsMs.filter((d) => d > frameBudget).length;
+          const framesOverBudget = analysis.frameBusyMs.filter((d) => d > frameBudget).length;
           if (framesOverBudget > pf.budgets.maxFramesOverBudget || analysis.longTasks.length > pf.budgets.maxLongTasks) {
             return buildPerfFailure(scenario.name, analysis, pf.budgets, frameBudget, framesOverBudget, file);
           }

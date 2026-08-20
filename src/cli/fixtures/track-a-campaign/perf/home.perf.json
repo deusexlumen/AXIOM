@@ -5,26 +5,11 @@
       "name": "scroll-and-hover",
       "warmupMs": 500,
       "steps": [
-        {
-          "action": "wait",
-          "ms": 500
-        },
-        {
-          "action": "scroll",
-          "y": 800
-        },
-        {
-          "action": "wait",
-          "ms": 300
-        },
-        {
-          "action": "click",
-          "selector": "[data-axm-id='magnetic-cta']"
-        },
-        {
-          "action": "wait",
-          "ms": 300
-        }
+        { "action": "wait", "ms": 500 },
+        { "action": "scroll", "y": 800 },
+        { "action": "wait", "ms": 300 },
+        { "action": "click", "selector": "[data-axm-id='magnetic-cta']" },
+        { "action": "wait", "ms": 300 }
       ]
     }
   ],

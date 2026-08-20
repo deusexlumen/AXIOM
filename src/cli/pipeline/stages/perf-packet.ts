@@ -3,7 +3,6 @@ import type { PerfAnalysis } from "@/cli/pipeline/stages/perf-trace.js";
 import type { StageResult } from "@/cli/pipeline/types.js";
 
 export interface PerfBudgets {
-  maxFrameTimeMs: number;
   maxLongTasks: number;
   maxFramesOverBudget: number;
 }
