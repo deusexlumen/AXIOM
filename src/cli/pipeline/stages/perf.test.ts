@@ -44,13 +44,33 @@ describe("runPerfStage", () => {
 
   it("returns AXM-G001 when a frame exceeds the budget", async () => {
     const ts = performance.now() * 1000;
-    mockEvents.push({ name: "choreo:jank:start", ph: "I", ts }, { name: "DrawFrame", ph: "I", ts: ts + 16000 }, { name: "DrawFrame", ph: "I", ts: ts + 50000 });
+    mockEvents.push(
+      { name: "choreo:jank:start", ph: "I", ts },
+      { name: "DrawFrame", ph: "I", ts: ts + 16000 },
+      // The renderer was genuinely busy across the gap - this is real jank.
+      { name: "RunTask", ph: "X", ts: ts + 16000, dur: 30000 },
+      { name: "DrawFrame", ph: "I", ts: ts + 50000 }
+    );
     writeFileSync(join(baseDir, "perf", "jank.perf.json"), scenario());
     const r = await runPerfStage(baseDir);
     expect(r.ok).toBe(false);
     expect(r.packet?.errorCode).toBe("AXM-G001");
     expect(r.packet?.invariantsAffected).toEqual(["I-18"]);
     expect(r.packet?.probableCause).toContain("jank");
+  });
+
+  it("does not report an idle gap between draws as a slow frame", async () => {
+    const ts = performance.now() * 1000;
+    // Long gap, no work in it: the page simply had nothing to draw. Reporting
+    // this as a 600ms frame is what made the gate fail on any page whose
+    // content could scroll out of view.
+    mockEvents.push(
+      { name: "choreo:jank:start", ph: "I", ts },
+      { name: "DrawFrame", ph: "I", ts: ts + 16000 },
+      { name: "DrawFrame", ph: "I", ts: ts + 616000 }
+    );
+    writeFileSync(join(baseDir, "perf", "jank.perf.json"), scenario());
+    expect((await runPerfStage(baseDir)).ok).toBe(true);
   });
 
   it("returns AXM-G001 when long task budget is exceeded", async () => {
