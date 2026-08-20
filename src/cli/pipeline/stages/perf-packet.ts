@@ -2,31 +2,38 @@ import { buildPipelinePacket } from "@/cli/pipeline/packet.js";
 import type { PerfAnalysis } from "@/cli/pipeline/stages/perf-trace.js";
 import type { StageResult } from "@/cli/pipeline/types.js";
 
+export interface PerfBudgets {
+  maxFrameTimeMs: number;
+  maxLongTasks: number;
+  maxFramesOverBudget: number;
+}
+
 export function buildPerfFailure(
   scenarioName: string,
   analysis: PerfAnalysis,
-  maxFrameMs: number,
-  maxLongTasks: number,
+  budgets: PerfBudgets,
   frameBudget: number,
+  framesOverBudget: number,
   file: string
 ): StageResult {
-  const budgetExceeded = analysis.worstFrames.some((f) => f.durationMs > frameBudget);
-  const longTaskExceeded = analysis.longTasks.length > maxLongTasks;
+  const budgetExceeded = framesOverBudget > budgets.maxFramesOverBudget;
+  const longTaskExceeded = analysis.longTasks.length > budgets.maxLongTasks;
   const worst = analysis.worstFrames[0];
   const attributed = analysis.attributedChoreoId ?? "unknown";
+  const frameDetail = `${String(framesOverBudget)} frame(s) over ${frameBudget.toFixed(2)}ms (allowed ${String(budgets.maxFramesOverBudget)}, worst=${worst?.durationMs.toFixed(2) ?? 0}ms)`;
   let message: string;
   let probableCause: string;
   let fixHint: string;
   if (budgetExceeded && longTaskExceeded) {
-    message = `Frame and long task budgets exceeded during scenario "${scenarioName}" (worst=${worst?.durationMs.toFixed(2) ?? 0}ms > ${frameBudget.toFixed(2)}ms; longTasks=${String(analysis.longTasks.length)} > ${String(maxLongTasks)}).`;
+    message = `Frame and long task budgets exceeded during scenario "${scenarioName}" (${frameDetail}; longTasks=${String(analysis.longTasks.length)} > ${String(budgets.maxLongTasks)}).`;
     probableCause = `Frame and long task budgets exceeded during scenario "${scenarioName}"; attributed choreography: ${attributed}.`;
     fixHint = "Reduce motion complexity or split the choreography, and break long JavaScript tasks into smaller chunks.";
   } else if (budgetExceeded) {
-    message = `Frame budget exceeded during scenario "${scenarioName}" (worst=${worst?.durationMs.toFixed(2) ?? 0}ms > ${frameBudget.toFixed(2)}ms).`;
+    message = `Frame budget exceeded during scenario "${scenarioName}" (${frameDetail}).`;
     probableCause = `Frame budget exceeded during scenario "${scenarioName}"; attributed choreography: ${attributed}.`;
     fixHint = "Reduce motion complexity or split the attributed choreography into smaller timelines.";
   } else {
-    message = `Long task budget exceeded during scenario "${scenarioName}" (${String(analysis.longTasks.length)} > ${String(maxLongTasks)}).`;
+    message = `Long task budget exceeded during scenario "${scenarioName}" (${String(analysis.longTasks.length)} > ${String(budgets.maxLongTasks)}).`;
     probableCause = `Long task budget exceeded during scenario "${scenarioName}".`;
     fixHint = "Break the long JavaScript task into smaller chunks or defer non-critical work.";
   }
@@ -41,6 +48,8 @@ export function buildPerfFailure(
     {
       traceSummary: {
         scenarioName,
+        framesOverBudget,
+        frameBudgetMs: frameBudget,
         worstFrames: analysis.worstFrames,
         longTasks: analysis.longTasks.slice(0, 5),
         p95FrameMs: analysis.p95FrameMs,

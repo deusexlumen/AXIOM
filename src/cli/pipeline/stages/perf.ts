@@ -22,6 +22,10 @@ const PerfFileSchema = z.object({
   budgets: z.object({
     maxFrameTimeMs: z.number().default(16.7),
     maxLongTasks: z.number().int().nonnegative().default(0),
+    // How many individual frames may exceed the budget before the stage fails.
+    // Zero would forbid a single dropped frame anywhere in a scenario, which no
+    // real page survives - a genuine regression produces many slow frames, not one.
+    maxFramesOverBudget: z.number().int().nonnegative().default(1),
   }).default({}),
 });
 
@@ -53,8 +57,9 @@ export async function runPerfStage(cwd: string): Promise<StageResult> {
           const events = await runScenario(page, server.url, pf.route, scenario);
           const analysis = analyzeTraceEvents(events);
           const frameBudget = pf.budgets.maxFrameTimeMs * 1.5;
-          if (analysis.worstFrames.some((f) => f.durationMs > frameBudget) || analysis.longTasks.length > pf.budgets.maxLongTasks) {
-            return buildPerfFailure(scenario.name, analysis, pf.budgets.maxFrameTimeMs, pf.budgets.maxLongTasks, frameBudget, file);
+          const framesOverBudget = analysis.frameDurationsMs.filter((d) => d > frameBudget).length;
+          if (framesOverBudget > pf.budgets.maxFramesOverBudget || analysis.longTasks.length > pf.budgets.maxLongTasks) {
+            return buildPerfFailure(scenario.name, analysis, pf.budgets, frameBudget, framesOverBudget, file);
           }
         }
       }

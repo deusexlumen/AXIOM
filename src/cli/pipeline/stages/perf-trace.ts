@@ -3,6 +3,8 @@ export type FrameSample = { ts: number; durationMs: number; busyMs?: number };
 export type PerfAnalysis = {
   p95FrameMs: number;
   p99FrameMs: number;
+  /** Every counted frame, ascending. The gate counts how many exceed budget. */
+  frameDurationsMs: number[];
   worstFrames: FrameSample[];
   longTasks: FrameSample[];
   lcpMs?: number;
@@ -93,6 +95,7 @@ export function analyzeTraceEvents(events: TraceEvent[]): PerfAnalysis {
   return {
     p95FrameMs: percentile(durations, 95),
     p99FrameMs: percentile(durations, 99),
+    frameDurationsMs: durations,
     worstFrames,
     longTasks,
     lcpMs,
