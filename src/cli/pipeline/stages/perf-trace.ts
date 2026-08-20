@@ -3,7 +3,12 @@ export type FrameSample = { ts: number; durationMs: number; busyMs?: number };
 export type PerfAnalysis = {
   p95FrameMs: number;
   p99FrameMs: number;
-  /** Every counted frame, ascending. The gate counts how many exceed budget. */
+  /**
+   * Busy time per counted frame, ascending. This - not the gap between draws -
+   * is what the gate compares against the budget: a 200ms gap holding 66ms of
+   * work means the renderer was overloaded for 66ms and idle for the rest,
+   * which the viewer sees as a static page, not a 200ms freeze.
+   */
   frameDurationsMs: number[];
   worstFrames: FrameSample[];
   longTasks: FrameSample[];
@@ -84,8 +89,10 @@ export function analyzeTraceEvents(events: TraceEvent[]): PerfAnalysis {
     if (busyMs < MIN_BUSY_MS) continue;
     frames.push({ ts: from, durationMs: duration, busyMs });
   }
-  const durations = frames.map((f) => f.durationMs).sort((a, b) => a - b);
-  const worstFrames = [...frames].sort((a, b) => b.durationMs - a.durationMs).slice(0, 3);
+  const durations = frames.map((f) => f.busyMs ?? f.durationMs).sort((a, b) => a - b);
+  const worstFrames = [...frames]
+    .sort((a, b) => (b.busyMs ?? b.durationMs) - (a.busyMs ?? a.durationMs))
+    .slice(0, 3);
   let attributedChoreoId: string | undefined;
   if (worstFrames.length > 0 && marks.length > 0) {
     const target = worstFrames[0]!.ts;
