@@ -3,6 +3,7 @@
   "scenarios": [
     {
       "name": "scroll-and-hover",
+      "warmupMs": 500,
       "steps": [
         { "action": "wait", "ms": 500 },
         { "action": "scroll", "y": 800 },

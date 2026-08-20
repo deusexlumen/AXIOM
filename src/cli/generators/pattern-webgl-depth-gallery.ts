@@ -26,19 +26,21 @@ void main() {
 `;
   const indexTsx = `"use client";
 import { useRef, useMemo } from "react";
-import { useStageFrame } from "@/core/Stage";
-import * as THREE from "three";
-import { Stage } from "@/core/Stage";
+import { Stage, useStageFrame } from "@/core/Stage";
 import fragmentShader from "./shader.frag.glsl";
 
 const vertexShader = \`${vertexShader}\`;
 
-interface Props {
-  items?: string[];
+interface GroupHandle {
+  rotation: { y: number };
 }
 
-export function ${pascal}({ items = ["1", "2", "3"] }: Props) {
-  const groupRef = useRef<THREE.Group>(null);
+interface GroupProps {
+  items: string[];
+}
+
+function ${pascal}Group({ items }: GroupProps) {
+  const groupRef = useRef<GroupHandle>(null);
   const positions = useMemo(() => items.map((_, i) => (i - items.length * 0.5) * 1.5), [items]);
   useStageFrame(({ clock }) => {
     const group = groupRef.current;
@@ -46,19 +48,29 @@ export function ${pascal}({ items = ["1", "2", "3"] }: Props) {
     group.rotation.y = Math.sin(clock.getElapsedTime() * 0.2) * 0.1;
   });
   return (
+    <group ref={groupRef}>
+      {positions.map((x, index) => (
+        <mesh key={items[index] ?? index} position={[x, 0, 0]}>
+          <planeGeometry args={[1, 1.4]} />
+          <shaderMaterial
+            vertexShader={vertexShader}
+            fragmentShader={fragmentShader}
+            uniforms={{ uTime: { value: 0 }, uIndex: { value: index } }}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+interface Props {
+  items?: string[];
+}
+
+export function ${pascal}({ items = ["1", "2", "3"] }: Props) {
+  return (
     <Stage className="h-screen w-full">
-      <group ref={groupRef}>
-        {positions.map((x, index) => (
-          <mesh key={items[index] ?? index} position={[x, 0, 0]}>
-            <planeGeometry args={[1, 1.4]} />
-            <shaderMaterial
-              vertexShader={vertexShader}
-              fragmentShader={fragmentShader}
-              uniforms={{ uTime: { value: 0 }, uIndex: { value: index } }}
-            />
-          </mesh>
-        ))}
-      </group>
+      <${pascal}Group items={items} />
     </Stage>
   );
 }

@@ -10,7 +10,6 @@ export function cursorSystem(item: PatternCatalogItem): { indexTsx: string } {
     indexTsx: `"use client";
 import { useRef, useEffect, useState } from "react";
 import { useChoreo } from "@/core/useChoreo";
-import { motion } from "@/generated/motion";
 
 interface Props {
   blendMode?: string;

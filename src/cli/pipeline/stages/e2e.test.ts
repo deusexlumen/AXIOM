@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, delimiter } from "node:path";
 import { runE2eStage } from "@/cli/pipeline/stages/e2e.js";
 
 function installPnpmMock(binDir: string, exitCode: number, stdout: string): void {
@@ -10,7 +10,9 @@ function installPnpmMock(binDir: string, exitCode: number, stdout: string): void
     scriptPath,
     `process.stdout.write(${JSON.stringify(stdout)});\nprocess.exit(${exitCode});\n`
   );
-  writeFileSync(join(binDir, "pnpm"), `#!/bin/sh\nexec node "$(dirname "$0")/pnpm-mock.js" "$@"\n`);
+  const shScript = join(binDir, "pnpm");
+  writeFileSync(shScript, `#!/bin/sh\nexec node "$(dirname "$0")/pnpm-mock.js" "$@"\n`);
+  chmodSync(shScript, 0o755);
   writeFileSync(join(binDir, "pnpm.cmd"), `@echo off\nnode "%~dp0pnpm-mock.js" %*\n`);
 }
 
@@ -51,7 +53,7 @@ describe("runE2eStage", () => {
     const binDir = join(baseDir, "bin");
     mkdirSync(binDir);
     installPnpmMock(binDir, 1, makeReport("Timeout 5000ms exceeded."));
-    process.env.PATH = `${binDir};${originalPath}`;
+    process.env.PATH = `${binDir}${delimiter}${originalPath}`;
     const result = await runE2eStage(baseDir);
     expect(result.ok).toBe(false);
     expect(result.packet?.errorCode).toBe("AXM-E001");
@@ -64,7 +66,7 @@ describe("runE2eStage", () => {
     const binDir = join(baseDir, "bin");
     mkdirSync(binDir);
     installPnpmMock(binDir, 1, makeReport("1 accessibility violation was detected (axe-core)."));
-    process.env.PATH = `${binDir};${originalPath}`;
+    process.env.PATH = `${binDir}${delimiter}${originalPath}`;
     const result = await runE2eStage(baseDir);
     expect(result.ok).toBe(false);
     expect(result.packet?.errorCode).toBe("AXM-E010");

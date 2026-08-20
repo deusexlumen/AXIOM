@@ -3,6 +3,7 @@ import { packageJson } from "@/cli/templates/package-json.js";
 import { npmrc } from "@/cli/templates/npmrc.js";
 import { tsConfigJson } from "@/cli/templates/tsconfig-json.js";
 import { nextConfigTs } from "@/cli/templates/next-config.js";
+import { postcssConfigMjs } from "@/cli/templates/postcss-config.js";
 import { eslintConfigJs } from "@/cli/templates/eslint-config.js";
 import { vitestConfigTs } from "@/cli/templates/vitest-config.js";
 import { axiomConfigJson, tokensJson } from "@/cli/templates/manifest.js";
@@ -51,6 +52,7 @@ export function appFiles(projectName: string): AppFile[] {
     { path: ".npmrc", content: npmrc() },
     { path: "tsconfig.json", content: tsConfigJson() },
     { path: "next.config.ts", content: nextConfigTs() },
+    { path: "postcss.config.mjs", content: postcssConfigMjs() },
     { path: "eslint.config.js", content: eslintConfigJs() },
     { path: "vitest.config.ts", content: vitestConfigTs() },
     { path: "playwright.config.ts", content: playwrightConfigTs() },

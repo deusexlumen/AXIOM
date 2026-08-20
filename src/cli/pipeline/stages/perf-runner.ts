@@ -90,7 +90,10 @@ export async function runScenario(page: Page, baseUrl: string, route: string, sc
   const client = await page.context().newCDPSession(page) as CDPClient;
   const events: TraceEvent[] = [];
   client.on("Tracing.dataCollected", (params) => { const v = params.value as TraceEvent[] | undefined; if (v !== undefined) events.push(...v); });
-  await client.send("Tracing.start", { categories: "devtools.timeline,disabled-by-default-devtools.timeline,disabled-by-default-devtools.timeline.frame" });
+  // blink.user_timing carries the choreo:<id>:start/end marks useChoreo emits.
+  // Without it the trace holds no marks at all and frame attribution always
+  // reported "unknown".
+  await client.send("Tracing.start", { categories: "devtools.timeline,blink.user_timing,disabled-by-default-devtools.timeline,disabled-by-default-devtools.timeline.frame" });
   for (const step of scenario.steps) await runStep(page, step, pageErrors);
   const tracingComplete = new Promise<void>((resolve) => client.on("Tracing.tracingComplete", () => resolve()));
   await client.send("Tracing.end");

@@ -18,6 +18,6 @@ export default defineConfig({
     testTimeout: 120000,
     globalSetup: ["./src/test/integration.config.ts"],
     maxWorkers: 3,
-    exclude: ["node_modules/**", "dist/**", "test-app/**", "packages/**"],
+    exclude: ["node_modules/**", "dist/**", ".worktrees/**", "test-app/**", "packages/**"],
   },
 });

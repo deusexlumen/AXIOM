@@ -15,7 +15,7 @@ export function packageJson(name: string): string {
         lint: "eslint .",
       },
       dependencies: {
-        next: "15.5.20",
+        next: "15.5.21",
         react: "19.2.7",
         "react-dom": "19.2.7",
         hono: "4.12.29",
@@ -49,11 +49,14 @@ export function packageJson(name: string): string {
         "@testing-library/dom": "10.4.0",
         "happy-dom": "20.10.6",
         tailwindcss: "4.3.2",
+        "@tailwindcss/postcss": "4.3.3",
         "raw-loader": "4.0.2",
       },
       pnpm: {
         overrides: {
           sharp: "0.35.3",
+          postcss: "8.5.26",
+          "js-yaml": "5.2.2",
         },
       },
     },
