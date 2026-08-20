@@ -230,5 +230,11 @@ auslöst. Erst mit den Gate-Fixes zusammen ergibt die Reihe einen grünen Stand.
   zusätzlich die `.worktrees/m2`-Kopie mit — vitest-Positionals sind
   Substring-Filter, keine Pfade. Testzahlen waren doppeldeutig, Laufzeit doppelt.
 - Integrationstests, die Apps scaffolden, kollidieren bei Parallellauf unter
-  Windows (EBUSY, ETIMEDOUT beim `pnpm install`). Der Determinismus-Test
-  in `init.test.ts` braucht allein ~23 s. Sequentiell laufen lassen.
+  Windows (EBUSY, ETIMEDOUT beim `pnpm install`). Sequentiell laufen lassen;
+  mehrere Testdateien in einem Aufruf reichen für eine Kollision.
+- **`init.test.ts > is deterministic across runs` ist flaky in `pnpm test`.**
+  Der Test scaffoldet zweimal und braucht allein ~19–23 s; unter der Last der
+  vollen Suite (139 Dateien) läuft er in einen Timeout und meldet ein
+  nichtssagendes `STACK_TRACE_ERROR`. Dreimal beobachtet, jedes Mal einzeln
+  ausgeführt grün. Endstand der Suite: **209/210**, der eine Fehlschlag ist
+  dieser Flake. Vor einer Fehlersuche zuerst einzeln laufen lassen.
