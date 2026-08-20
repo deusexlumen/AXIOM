@@ -60,7 +60,10 @@ export function analyzeTraceEvents(events: TraceEvent[]): PerfAnalysis {
       const sample = { ts: e.ts / 1000, durationMs: dur / 1000 };
       tasks.push(sample);
       if (dur > 50000) longTasks.push(sample);
-    } else if (e.name.startsWith("choreo:") && e.ph === "I") marks.push({ name: e.name, ts: e.ts / 1000 });
+    } else if (e.name.startsWith("choreo:") && (e.ph === "I" || e.ph === "R")) {
+      // Chrome emits performance.mark as "R" in newer versions, "I" in older.
+      marks.push({ name: e.name, ts: e.ts / 1000 });
+    }
     else if (e.name === "largestContentfulPaint::Candidate") lcpMs = e.ts / 1000;
     else if (e.name === "LayoutShift" && e.ph === "I") {
       const score = Number((e.args?.data as Record<string, unknown> | undefined)?.score ?? 0);
