@@ -18,15 +18,19 @@ interface Props {
 
 export function ${pascal}({ label = "Loading" }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const [count, setCount] = useState(0);
+  const countRef = useRef<HTMLSpanElement>(null);
   const [done, setDone] = useState(false);
   const { timeline, isReducedMotion } = useChoreo({ id: "${item.name}", reducedMotion: "opacity-only" });
 
   useEffect(() => {
     const target = ref.current;
     if (!target) return;
+    const write = (value: number) => {
+      const node = countRef.current;
+      if (node) node.textContent = \`\${String(value)}%\`;
+    };
     if (isReducedMotion) {
-      setCount(100);
+      write(100);
       setDone(true);
       return;
     }
@@ -35,7 +39,10 @@ export function ${pascal}({ label = "Loading" }: Props) {
       value: 100,
       duration: motion.dur.reveal * 2,
       ease: ease("hero"),
-      onUpdate: () => { setCount(Math.round(obj.value)); },
+      // Written straight to the DOM: routing this through setState re-rendered
+      // a full-viewport overlay on every tick, which the perf gate attributed
+      // to this pattern once the overlay actually covered the viewport.
+      onUpdate: () => { write(Math.round(obj.value)); },
       onComplete: () => { setDone(true); },
     });
   }, [timeline, isReducedMotion]);
@@ -43,10 +50,15 @@ export function ${pascal}({ label = "Loading" }: Props) {
   return (
     <div
       ref={ref}
-      className={\`fixed inset-0 z-50 flex items-center justify-center bg-surface-base transition-opacity duration-\${String(motion.dur.reveal)}s \${done ? "pointer-events-none opacity-0" : "opacity-100"}\`}
+      className={\`fixed inset-0 z-50 flex items-center justify-center bg-surface-base transition-opacity \${done ? "pointer-events-none opacity-0" : "opacity-100"}\`}
+      // Inline, not a duration-* class: the value is dynamic, and Tailwind only
+      // sees class names that appear literally in the source.
+      style={{ transitionDuration: \`\${String(Math.round(motion.dur.reveal * 1000))}ms\` }}
       data-axm-id="${item.name}"
     >
-      <span className="text-fluid-display text-text-primary">{label} {count}%</span>
+      <span className="text-fluid-display text-text-primary">
+        {label} <span ref={countRef}>0%</span>
+      </span>
     </div>
   );
 }
